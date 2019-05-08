@@ -32,6 +32,7 @@ def load_tasks():
 def scheduler(tasks, D):
     queue = list(tasks.keys())  # initialize task queue
     schedule = []
+    rms = []
     curr = ''  # current task
     prev = ''  # previous task
     tmp = {}
@@ -74,32 +75,16 @@ def scheduler(tasks, D):
             if prev in queue and prev != 'idle':  # previous task is preempted..
                 s = schedule.pop()
                 schedule.append([s[0], s[1], '*'])
+                rms.append(s[1])
             schedule.append([time, curr])
+            if curr != 'idle': rms.append(curr)
         prev = curr
 
-    # check correctness
-    k = {}
-    for i in tasks.keys(): k[i] = 0
-    for s in schedule:
-        if len(s) == 2:  # count unpreempted tasks
-            k[s[1]] += 1
-    print(k)
-    return schedule
+    return rms
 
 
 def print_schedule(s):
     print(f's:{s}')
-    print(' -----------------------')
-    print('|\ttime\ttask\t|')
-    print(' -----------------------')
-    for i in range(len(s)):
-        t = s.pop(0)
-        if len(t) == 2:
-            print('|\t{}\t{}\t|'.format(t[0], t[1].strip()))
-        else:
-            print('|\t{}\t{}\t|'.format(t[0], t[1].strip() + t[2].strip()))
-    print(' -----------------------')
-    print(s)
 
 
 if __name__ == '__main__':
