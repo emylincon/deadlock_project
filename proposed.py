@@ -1,5 +1,27 @@
 from functools import reduce
 from sys import *
+import numpy as np
+
+
+# mat = {'p0': ['cpu', 'mem', 'storage']}
+need = {
+    'p0': [7, 4, 3],
+    'p1': [1, 2, 2],
+    'p2': [6, 0, 0],
+    'p3': [0, 1, 1],
+    'p4': [4, 3, 1]
+
+}
+allocation = {
+    'p0': [0, 1, 0],
+    'p1': [2, 0, 0],
+    'p2': [3, 0, 2],
+    'p3': [2, 1, 1],
+    'p4': [0, 0, 2]
+}
+work = ['p0', 'p1', 'p2', 'p3', 'p4']
+available = [3, 3, 2]
+safe_sequence = []
 
 
 def gcd(a, b):
@@ -83,11 +105,7 @@ def scheduler(tasks, D):
     return rms
 
 
-def print_schedule(s):
-    print(f's:{s}')
-
-
 if __name__ == '__main__':
     a, b = load_tasks()
     s = scheduler(a, b)
-    print_schedule(s)
+
