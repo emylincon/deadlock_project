@@ -105,7 +105,7 @@ def scheduler(tasks, D):
     return rms
 
 
-if __name__ == '__main__':
+def get_rms():
     a, b = load_tasks()
     s = scheduler(a, b)
 
