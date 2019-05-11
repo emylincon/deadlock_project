@@ -1,13 +1,36 @@
+import numpy as np
+
+need = {
+    'p0': [7, 4, 3],
+    'p1': [1, 2, 2],
+    'p2': [6, 0, 0],
+    'p3': [0, 1, 1],
+    'p4': [4, 3, 1]
+
+}
+
+allocation = {
+    'p0': [0, 1, 0],
+    'p1': [2, 0, 0],
+    'p2': [3, 0, 2],
+    'p3': [2, 1, 1],
+    'p4': [0, 0, 2]
+}
+work = ['p0', 'p1', 'p2', 'p3', 'p4']
+_available = [3, 3, 2]
+safe_sequence = []  # [p1,p3,p4,p0,p2]
+
+
 def main():
-    processes = int(input("number of processes : "))
-    resources = int(input("number of resources : "))
-    max_resources = [int(i) for i in input("maximum resources : ").split()]
+    processes = 5
+    resources = 4
+    max_resources = [int(i) for i in "8 5 9 7".split()]
 
-    print("\n-- allocated resources for each process --")
-    currently_allocated = [[int(i) for i in input(f"process {j + 1} : ").split()] for j in range(processes)]
+    "-- allocated resources for each process --"
+    currently_allocated = [[2, 0, 1, 1], [0, 1, 2, 1], [4, 0, 0, 3], [0, 2, 1, 0], [1, 0, 3, 0]]
 
-    print("\n-- maximum resources for each process --")
-    max_need = [[int(i) for i in input(f"process {j + 1} : ").split()] for j in range(processes)]
+    "-- maximum resources for each process --"
+    max_need = [[3, 2, 1, 4], [0, 2, 5, 2], [5, 1, 0, 5], [1, 5, 3, 0], [3, 0, 3, 3]]
 
     allocated = [0] * resources
     for i in range(processes):
@@ -15,7 +38,7 @@ def main():
             allocated[j] += currently_allocated[i][j]
     print(f"\ntotal allocated resources : {allocated}")
 
-    available = [max_resources[i] - allocated[i] for i in range(resources)]
+    available = np.array(max_resources) - np.array(allocated)
     print(f"total available resources : {available}\n")
 
     running = [True] * processes

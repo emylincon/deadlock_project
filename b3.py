@@ -8,6 +8,7 @@ need = {
     'p4': [4, 3, 1]
 
 }
+
 allocation = {
     'p0': [0, 1, 0],
     'p1': [2, 0, 0],
@@ -16,20 +17,20 @@ allocation = {
     'p4': [0, 0, 2]
 }
 work = ['p0', 'p1', 'p2', 'p3', 'p4']
-_available = [3, 3, 2]
+_available = [10, 5, 7]
 safe_sequence = []  # [p1,p3,p4,p0,p2]
 
 
 def main():
-    processes = 5
-    resources = 4
-    max_resources = [int(i) for i in "8 5 9 7".split()]
+    processes = len(work)
+    resources = len(_available)
+    max_resources = _available
 
     "-- allocated resources for each process --"
-    currently_allocated = [[2, 0, 1, 1], [0, 1, 2, 1], [4, 0, 0, 3], [0, 2, 1, 0], [1, 0, 3, 0]]
+    currently_allocated = [allocation[i] for i in allocation]
 
     "-- maximum resources for each process --"
-    max_need = [[3, 2, 1, 4], [0, 2, 5, 2], [5, 1, 0, 5], [1, 5, 3, 0], [3, 0, 3, 3]]
+    max_need = [np.array(allocation[i]) + np.array(need[i]) for i in need]
 
     allocated = [0] * resources
     for i in range(processes):
@@ -53,6 +54,7 @@ def main():
                         break
                 if executing:
                     print(f"process {i + 1} is executing")
+                    safe_sequence.append(work[i])
                     running[i] = False
                     count -= 1
                     safe = True
@@ -68,3 +70,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    print(f'safe_seq = {safe_sequence}')
