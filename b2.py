@@ -2,7 +2,7 @@
 # Banker's Algorithm
 import numpy as np
 
-need = {
+_need = {
     'p0': [7, 4, 3],
     'p1': [1, 2, 2],
     'p2': [6, 0, 0],
@@ -25,29 +25,10 @@ P = len(allocation)
 # Number of resources
 R = 3
 
-# Function to find the need of each process
-def calculateNeed(need, maxm, allot):
-    # Calculating Need of each P
-    for i in range(P):
-        for j in range(R):
-            # Need of instance = maxm instance -
-            # allocated instance
-            need[i][j] = maxm[i][j] - allot[i][j]
-
-        # Function to find the system is in
-
 
 # safe state or not
 def isSafe(processes, avail, maxm, allot):
-    need = []
-    for i in range(P):
-        l = []
-        for j in range(R):
-            l.append(0)
-        need.append(l)
-
-        # Function to calculate need matrix
-    calculateNeed(need, maxm, allot)
+    need = [_need[i] for i in _need]
 
     # Mark all processes as infinish
     finish = [0] * P
@@ -124,7 +105,7 @@ if __name__ == "__main__":
 
     # Maximum R that can be allocated
     # to processes
-    maxm = [np.array(allocation[i]) + np.array(need[i]) for i in need]
+    maxm = [np.array(allocation[i]) + np.array(_need[i]) for i in _need]
 
     # Resources allocated to processes
     allot = [allocation[i] for i in allocation]
