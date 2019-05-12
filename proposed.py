@@ -219,12 +219,19 @@ def calc_wait_time(list_seq):
     return time_dic
 
 
+def compare_local_mec(list_seq):
+    time_compare_dict = {i: t_time[i[:2]][1] > list_seq[i] for i in list_seq}
+
+    return time_compare_dict
+
+
 def run_me():
     rms_list = get_rms()
     print(rms_list)
     list_seq = get_safe_seq(rms_list)
     wait_list = calc_wait_time(list_seq)
     print(wait_list)
+    print(compare_local_mec(wait_list))
 
 
 run_me()
