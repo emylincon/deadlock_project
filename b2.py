@@ -1,3 +1,4 @@
+# https://www.geeksforgeeks.org/program-bankers-algorithm-set-1-safety-algorithm/
 # Python3 program to illustrate
 # Banker's Algorithm
 import numpy as np
