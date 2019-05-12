@@ -24,7 +24,7 @@ allocation = {
     'p4': [0, 0, 2]
 }
 
-t_time = {i:[round(r.uniform(0.8, 1.5), 3), (tasks[i]['period'])/tasks[i]['wcet']] for i in tasks}  # t_time = {'ti': [execution_time, latency], ..}
+t_time = {i:[round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period'])/(tasks[i]['wcet']), 3)] for i in tasks}  # t_time = {'ti': [execution_time, latency], ..}
 
 
 def gcd(a, b):
@@ -106,8 +106,8 @@ def scheduler(D):
 
 
 def get_rms():
-    a, b = load_tasks()
-    return scheduler(a, b)
+    a = load_tasks()
+    return scheduler(a)
 
 
 # safe state or not
@@ -210,10 +210,21 @@ def get_safe_seq(pro):
     return isSafe(processes, avail, n_need, allot)
 
 
+def calc_wait_time(list_seq):
+    pre = 0
+    time_dic = {}
+    for i in list_seq:
+        time_dic[i] = round(t_time[i[:2]][0] + pre, 3)
+        pre += t_time[i[:2]][0]
+    return time_dic
+
+
 def run_me():
     rms_list = get_rms()
     print(rms_list)
-    print(get_safe_seq(rms_list))
+    list_seq = get_safe_seq(rms_list)
+    wait_list = calc_wait_time(list_seq)
+    print(wait_list)
 
 
 run_me()
