@@ -1,8 +1,12 @@
 from functools import reduce
 from sys import *
 import numpy as np
+import random as r
 
-
+tasks = {'t1': {'wcet': 3, 'period': 20},
+         't2': {'wcet': 2, 'period': 5},
+         't3': {'wcet': 2, 'period': 10}
+         }
 # mat = {'p0': ['cpu', 'mem', 'storage']}
 _need = {
     't1': [7, 4, 3],
@@ -20,6 +24,8 @@ allocation = {
     'p4': [0, 0, 2]
 }
 
+t_time = {i:[round(r.uniform(0.8, 1.5), 3), (tasks[i]['period'])/tasks[i]['wcet']] for i in tasks}  # t_time = {'ti': [execution_time, latency], ..}
+
 
 def gcd(a, b):
     if b == 0: return a
@@ -35,20 +41,17 @@ def LCM(list):
 
 
 def load_tasks():
+    global tasks
 
-    tasks = {'t1': {'wcet': 3, 'period': 20},
-             't2': {'wcet': 2, 'period': 5},
-             't3': {'wcet': 2, 'period': 10}
-             }
     period_list = [tasks[i]['period'] for i in tasks]
 
     lcm_period = LCM(period_list)
     # insert idle task
     tasks['idle'] = {'wcet': lcm_period, 'period': lcm_period + 1}
-    return tasks, lcm_period
+    return lcm_period
 
 
-def scheduler(tasks, D):
+def scheduler(D):
     queue = list(tasks.keys())  # initialize task queue
     schedule = []
     rms = []
@@ -190,7 +193,7 @@ def get_safe_seq(pro):
     processes = [f'{pro[i]}_{i}' for i in range(len(pro))]
 
     # Available instances of resources
-    avail = [5, 5, 5]
+    avail = [3, 5, 3]
     n_need = [_need[i] for i in pro]
     print('need', n_need)
     # Resources allocated to processes
