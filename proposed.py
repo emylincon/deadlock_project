@@ -20,12 +20,6 @@ allocation = {
     'p4': [0, 0, 2]
 }
 
-# Number of processes
-P = len(allocation)
-
-# Number of resources
-R = 3
-
 
 def gcd(a, b):
     if b == 0: return a
@@ -73,7 +67,7 @@ def scheduler(tasks, D):
         for t in tmp.keys():
             if time == tmp[t]['deadline']:
                 if tasks[t]['wcet'] > tmp[t]['executed']:
-                    print('Scheduling Failed at %d' % time)
+                    # print('Scheduling Failed at %d' % time)
                     exit(1)
                 else:
                     tmp[t]['deadline'] += tasks[t]['period']
@@ -86,7 +80,7 @@ def scheduler(tasks, D):
                 min = tmp[task]['deadline']
                 curr = task
         tmp[curr]['executed'] += 1
-        print(time, queue, curr)
+        # print(time, queue, curr)
 
         # dequeue the execution-completed task
         if tmp[curr]['executed'] == tasks[curr]['wcet']:
@@ -114,8 +108,7 @@ def get_rms():
 
 
 # safe state or not
-def isSafe(processes, avail, maxm, allot):
-    need = [_need[i] for i in _need]
+def isSafe(processes, avail, need, allot):
 
     # Mark all processes as infinish
     finish = [0] * P
@@ -183,25 +176,41 @@ def isSafe(processes, avail, maxm, allot):
     return safeSeq
 
 
-def get_safe_seq(p):
-    processes = p
+def get_safe_seq(pro):
+    global P
+    global R
+
+    # Number of processes
+    P = len(pro)
+    print('n_p: ', P)
+    print('p: ', pro)
+
+    # Number of resources
+    R = 3
+    processes = [f'{pro[i]}_{i}' for i in range(len(pro))]
 
     # Available instances of resources
-    avail = [3, 3, 2]
-    n_need = [_need[i] for i in p]
-
+    avail = [5, 5, 5]
+    n_need = [_need[i] for i in pro]
+    print('need', n_need)
     # Resources allocated to processes
-    allot = [allocation[i] for i in p]
+    allot = [allocation[i] for i in pro]
+    print('allocation', allot)
 
     # Maximum R that can be allocated
     # to processes
     maxm = [np.array(allot[i]) + np.array(n_need[i]) for i in range(len(n_need))]
+    print('max_matrix:', maxm)
 
 
     # Check system is in safe state or not
-    return isSafe(processes, avail, maxm, allot)
+    return isSafe(processes, avail, n_need, allot)
 
 
 def run_me():
     rms_list = get_rms()
+    print(rms_list)
     print(get_safe_seq(rms_list))
+
+
+run_me()
