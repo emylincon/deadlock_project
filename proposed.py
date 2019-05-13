@@ -2,6 +2,8 @@ from functools import reduce
 from sys import *
 import numpy as np
 import random as r
+import psutil
+import ping_code as pc
 
 tasks = {'t1': {'wcet': 3, 'period': 20},
          't2': {'wcet': 2, 'period': 5},
@@ -25,6 +27,15 @@ allocation = {
 }
 
 t_time = {i:[round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period'])/(tasks[i]['wcet']), 3)] for i in tasks}  # t_time = {'ti': [execution_time, latency], ..}
+
+mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
+
+
+def get_rtt(host):
+    rtt = pc.verbose_ping(host)
+
+    x_axis.append(rtt)
+    y_axis.append(delta)
 
 
 def gcd(a, b):
@@ -229,6 +240,18 @@ def compare_local_mec(list_seq):
             execute_mec.append(i)
 
     return execute_mec, execute_locally
+
+
+def calculate_mov_avg(a1):
+    ma1=[] # moving average list
+    avg1=0 # movinf average pointwise
+    count=0
+    for i in range(len(a1)):
+        count+=1
+        avg1=((count-1)*avg1+a1[i])/count
+        ma1.append(avg1) #cumulative average formula
+        # μ_n=((n-1) μ_(n-1)  + x_n)/n
+    return ma1
 
 
 def run_me():
