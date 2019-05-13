@@ -185,8 +185,6 @@ def get_safe_seq(pro):
 
     # Number of processes
     P = len(pro)
-    print('n_p: ', P)
-    print('p: ', pro)
 
     # Number of resources
     R = 3
@@ -195,15 +193,15 @@ def get_safe_seq(pro):
     # Available instances of resources
     avail = [3, 5, 3]
     n_need = [_need[i] for i in pro]
-    print('need', n_need)
+    # print('need', n_need)
     # Resources allocated to processes
     allot = [allocation[i] for i in pro]
-    print('allocation', allot)
+    # print('allocation', allot)
 
     # Maximum R that can be allocated
     # to processes
     maxm = [np.array(allot[i]) + np.array(n_need[i]) for i in range(len(n_need))]
-    print('max_matrix:', maxm)
+    # print('max_matrix:', maxm)
 
 
     # Check system is in safe state or not
@@ -234,12 +232,17 @@ def compare_local_mec(list_seq):
 
 
 def run_me():
+    print('Running RMS on Tasks: ', tasks, '\n')
     rms_list = get_rms()
-    print(rms_list)
+    print('RMS List of Processes: ', rms_list, '\n')
+    print('\nRunning Bankers Algorithm')
     list_seq = get_safe_seq(rms_list)
     wait_list = calc_wait_time(list_seq)
-    print(wait_list)
-    print(compare_local_mec(wait_list))
+    print('\nWaiting Time List: ', wait_list)
+    compare_result = compare_local_mec(wait_list)
+    print('\nExecute Locally: ', compare_result[1])
+    print('\nExecute in MEC: ', compare_result[0])
+
 
 
 run_me()
