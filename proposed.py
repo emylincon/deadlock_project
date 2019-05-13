@@ -277,6 +277,37 @@ def calculate_mov_avg(a1):
     return ma1
 
 
+def send_message():
+    x = r.randrange(10, 20)
+    time.sleep(x)
+    _multicast_group = ('224.3.29.71', 10000)
+    try:
+
+        # Send data to the multicast group
+        # print('sending "%s"' % message())
+        sent = sock.sendto(str.encode(message()), _multicast_group)
+        print('\nmessage sent')
+
+    except Exception as e:
+        print(e)
+
+
+def message():
+    cmd = ['cat /etc/hostname']
+    hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
+    return hostname
+
+
+def receive_message():
+    while True:
+        print('\nwaiting to receive message')
+        data, address = sock.recvfrom(1024)
+
+        print('received %s bytes from %s' % (len(data), address))
+        hosts[data.decode()] = address[0]
+        print(hosts)
+
+
 def run_me():
     print('Running RMS on Tasks: ', tasks, '\n')
     rms_list = get_rms()
