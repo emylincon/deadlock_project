@@ -2,7 +2,6 @@ from functools import reduce
 from sys import *
 import numpy as np
 import random as r
-import psutil
 import ping_code as pc
 
 tasks = {'t1': {'wcet': 3, 'period': 20},
