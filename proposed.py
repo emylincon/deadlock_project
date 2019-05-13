@@ -34,8 +34,7 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
 
-    x_axis.append(rtt)
-    y_axis.append(delta)
+    return rtt
 
 
 def gcd(a, b):
