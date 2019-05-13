@@ -37,6 +37,12 @@ def get_rtt(host):
     return rtt
 
 
+def get_waiting_time():
+    pass
+
+    return waiting_time
+
+
 def gcd(a, b):
     if b == 0: return a
     return gcd(b, a % b)
