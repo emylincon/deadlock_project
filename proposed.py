@@ -320,6 +320,17 @@ def run_me():
 
 
 def initialization():
+    global mec
+    try:
+        mec = int(input('Number of MECs: ').strip())
+        print('\nCompiling MEC Details')
+        h1 = Thread(target=receive_message)
+        h1.start()
+        if input('Type "Y" to Start: ').strip().lower() == 'y':
+            send_message()
+    except KeyboardInterrupt:
+        print('\nProgramme Terminated')
+        exit(0)
 
 
 run_me()
