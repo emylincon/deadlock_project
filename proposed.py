@@ -7,11 +7,13 @@ import socket
 import struct
 import subprocess as sp
 from threading import Thread
+import paramiko
 import time
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
 server_address = ('', 10000)
+cloud_ip = ''
 
 # Create the socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -47,6 +49,12 @@ allocation = {
 t_time = {i:[round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period'])/(tasks[i]['wcet']), 3)] for i in tasks}  # t_time = {'ti': [execution_time, latency], ..}
 
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
+
+
+def ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
 
 
 def get_rtt(host):
@@ -305,12 +313,60 @@ def receive_message():
             hosts[data.decode()[5:]] = address[0]
             if len(hosts) == mec_no:
                 print('MEC Details: ', hosts)
-        else:
+                del hosts[host_ip]
+        elif address[0] != host_ip:
             w_time = calculate_mov_avg(address[0], int(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
             if address[0] in mec_waiting_time:
                 mec_waiting_time[address[0]].append(w_time)
             else:
                 mec_waiting_time[address[0]] = [w_time]
+
+
+def mec_comparison():
+    # returns min average waiting for all mecs
+    min_mec = {i: mec_waiting_time[i][-1] for i in mec_waiting_time}
+    min_wt = min(min_mec, key=min_mec.get)
+    return min_wt
+
+
+def cooperative_mec(mec_list):
+    for i in mec_list:
+        _host = mec_comparison()
+        if mec_waiting_time[_host] < t_time[i][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            try:
+                c = paramiko.SSHClient()
+
+                un = 'mec'
+                pw = 'password'
+                port = 22
+
+                c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                c.connect(_host, port, un, pw)
+                cmd = ('echo "{} {}" >> /home/mec/temp/task_share.txt'.format(host_ip, i))
+
+                stdin, stdout, stderr = c.exec_command(cmd)
+            except Exception as e:
+                print(e)
+
+            mec_waiting_time[_host][-1] += t_time[i][0]
+            print('\n======SENDING TO MEC {}========='.format(_host))
+        else:
+            try:
+                c = paramiko.SSHClient()
+
+                un = 'mec'
+                pw = 'password'
+                port = 22
+
+                c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                c.connect(cloud_ip, port, un, pw)
+                cmd = ('echo "{} {}" >> /home/mec/temp/task_share .txt'.format(host_ip, i))
+
+                stdin, stdout, stderr = c.exec_command(cmd)
+            except Exception as e:
+                print(e)
+
+            print('=========SENDING TO CLOUD===========')
 
 
 def run_me():
@@ -326,10 +382,14 @@ def run_me():
     print('\nExecute Locally: ', compare_result[1])
     print('\nExecute in MEC: ', compare_result[0])
 
+    cooperative_mec(compare_result[0])
+
 
 def initialization():
     global mec_no
+    global host_ip
 
+    host_ip = ip_address()
     try:
         mec_no = int(input('Number of MECs: ').strip())
         print('\nCompiling MEC Details')
