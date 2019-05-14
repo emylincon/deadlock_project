@@ -55,12 +55,6 @@ def get_rtt(host):
     return rtt
 
 
-def get_waiting_time():
-    pass
-
-    return waiting_time
-
-
 def gcd(a, b):
     if b == 0: return a
     return gcd(b, a % b)
@@ -248,6 +242,7 @@ def calc_wait_time(list_seq):
     for i in list_seq:
         time_dic[i] = round(t_time[i[:2]][0] + pre, 3)
         pre += t_time[i[:2]][0]
+    w_send = time_dic[list(time_dic.keys())[-1]]
     return time_dic
 
 
@@ -288,7 +283,9 @@ def send_message(mg):
         if mg == 'init':
             smg = mg + ' ' + message()
             sock.sendto(str.encode(smg), _multicast_group)
-        print('\nmessage sent')
+            print('\nmessage sent')
+        else:
+            sock.sendto(str.encode(mg), _multicast_group)
 
     except Exception as e:
         print(e)
