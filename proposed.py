@@ -278,8 +278,6 @@ def calculate_mov_avg(a1):
 
 
 def send_message():
-    x = r.randrange(10, 20)
-    time.sleep(x)
     _multicast_group = ('224.3.29.71', 10000)
     try:
 
@@ -300,12 +298,12 @@ def message():
 
 def receive_message():
     while True:
-        print('\nwaiting to receive message')
         data, address = sock.recvfrom(1024)
 
-        print('received %s bytes from %s' % (len(data), address))
+        # print('received %s bytes from %s' % (len(data), address))
         hosts[data.decode()] = address[0]
-        print(hosts)
+        if len(hosts) == mec_no:
+            print('MEC Details: ', hosts)
 
 
 def run_me():
@@ -320,6 +318,8 @@ def run_me():
     print('\nExecute Locally: ', compare_result[1])
     print('\nExecute in MEC: ', compare_result[0])
 
+
+def initialization():
 
 
 run_me()
