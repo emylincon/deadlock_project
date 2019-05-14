@@ -336,7 +336,7 @@ def initialization():
         h1 = Thread(target=receive_message)
         h1.start()
         if input('Send Hello Message (Y/N): ').strip().lower() == 'y':
-            send_message()
+            send_message('init')
         else:
             exit(0)
     except KeyboardInterrupt:
