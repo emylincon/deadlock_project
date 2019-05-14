@@ -265,25 +265,29 @@ def compare_local_mec(list_seq):
     return execute_mec, execute_locally
 
 
-def calculate_mov_avg(a1):
-    ma1=[] # moving average list
-    avg1=0 # movinf average pointwise
-    count=0
-    for i in range(len(a1)):
-        count+=1
-        avg1=((count-1)*avg1+a1[i])/count
-        ma1.append(avg1) #cumulative average formula
-        # μ_n=((n-1) μ_(n-1)  + x_n)/n
-    return ma1
+def calculate_mov_avg(ma1, a1):
+
+    if ma1 in mec_waiting_time:
+        _count = len(mec_waiting_time[ma1])
+        avg1 = mec_waiting_time[ma1][-1]
+    else:
+        _count = 0
+        avg1 = 0
+    _count += 1
+    avg1 = ((_count - 1) * avg1 + a1) / _count
+    # ma1.append(avg1) #cumulative average formula
+    # μ_n=((n-1) μ_(n-1)  + x_n)/n
+    return avg1
 
 
-def send_message():
+def send_message(mg):
     _multicast_group = ('224.3.29.71', 10000)
     try:
 
         # Send data to the multicast group
-        # print('sending "%s"' % message())
-        sent = sock.sendto(str.encode(message()), _multicast_group)
+        if mg == 'init':
+            smg = mg + ' ' + message()
+            sock.sendto(str.encode(smg), _multicast_group)
         print('\nmessage sent')
 
     except Exception as e:
@@ -300,13 +304,20 @@ def receive_message():
     while True:
         data, address = sock.recvfrom(1024)
 
-        # print('received %s bytes from %s' % (len(data), address))
-        hosts[data.decode()] = address[0]
-        if len(hosts) == mec_no:
-            print('MEC Details: ', hosts)
+        if data.decode()[:4] == 'init':
+            hosts[data.decode()[5:]] = address[0]
+            if len(hosts) == mec_no:
+                print('MEC Details: ', hosts)
+        else:
+            w_time = calculate_mov_avg(address[0], int(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
+            if address[0] in mec_waiting_time:
+                mec_waiting_time[address[0]].append(w_time)
+            else:
+                mec_waiting_time[address[0]] = [w_time]
 
 
 def run_me():
+    initialization()
     print('Running RMS on Tasks: ', tasks, '\n')
     rms_list = get_rms()
     print('RMS List of Processes: ', rms_list, '\n')
@@ -320,14 +331,17 @@ def run_me():
 
 
 def initialization():
-    global mec
+    global mec_no
+
     try:
-        mec = int(input('Number of MECs: ').strip())
+        mec_no = int(input('Number of MECs: ').strip())
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
         h1.start()
-        if input('Type "Y" to Start: ').strip().lower() == 'y':
+        if input('Send Hello Message (Y/N): ').strip().lower() == 'y':
             send_message()
+        else:
+            exit(0)
     except KeyboardInterrupt:
         print('\nProgramme Terminated')
         exit(0)
