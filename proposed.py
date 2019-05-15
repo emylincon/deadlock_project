@@ -329,7 +329,7 @@ def mec_comparison():
     return min_wt
 
 
-def mec_task_unicast(host_):
+def mec_task_unicast(task, host_):
     try:
         c = paramiko.SSHClient()
 
@@ -339,12 +339,11 @@ def mec_task_unicast(host_):
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {}" >> /home/mec/temp/task_share.txt'.format(host_ip, i))
+        cmd = ('echo "{} {}" >> /home/mec/temp/task_share.txt'.format(host_ip, task))  # task share : host ip task
 
         stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
         print(e)
-
 
 
 def cooperative_mec(mec_list):
@@ -352,24 +351,12 @@ def cooperative_mec(mec_list):
         _host = mec_comparison()
         if mec_waiting_time[_host] < t_time[i][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
+            mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
 
-            mec_waiting_time[_host][-1] += t_time[i][0]
+            mec_waiting_time[_host][-1] += t_time[i][0]      # increments average waiting time
             print('\n======SENDING {} TO MEC {}========='.format(i, _host))
         else:
-            try:
-                c = paramiko.SSHClient()
-
-                un = 'mec'
-                pw = 'password'
-                port = 22
-
-                c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                c.connect(cloud_ip, port, un, pw)
-                cmd = ('echo "{} {}" >> /home/mec/temp/task_share .txt'.format(host_ip, i))
-
-                stdin, stdout, stderr = c.exec_command(cmd)
-            except Exception as e:
-                print(e)
+            mec_task_unicast(i, cloud_ip)
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
