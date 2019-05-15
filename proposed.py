@@ -363,12 +363,14 @@ def cooperative_mec(mec_list):
 
 
 def check_mec_offload():
+    offloaded = []
     fr = open('/home/mec/temp/task_share.txt', 'r')
     t = fr.readlines()
     for i in t:
-        print(i[:-1])
+        offloaded.append(i[:-1])
     fr.close()
     os.system('rm /home/mec/temp/task_share.txt')
+    return offloaded
 
 
 def run_me():
