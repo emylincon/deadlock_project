@@ -9,6 +9,7 @@ import subprocess as sp
 from threading import Thread
 import paramiko
 import time
+import os
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -359,6 +360,15 @@ def cooperative_mec(mec_list):
             mec_task_unicast(i, cloud_ip)
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
+
+
+def check_mec_offload():
+    fr = open('/home/mec/temp/task_share.txt', 'r')
+    t = fr.readlines()
+    for i in t:
+        print(i[:-1])
+    fr.close()
+    os.system('rm /home/mec/temp/task_share.txt')
 
 
 def run_me():
