@@ -26,10 +26,13 @@ group = socket.inet_aton(multicast_group)
 mreq = struct.pack('4sL', group, socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
-tasks = {'t1': {'wcet': 3, 'period': 20},
-         't2': {'wcet': 2, 'period': 5},
-         't3': {'wcet': 2, 'period': 10}
-         }
+_tasks = {'t1': {'wcet': 3, 'period': 20},
+          't2': {'wcet': 2, 'period': 5},
+          't3': {'wcet': 2, 'period': 10},
+          't4': {'wcet': 2, 'period': 6},
+          't5': {'wcet': 3, 'period': 15}
+          }
+
 # mat = {'p0': ['cpu', 'mem', 'storage']}
 _need = {
     't1': [7, 4, 3],
@@ -371,6 +374,7 @@ def check_mec_offload():
             offloaded.append(i[:-1])
         fr.close()
         os.system('rm /home/mec/temp/task_share.txt')
+        print('Tasks Offloaded to MEC: {}'.format(offloaded))
     except Exception as e:
         print('no offloaded Task!')
     return offloaded
