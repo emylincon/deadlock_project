@@ -35,16 +35,16 @@ _need = {
     't1': [7, 4, 3],
     't2': [1, 2, 2],
     't3': [6, 0, 0],
-    'p3': [0, 1, 1],
-    'p4': [4, 3, 1]
+    't4': [0, 1, 1],
+    't5': [4, 3, 1]
 
 }
 allocation = {
     't1': [0, 1, 0],
     't2': [2, 0, 0],
     't3': [3, 0, 2],
-    'p3': [2, 1, 1],
-    'p4': [0, 0, 2]
+    't4': [2, 1, 1],
+    't5': [0, 0, 2]
 }
 
 t_time = {i:[round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period'])/(tasks[i]['wcet']), 3)] for i in tasks}  # t_time = {'ti': [execution_time, latency], ..}
@@ -364,12 +364,15 @@ def cooperative_mec(mec_list):
 
 def check_mec_offload():
     offloaded = []
-    fr = open('/home/mec/temp/task_share.txt', 'r')
-    t = fr.readlines()
-    for i in t:
-        offloaded.append(i[:-1])
-    fr.close()
-    os.system('rm /home/mec/temp/task_share.txt')
+    try:
+        fr = open('/home/mec/temp/task_share.txt', 'r')
+        t = fr.readlines()
+        for i in t:
+            offloaded.append(i[:-1])
+        fr.close()
+        os.system('rm /home/mec/temp/task_share.txt')
+    except Exception as e:
+        print('no offloaded Task!')
     return offloaded
 
 
