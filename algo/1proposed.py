@@ -448,7 +448,7 @@ def execute(local):
     for i in local:
         i = '_'.join(i.split('_')[:-1])
         time.sleep(t_time[i][0])
-        print('####### Executed: ', i)
+        print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
         if len(i) > 2:
             send.append(i)
     print('============== EXECUTION DONE ===============')
