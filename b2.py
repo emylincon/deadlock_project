@@ -2,7 +2,7 @@
 # Python3 program to illustrate
 # Banker's Algorithm
 import numpy as np
-
+# work = 3 3 2
 _need = {
     'p0': [7, 4, 3],
     'p1': [1, 2, 2],
@@ -30,6 +30,7 @@ R = 3
 # safe state or not
 def isSafe(processes, avail, maxm, allot):
     need = [_need[i] for i in _need]
+    offload = []
 
     # Mark all processes as infinish
     finish = [0] * P
@@ -86,13 +87,29 @@ def isSafe(processes, avail, maxm, allot):
         # in safe sequence.
         if (found == False):
             print("System is not in safe state")
-            return False
+
+            a = list(set(processes) - set(safeSeq) - set(offload))
+            _max = np.array([0, 0, 0])
+            n = {}
+            for i in a:
+                n[i] = sum(allocation[i])
+            _max = max(n, key=n.get)
+            print('work: ', work, 'need: ', _need[_max])
+            offload.append(_max)
+            work = np.array(work) + np.array(allocation[_max])
+            count += 1
+
+            # Mark this p as finished
+            finish[processes.index(_max)] = 1
+            found = True
+
 
     # If system is in safe state then
     # safe sequence will be as below
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
     print(*safeSeq)
+    print(offload)
 
     return True
 
@@ -102,7 +119,7 @@ if __name__ == "__main__":
     processes = ['p0', 'p1', 'p2', 'p3', 'p4']
 
     # Available instances of resources
-    avail = [3, 3, 2]
+    avail = [3, 1, 2]
 
     # Maximum R that can be allocated
     # to processes
