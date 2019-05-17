@@ -252,6 +252,9 @@ def isSafe(processes, avail, need, allot):
           "\nSafe sequence is: ", end=" ")
     print(*safeSeq)
 
+    print('offloading tasks: ', offload)
+    cooperative_mec(offload, 0)
+
     return safeSeq
 
 
@@ -363,6 +366,8 @@ def receive_message():
 
 def mec_comparison():
     # returns min average waiting for all mecs
+    if len(mec_waiting_time) == 0:
+        return 0
     min_mec = {i: mec_waiting_time[i][-1] for i in mec_waiting_time}
     min_wt = min(min_mec, key=min_mec.get)
     return min_wt
@@ -385,19 +390,37 @@ def mec_task_unicast(task, host_):
         print(e)
 
 
-def cooperative_mec(mec_list):
+def cooperative_mec(mec_list, n):
     for i in mec_list:
         _host = mec_comparison()
-        if mec_waiting_time[_host] < t_time[i][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
-
-            mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
-
-            mec_waiting_time[_host][-1] += t_time[i][0]      # increments average waiting time
-            print('\n======SENDING {} TO MEC {}========='.format(i, _host))
-        else:
+        if _host == 0:
             mec_task_unicast(i, cloud_ip)
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
+
+        if n == 0:
+            if mec_waiting_time[_host] < t_time[i][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+
+                mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
+
+                mec_waiting_time[_host][-1] += t_time[i][0]      # increments average waiting time
+                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+            else:
+                mec_task_unicast(i, cloud_ip)
+
+                print('\n=========SENDING {} TO CLOUD==========='.format(i))
+        else:
+            i = '_'.join(i.split('_')[:-1])
+            if mec_waiting_time[_host] < t_time[i][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+
+                mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
+
+                mec_waiting_time[_host][-1] += t_time[i][0]  # increments average waiting time
+                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+            else:
+                mec_task_unicast(i, cloud_ip)
+
+                print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
 
 def check_mec_offload():
@@ -420,6 +443,50 @@ def check_mec_offload():
     return offloaded, t_mec
 
 
+def execute(local):
+    print('\nExecuting :', local)
+    send = []
+    for i in local:
+        i = '_'.join(i.split('_')[:-1])
+        time.sleep(t_time[i][0])
+        print('####### Executed: ', i)
+        if len(i) > 2:
+            send.append(i)
+    print('============== EXECUTION DONE ===============')
+    return send
+
+
+def send_back_task(l_list):
+    _host_ip = ip_address()
+    for i in l_list:
+        try:
+            c = paramiko.SSHClient()
+
+            un = 'mec'
+            pw = 'password'
+            port = 22
+
+            c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            c.connect(offload_register[i], port, un, pw)
+            cmd = ('echo "{} {}" >> /home/mec/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
+
+            stdin, stdout, stderr = c.exec_command(cmd)
+        except Exception as e:
+            print(e)
+
+
+def receive_executed_task():
+    try:
+        fr = open('/home/mec/temp/executed.txt', 'r')
+        t = fr.readlines()
+        for i in t:
+            i = i[:-1].split()
+            print('Received Executed task {} from {}'.format(i[0], i[1]))
+        fr.close()
+    except Exception as e:
+        print('No Executed Tasks from MEC Received')
+
+
 def run_me():
     initialization()
     for i in range(20):
@@ -434,7 +501,11 @@ def run_me():
         print('\nExecute Locally: ', compare_result[1])
         print('\nExecute in MEC: ', compare_result[0])
         print('\nSending to cooperative platform')
-        cooperative_mec(compare_result[0])
+        cooperative_mec(compare_result[0], 1)
+        local_ = execute(compare_result[1])
+        send_back_task(local_)
+        receive_executed_task()
+        time.sleep(3)
 
 
 def initialization():
