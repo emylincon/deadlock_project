@@ -15,7 +15,6 @@ import os
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
 server_address = ('', 10000)
-cloud_ip = ''
 
 # Create the socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -511,10 +510,12 @@ def run_me():
 def initialization():
     global mec_no
     global host_ip
+    global cloud_ip
 
     host_ip = ip_address()
     try:
         mec_no = int(input('Number of MECs: ').strip())
+        cloud_ip = input('Cloud Server IP: ').strip()
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
         h1.start()
