@@ -8,6 +8,7 @@ import struct
 import subprocess as sp
 from threading import Thread
 import paramiko
+import ast
 import time
 import os
 
@@ -50,9 +51,9 @@ allocation = {
     't5': [0, 0, 2]
 }
 
-t_time = {i:[round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period'])/(tasks[i]['wcet']), 3)] for i in tasks}  # t_time = {'ti': [execution_time, latency], ..}
-
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
+
+offload_register = {}      # {task: host_ip}
 
 
 def ip_address():
@@ -78,6 +79,28 @@ def lcm(a, b):
 
 def LCM(list):
     return reduce(lcm, list)
+
+
+def get_rms():
+    global tasks
+    tasks = {}
+    while len(tasks) < 3:
+        a = list(_tasks.keys())[r.randint(5)]
+        tasks[a] = _tasks[a]
+    offload_list, time_list = check_mec_offload()
+    tasks = {**offload_list, **tasks}     # Joins two dictionary together
+    waiting_time_init(time_list)
+    a = load_tasks()
+    return scheduler(a)
+
+
+def waiting_time_init(t_l):
+    global t_time
+
+    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
+              tasks}  # t_time = {'ti': [execution_time, latency], ..}
+
+    t_time = {**t_time, **t_l}
 
 
 def load_tasks():
@@ -145,13 +168,10 @@ def scheduler(D):
     return rms
 
 
-def get_rms():
-    a = load_tasks()
-    return scheduler(a)
-
-
 # safe state or not
 def isSafe(processes, avail, need, allot):
+    # tasks to offload if exit
+    offload = []
 
     # Mark all processes as infinish
     finish = [0] * P
@@ -208,10 +228,26 @@ def isSafe(processes, avail, need, allot):
         # in safe sequence.
         if (found == False):
             print("System is not in safe state")
-            return False
+
+            a = list(set(processes) - set(safeSeq) - set(offload))
+            _max = np.array([0, 0, 0])
+            n = {}
+            for i in a:
+                n[i] = sum(allocation[i[:2]])
+            _max = max(n, key=n.get)
+            print('work: ', work, 'need: ', _need[_max[:2]])
+            offload.append(_max)
+            work = np.array(work) + np.array(allocation[_max[:2]])
+            count += 1
+
+            # Mark this p as finished
+            finish[processes.index(_max)] = 1
+            found = True
 
     # If system is in safe state then
     # safe sequence will be as below
+    if 0 in safeSeq:
+        safeSeq = safeSeq[:safeSeq.index(0)]
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
     print(*safeSeq)
@@ -228,21 +264,20 @@ def get_safe_seq(pro):
 
     # Number of resources
     R = 3
-    processes = [f'{pro[i]}_{i}' for i in range(len(pro))]
+    processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
     avail = [3, 5, 3]
-    n_need = [_need[i] for i in pro]
+    n_need = [_need[i[:2]] for i in pro]
     # print('need', n_need)
     # Resources allocated to processes
-    allot = [allocation[i] for i in pro]
+    allot = [allocation[i[:2]] for i in pro]
     # print('allocation', allot)
 
     # Maximum R that can be allocated
     # to processes
-    maxm = [np.array(allot[i]) + np.array(n_need[i]) for i in range(len(n_need))]
+    # maxm = [np.array(allot[i]) + np.array(n_need[i]) for i in range(len(n_need))]
     # print('max_matrix:', maxm)
-
 
     # Check system is in safe state or not
     return isSafe(processes, avail, n_need, allot)
@@ -343,7 +378,7 @@ def mec_task_unicast(task, host_):
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {}" >> /home/mec/temp/task_share.txt'.format(host_ip, task))  # task share : host ip task
+        cmd = ('echo "{} {} {}" >> /home/mec/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
 
         stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
@@ -366,34 +401,40 @@ def cooperative_mec(mec_list):
 
 
 def check_mec_offload():
-    offloaded = []
+    offloaded = {}
+    t_mec = {}
+
     try:
         fr = open('/home/mec/temp/task_share.txt', 'r')
         t = fr.readlines()
         for i in t:
-            offloaded.append(i[:-1])
+            ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
+            offloaded[ta] = {'wcet': 1, 'period': 1}
+            offload_register[ta] = i[:-1].split()[0]
+            t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
         fr.close()
         os.system('rm /home/mec/temp/task_share.txt')
-        print('Tasks Offloaded to MEC: {}'.format(offloaded))
+        print('Tasks Offloaded to MEC: {}'.format(offloaded.keys()))
     except Exception as e:
         print('no offloaded Task!')
-    return offloaded
+    return offloaded, t_mec
 
 
 def run_me():
     initialization()
-    print('Running RMS on Tasks: ', tasks, '\n')
-    rms_list = get_rms()
-    print('RMS List of Processes: ', rms_list, '\n')
-    print('\nRunning Bankers Algorithm')
-    list_seq = get_safe_seq(rms_list)
-    wait_list = calc_wait_time(list_seq)
-    print('\nWaiting Time List: ', wait_list)
-    compare_result = compare_local_mec(wait_list)
-    print('\nExecute Locally: ', compare_result[1])
-    print('\nExecute in MEC: ', compare_result[0])
-
-    cooperative_mec(compare_result[0])
+    for i in range(20):
+        print('Running RMS on Tasks: ', tasks, '\n')
+        rms_list = get_rms()
+        print('RMS List of Processes: ', rms_list, '\n')
+        print('\nRunning Bankers Algorithm')
+        list_seq = get_safe_seq(rms_list)
+        wait_list = calc_wait_time(list_seq)
+        print('\nWaiting Time List: ', wait_list)
+        compare_result = compare_local_mec(wait_list)
+        print('\nExecute Locally: ', compare_result[1])
+        print('\nExecute in MEC: ', compare_result[0])
+        print('\nSending to cooperative platform')
+        cooperative_mec(compare_result[0])
 
 
 def initialization():
