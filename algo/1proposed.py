@@ -27,9 +27,9 @@ mreq = struct.pack('4sL', group, socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 _tasks = {'t1': {'wcet': 3, 'period': 20},
-          't2': {'wcet': 2, 'period': 5},
+          't2': {'wcet': 1, 'period': 5},
           't3': {'wcet': 2, 'period': 10},
-          't4': {'wcet': 2, 'period': 6},
+          't4': {'wcet': 1, 'period': 10},
           't5': {'wcet': 3, 'period': 15}
           }
 
@@ -425,13 +425,13 @@ def cooperative_mec(mec_list, n):
 def check_mec_offload():
     offloaded = {}
     t_mec = {}
-
+    x = LCM([tasks[i]['period'] for i in tasks])
     try:
         fr = open('/home/mec/temp/task_share.txt', 'r')
         t = fr.readlines()
         for i in t:
             ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
-            offloaded[ta] = {'wcet': 1, 'period': 1}
+            offloaded[ta] = {'wcet': 1, 'period': x}
             offload_register[ta] = i[:-1].split()[0]
             t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
         fr.close()

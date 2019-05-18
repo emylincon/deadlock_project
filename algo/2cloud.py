@@ -512,7 +512,6 @@ def initialization():
     global mec_no
     global host_ip
 
-
     host_ip = ip_address()
     try:
         mec_no = int(input('Number of MECs: ').strip())
