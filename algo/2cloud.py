@@ -1,10 +1,4 @@
-from functools import reduce
-
 import numpy as np
-import random as r
-
-import socket
-
 import paramiko
 import ast
 import time
@@ -39,52 +33,6 @@ allocation = {
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 # offload_register = {}      # {task: host_ip}
-
-
-def gcd(a, b):
-    if b == 0: return a
-    return gcd(b, a % b)
-
-
-def lcm(a, b):
-    return int(a * b / gcd(a, b))
-
-
-def LCM(list):
-    return reduce(lcm, list)
-
-
-def get_rms():
-    global tasks
-    tasks = {}
-    while len(tasks) < 3:
-        a = list(_tasks.keys())[r.randint(5)]
-        tasks[a] = _tasks[a]
-    offload_list, time_list = check_mec_offload()
-    tasks = {**offload_list, **tasks}     # Joins two dictionary together
-    waiting_time_init(time_list)
-    a = load_tasks()
-    return scheduler(a)
-
-
-def waiting_time_init(t_l):
-    global t_time
-
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
-              tasks}  # t_time = {'ti': [execution_time, latency], ..}
-
-    t_time = {**t_time, **t_l}
-
-
-def load_tasks():
-    global tasks
-
-    period_list = [tasks[i]['period'] for i in tasks]
-
-    lcm_period = LCM(period_list)
-    # insert idle task
-    tasks['idle'] = {'wcet': lcm_period, 'period': lcm_period + 1}
-    return lcm_period
 
 
 # safe state or not
@@ -172,7 +120,7 @@ def isSafe(processes, avail, need, allot):
     print(*safeSeq)
 
     if len(offload) > 0:
-        print('======== Cannot Execute tasks: ', offload, '========')
+        print('|======== Cannot Execute tasks: ', offload, '========|')
 
     return safeSeq
 
@@ -215,29 +163,26 @@ def calc_wait_time(list_seq):
     return time_dic
 
 
-def mec_task_unicast(task, host_):
-    try:
-        c = paramiko.SSHClient()
+def compare_local_mec(list_seq):
+    time_compare_dict = {i: t_time[i[:2]][1] > list_seq[i] for i in list_seq}
+    print('local vs MEC comparison: ', time_compare_dict)
+    miss_latency = []
+    execute_locally = []
+    for i in time_compare_dict:
+        if time_compare_dict[i]:
+            execute_locally.append(i)
+        else:
+            miss_latency.append(i)
 
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {} {}" >> /home/mec/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
-
-        stdin, stdout, stderr = c.exec_command(cmd)
-    except Exception as e:
-        print(e)
+    return miss_latency, execute_locally
 
 
 def check_mec_offload():
     global offload_register
-    global t_mec
+    global t_time
 
     offload_register = {}  # {task: host_ip}
-    t_mec = {}  # {t1: [execution, latency]}
+    t_time = {}  # {t1: [execution, latency]}
 
     try:
         fr = open('/home/mec/temp/task_share.txt', 'r')
@@ -245,10 +190,10 @@ def check_mec_offload():
         for i in t:
             ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
             offload_register[ta] = i[:-1].split()[0]
-            t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
+            t_time[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
         fr.close()
         os.system('rm /home/mec/temp/task_share.txt')
-        print('Tasks Offloaded to MEC: {}'.format(t_mec.keys()))
+        print('Tasks Offloaded to MEC: {}'.format(t_time.keys()))
     except Exception as e:
         print('no offloaded Task!')
         return 0
@@ -277,7 +222,7 @@ def execute(local):
 
 
 def send_back_task(l_list):
-    _host_ip = 'Cloud Server'
+    _host_ip = 'Cloud_Server'
     for i in l_list:
         try:
             c = paramiko.SSHClient()
@@ -295,23 +240,15 @@ def send_back_task(l_list):
             print(e)
 
 
-def receive_executed_task():
-    try:
-        fr = open('/home/mec/temp/executed.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            i = i[:-1].split()
-            print('Received Executed task {} from {}'.format(i[0], i[1]))
-        fr.close()
-    except Exception as e:
-        print('No Executed Tasks from MEC Received')
-
-
 def run_me():
 
     while True:
         if check_mec_offload() == 0:
             time.sleep(4)
+        elif len(t_time) <= 2:
+            local_ = execute(list(t_time.keys()))
+            send_back_task(local_)
+            time.sleep(3)
         else:
             edf_list = edf_schedule(t_time)
             print('EDF List of Processes: ', edf_list, '\n')
@@ -320,14 +257,18 @@ def run_me():
             wait_list = calc_wait_time(list_seq)
             print('\nWaiting Time List: ', wait_list)
             compare_result = compare_local_mec(wait_list)
-            print('\nExecute Locally: ', compare_result[1])
-            print('\nExecute in MEC: ', compare_result[0])
-            print('\nSending to cooperative platform')
-            cooperative_mec(compare_result[0], 1)
-            local_ = execute(compare_result[1])
+            if len(compare_result[0]) > 0:
+                for i in compare_result[0]:
+                    print(i, 'will miss execution latency deadline')
+
+            local_ = execute(compare_result[1]+compare_result[0])
             send_back_task(local_)
-            receive_executed_task()
             time.sleep(3)
 
 
-run_me()
+def main():
+    run_me()
+
+
+if __name__ == "__main__":
+    main()
