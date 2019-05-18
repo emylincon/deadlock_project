@@ -86,20 +86,20 @@ def get_rms():
     while len(tasks) < 3:
         a = list(_tasks.keys())[r.randint(5)]
         tasks[a] = _tasks[a]
-    offload_list, time_list = check_mec_offload()
-    tasks = {**offload_list, **tasks}     # Joins two dictionary together
-    waiting_time_init(time_list)
+
+    waiting_time_init()
     a = load_tasks()
     return scheduler(a)
 
 
-def waiting_time_init(t_l):
+def waiting_time_init():
     global t_time
 
     t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
               tasks}  # t_time = {'ti': [execution_time, latency], ..}
 
-    t_time = {**t_time, **t_l}
+    t_time = {**t_time, **check_mec_offload()}
+    print('[Execution_time, Latency]: ', t_time)
 
 
 def load_tasks():
@@ -164,7 +164,7 @@ def scheduler(D):
             if curr != 'idle': rms.append(curr)
         prev = curr
 
-    return rms
+    return offloaded + rms
 
 
 # safe state or not
@@ -423,23 +423,24 @@ def cooperative_mec(mec_list, n):
 
 
 def check_mec_offload():
-    offloaded = {}
-    t_mec = {}
-    x = LCM([tasks[i]['period'] for i in tasks])
+    global offloaded
+
+    offloaded = []
+    t_mec = {}                # {t1: [execution, latency}
     try:
         fr = open('/home/mec/temp/task_share.txt', 'r')
         t = fr.readlines()
         for i in t:
             ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
-            offloaded[ta] = {'wcet': 1, 'period': x}
+            offloaded.append(ta)
             offload_register[ta] = i[:-1].split()[0]
             t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
         fr.close()
         os.system('rm /home/mec/temp/task_share.txt')
-        print('Tasks Offloaded to MEC: {}'.format(offloaded.keys()))
+        print('Tasks Offloaded to MEC: {}'.format(offloaded))
     except Exception as e:
         print('no offloaded Task!')
-    return offloaded, t_mec
+    return t_mec
 
 
 def execute(local):
