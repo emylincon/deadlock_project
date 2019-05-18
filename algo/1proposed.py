@@ -490,7 +490,7 @@ def receive_executed_task():
 
 def run_me():
     initialization()
-    for i in range(20):
+    for i in range(30):
         print('Running RMS on Tasks: ', tasks, '\n')
         rms_list = get_rms()
         print('RMS List of Processes: ', rms_list, '\n')
@@ -530,4 +530,9 @@ def initialization():
         exit(0)
 
 
-run_me()
+def main():
+    run_me()
+
+
+if __name__ == "__main__":
+    main()
