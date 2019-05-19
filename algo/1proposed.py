@@ -520,7 +520,7 @@ def start_loop():
                 send_back_task(local_)
                 receive_executed_task()
                 time.sleep(3)
-            print('Enter "Exit" to stop Programme!')
+            print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
             break
