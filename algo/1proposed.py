@@ -85,7 +85,7 @@ def get_rms():
     global tasks
     tasks = {}
     while len(tasks) < 3:
-        a = list(_tasks.keys())[r.randint(5)]
+        a = list(_tasks.keys())[r.randrange(5)]
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
