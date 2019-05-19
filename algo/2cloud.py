@@ -248,29 +248,37 @@ def ip_address():
 
 
 def run_me():
+    print('\n========== Deadlock Emulation Program: Cloud Server ===============')
+    print('Cloud ip: ', ip_address())
+    m = input('Start (Y/N)').lower()
+    if m == 'y':
+        try:
+            while True:
+                if check_mec_offload() == 0:
+                    time.sleep(4)
+                elif len(t_time) <= 2:
+                    local_ = execute(list(t_time.keys()))
+                    send_back_task(local_)
+                    time.sleep(3)
+                else:
+                    edf_list = edf_schedule(t_time)
+                    print('EDF List of Processes: ', edf_list, '\n')
+                    print('\nRunning Bankers Algorithm')
+                    list_seq = get_safe_seq(edf_list)
+                    wait_list = calc_wait_time(list_seq)
+                    print('\nWaiting Time List: ', wait_list)
+                    compare_result = compare_local_mec(wait_list)
+                    if len(compare_result[0]) > 0:
+                        for i in compare_result[0]:
+                            print(i, 'will miss execution latency deadline')
 
-    while True:
-        if check_mec_offload() == 0:
-            time.sleep(4)
-        elif len(t_time) <= 2:
-            local_ = execute(list(t_time.keys()))
-            send_back_task(local_)
-            time.sleep(3)
-        else:
-            edf_list = edf_schedule(t_time)
-            print('EDF List of Processes: ', edf_list, '\n')
-            print('\nRunning Bankers Algorithm')
-            list_seq = get_safe_seq(edf_list)
-            wait_list = calc_wait_time(list_seq)
-            print('\nWaiting Time List: ', wait_list)
-            compare_result = compare_local_mec(wait_list)
-            if len(compare_result[0]) > 0:
-                for i in compare_result[0]:
-                    print(i, 'will miss execution latency deadline')
-
-            local_ = execute(compare_result[1]+compare_result[0])
-            send_back_task(local_)
-            time.sleep(3)
+                    local_ = execute(compare_result[1]+compare_result[0])
+                    send_back_task(local_)
+                    time.sleep(3)
+        except KeyboardInterrupt:
+            print('\nProgramme Terminated')
+    else:
+        print('\nProgramme Terminated')
 
 
 def main():
