@@ -11,6 +11,7 @@ import paramiko
 import ast
 import time
 import os
+import getpass as gp
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -499,7 +500,8 @@ def run_me():
 
 def start_loop():
     print('\n============ WELCOME TO THE DEADLOCK SIMULATION =============\n')
-    x = input('Press any key to continue...')
+
+    x = gp.getpass('Press any key to Start...')
     if x:
         for i in range(30):
             print('Running RMS on Tasks: ', tasks, '\n')
