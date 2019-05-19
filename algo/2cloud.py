@@ -4,6 +4,7 @@ import ast
 import time
 import os
 import operator
+import socket
 
 
 _tasks = {'t1': {'wcet': 3, 'period': 20},
@@ -238,6 +239,12 @@ def send_back_task(l_list):
             stdin, stdout, stderr = c.exec_command(cmd)
         except Exception as e:
             print(e)
+
+
+def ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
 
 
 def run_me():
