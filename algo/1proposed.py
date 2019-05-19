@@ -538,10 +538,13 @@ def initialization():
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
         h1.start()
-        if input('Send Hello Message (Y/N): ').strip().lower() == 'y':
-            send_message('init')
-        else:
-            exit(0)
+        while True:
+            b = input('Send Hello Message (Y/N): ').strip().lower()
+            if b == 'y':
+                send_message('init')
+                break
+            else:
+                print('\nPlease Type "y" to send Hello message\n')
     except KeyboardInterrupt:
         print('\nProgramme Terminated')
         exit(0)
