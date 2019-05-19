@@ -196,7 +196,6 @@ def check_mec_offload():
         os.system('rm /home/mec/temp/task_share.txt')
         print('Tasks Offloaded to MEC: {}'.format(t_time.keys()))
     except Exception as e:
-        print('no offloaded Task!')
         return 0
     return 1
 
