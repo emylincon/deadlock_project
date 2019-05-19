@@ -250,7 +250,7 @@ def ip_address():
 def run_me():
     print('\n========== Deadlock Emulation Program: Cloud Server ===============')
     print('Cloud ip: ', ip_address())
-    m = input('Start (Y/N)').lower()
+    m = input('Start (Y/N): ').lower()
     if m == 'y':
         try:
             while True:
