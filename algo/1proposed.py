@@ -353,9 +353,7 @@ def receive_message():
 
         if data.decode()[:4] == 'init':
             hosts[data.decode()[5:]] = address[0]
-            if len(hosts) == mec_no:
-                print('MEC Details: ', hosts)
-                del hosts[host_ip]
+
         elif address[0] != host_ip:
             w_time = calculate_mov_avg(address[0], int(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
             if address[0] in mec_waiting_time:
@@ -490,23 +488,36 @@ def receive_executed_task():
 
 def run_me():
     initialization()
-    for i in range(30):
-        print('Running RMS on Tasks: ', tasks, '\n')
-        rms_list = get_rms()
-        print('RMS List of Processes: ', rms_list, '\n')
-        print('\nRunning Bankers Algorithm')
-        list_seq = get_safe_seq(rms_list)
-        wait_list = calc_wait_time(list_seq)
-        print('\nWaiting Time List: ', wait_list)
-        compare_result = compare_local_mec(wait_list)
-        print('\nExecute Locally: ', compare_result[1])
-        print('\nExecute in MEC: ', compare_result[0])
-        print('\nSending to cooperative platform')
-        cooperative_mec(compare_result[0], 1)
-        local_ = execute(compare_result[1])
-        send_back_task(local_)
-        receive_executed_task()
-        time.sleep(3)
+    while True:
+        if len(hosts) == mec_no:
+            print('MEC Details: ', hosts)
+            del hosts[host_ip]
+            break
+        time.sleep(2)
+    start_loop()
+
+
+def start_loop():
+    print('\n============ WELCOME TO THE DEADLOCK SIMULATION =============\n')
+    x = input('Press any key to continue...')
+    if x:
+        for i in range(30):
+            print('Running RMS on Tasks: ', tasks, '\n')
+            rms_list = get_rms()
+            print('RMS List of Processes: ', rms_list, '\n')
+            print('\nRunning Bankers Algorithm')
+            list_seq = get_safe_seq(rms_list)
+            wait_list = calc_wait_time(list_seq)
+            print('\nWaiting Time List: ', wait_list)
+            compare_result = compare_local_mec(wait_list)
+            print('\nExecute Locally: ', compare_result[1])
+            print('\nExecute in MEC: ', compare_result[0])
+            print('\nSending to cooperative platform')
+            cooperative_mec(compare_result[0], 1)
+            local_ = execute(compare_result[1])
+            send_back_task(local_)
+            receive_executed_task()
+            time.sleep(3)
 
 
 def initialization():
