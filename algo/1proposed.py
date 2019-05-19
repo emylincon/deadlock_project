@@ -331,10 +331,10 @@ def send_message(mg):
     try:
 
         # Send data to the multicast group
-        if mg == 'init':
+        if mg == 'hello':
             smg = mg + ' ' + message()
             sock.sendto(str.encode(smg), _multicast_group)
-            print('\nmessage sent')
+            print('\nHello message sent')
         else:
             sock.sendto(str.encode(mg), _multicast_group)
 
