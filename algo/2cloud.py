@@ -221,6 +221,18 @@ def execute(local):
     return send
 
 
+def _execute(local):
+    print('\nExecuting :', local)
+    send = []
+    for i in local:
+        time.sleep(t_time[i][0])
+        print('####### Executed: ', i)
+        if len(i) > 2:
+            send.append(i)
+    print('============== EXECUTION DONE ===============')
+    return send
+
+
 def send_back_task(l_list):
     _host_ip = 'Cloud_Server'
     for i in l_list:
@@ -257,7 +269,7 @@ def run_me():
                 if check_mec_offload() == 0:
                     time.sleep(4)
                 elif len(t_time) <= 2:
-                    local_ = execute(list(t_time.keys()))
+                    local_ = _execute(list(t_time.keys()))
                     send_back_task(local_)
                     time.sleep(3)
                 else:
