@@ -499,7 +499,7 @@ def run_me():
 
 
 def start_loop():
-    print('\n============ WELCOME TO THE DEADLOCK SIMULATION =============\n')
+    print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
