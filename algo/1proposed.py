@@ -88,6 +88,7 @@ def get_rms():
         a = list(_tasks.keys())[r.randint(5)]
         tasks[a] = _tasks[a]
 
+    print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
     a = load_tasks()
     return scheduler(a)
@@ -504,7 +505,7 @@ def start_loop():
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
             for i in range(30):
-                print('Running RMS on Tasks: ', tasks, '\n')
+
                 rms_list = get_rms()
                 print('RMS List of Processes: ', rms_list, '\n')
                 print('\nRunning Bankers Algorithm')
