@@ -352,8 +352,8 @@ def receive_message():
     while True:
         data, address = sock.recvfrom(1024)
 
-        if data.decode()[:4] == 'init':
-            hosts[data.decode()[5:]] = address[0]
+        if data.decode()[:5] == 'hello':
+            hosts[data.decode()[6:]] = address[0]
 
         elif address[0] != host_ip:
             w_time = calculate_mov_avg(address[0], int(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
@@ -541,7 +541,7 @@ def initialization():
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
-                send_message('init')
+                send_message('hello')
                 break
             else:
                 print('\nPlease Type "y" to send Hello message\n')
