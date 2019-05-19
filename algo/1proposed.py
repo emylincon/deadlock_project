@@ -492,7 +492,7 @@ def run_me():
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
-            del hosts[host_ip]
+            del hosts[message()]
             break
         time.sleep(2)
     start_loop()
