@@ -448,11 +448,11 @@ def execute(local):
     print('\nExecuting :', local)
     send = []
     for i in local:
-        i = '_'.join(i.split('_')[:-1])
-        time.sleep(t_time[i][0])
+        j = '_'.join(i.split('_')[:-1])
+        time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
-        if len(i) > 2:
-            send.append(i)
+        if len(j) > 2:
+            send.append(j)
     print('============== EXECUTION DONE ===============')
     return send
 
