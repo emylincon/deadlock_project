@@ -267,7 +267,7 @@ def run_me():
         try:
             while True:
                 if check_mec_offload() == 0:
-                    time.sleep(4)
+                    time.sleep(6)
                 elif len(t_time) <= 2:
                     local_ = _execute(list(t_time.keys()))
                     send_back_task(local_)
