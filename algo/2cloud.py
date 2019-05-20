@@ -186,14 +186,14 @@ def check_mec_offload():
     t_time = {}  # {t1: [execution, latency]}
 
     try:
-        fr = open('/home/mec/temp/task_share.txt', 'r')
+        fr = open('/home/mec/deadlock_project/temp/task_share.txt', 'r')
         t = fr.readlines()
         for i in t:
             ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
             offload_register[ta] = i[:-1].split()[0]
             t_time[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
         fr.close()
-        os.system('rm /home/mec/temp/task_share.txt')
+        os.system('rm /home/mec/deadlock_project/temp/task_share.txt')
         print('Tasks Offloaded to MEC: {}'.format(t_time.keys()))
     except Exception as e:
         return 0
@@ -245,7 +245,7 @@ def send_back_task(l_list):
 
             c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             c.connect(offload_register[i], port, un, pw)
-            cmd = ('echo "{} {}" >> /home/mec/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
+            cmd = ('echo "{} {}" >> /home/mec/deadlock_project/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
 
             stdin, stdout, stderr = c.exec_command(cmd)
         except Exception as e:
