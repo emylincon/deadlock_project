@@ -230,31 +230,17 @@ def isSafe(processes, avail, need, allot):
         if (found == False):
             print("System is not in safe state")
 
-            a = list(set(processes) - set(safeSeq) - set(offload))
-            _max = np.array([0, 0, 0])
-            n = {}
-            for i in a:
-                n[i] = sum(allocation[i[:2]])
-            _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max[:2]])
-            offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max[:2]])
-            count += 1
-
-            # Mark this p as finished
-            finish[processes.index(_max)] = 1
-            found = True
+            offload = list(set(processes) - set(safeSeq))
 
     # If system is in safe state then
     # safe sequence will be as below
-    if 0 in safeSeq:
+    if len(offload) > 0:
         safeSeq = safeSeq[:safeSeq.index(0)]
+        print('offloading tasks: ', offload)
+        cooperative_mec(offload, 0)
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
     print('safe seq: ', safeSeq)
-
-    print('offloading tasks: ', offload)
-    cooperative_mec(offload, 0)
 
     return safeSeq
 
