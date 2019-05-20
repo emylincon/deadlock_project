@@ -19,8 +19,6 @@ apt install nano -y
 apt install python3-numpy -y
 apt install nmap -y
 
-mv * ..
-rm -r /home/mec/deadlock_project
 /etc/init.d/ssh start
 clear
 echo '============= All done.. Ready to use! ==============='
