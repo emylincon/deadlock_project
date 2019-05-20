@@ -160,7 +160,6 @@ def calc_wait_time(list_seq):
     for i in list_seq:
         time_dic[i] = round(t_time[i[:2]][0] + pre, 3)
         pre += t_time[i[:2]][0]
-    w_send = time_dic[list(time_dic.keys())[-1]]
     return time_dic
 
 
