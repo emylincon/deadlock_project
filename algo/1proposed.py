@@ -251,7 +251,7 @@ def isSafe(processes, avail, need, allot):
         safeSeq = safeSeq[:safeSeq.index(0)]
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
-    print(*safeSeq)
+    print('safe seq: ', safeSeq)
 
     print('offloading tasks: ', offload)
     cooperative_mec(offload, 0)
@@ -383,7 +383,7 @@ def mec_task_unicast(task, host_):
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {} {}" >> /home/mec/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
+        cmd = ('echo "{} {} {}" >> /home/mec/deadlock_project/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
 
         stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
@@ -429,7 +429,7 @@ def check_mec_offload():
     offloaded = []
     t_mec = {}                # {t1: [execution, latency}
     try:
-        fr = open('/home/mec/temp/task_share.txt', 'r')
+        fr = open('/home/mec/deadlock_project/temp/task_share.txt', 'r')
         t = fr.readlines()
         for i in t:
             ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
@@ -437,7 +437,7 @@ def check_mec_offload():
             offload_register[ta] = i[:-1].split()[0]
             t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
         fr.close()
-        os.system('rm /home/mec/temp/task_share.txt')
+        os.system('rm /home/mec/deadlock_project/temp/task_share.txt')
         print('Tasks Offloaded to MEC: {}'.format(offloaded))
     except Exception as e:
         print('no offloaded Task!')
@@ -469,7 +469,7 @@ def send_back_task(l_list):
 
             c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             c.connect(offload_register[i], port, un, pw)
-            cmd = ('echo "{} {}" >> /home/mec/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
+            cmd = ('echo "{} {}" >> /home/mec/deadlock_project/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
 
             stdin, stdout, stderr = c.exec_command(cmd)
         except Exception as e:
@@ -478,7 +478,7 @@ def send_back_task(l_list):
 
 def receive_executed_task():
     try:
-        fr = open('/home/mec/temp/executed.txt', 'r')
+        fr = open('/home/mec/deadlock_project/temp/executed.txt', 'r')
         t = fr.readlines()
         for i in t:
             i = i[:-1].split()
