@@ -294,7 +294,7 @@ def calc_wait_time(list_seq):
         time_dic[i] = round(t_time[i[:2]][0] + pre, 3)
         pre += t_time[i[:2]][0]
     w_send = time_dic[list(time_dic.keys())[-1]]
-    send_message(w_send)   # Broadcasting waiting time to cooperative MECs
+    send_message(str(w_send))   # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
