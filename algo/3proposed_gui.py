@@ -12,6 +12,7 @@ import ast
 import time
 import os
 import getpass as gp
+import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
 
@@ -57,25 +58,44 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
 
+mec_rtt = {}               # {ip: [RTT]}
+
 fig = plt.figure()
 ax1 = fig.add_subplot(131)
 ax2 = fig.add_subplot(132)
 ax3 = fig.add_subplot(133)
 
+
+def _mov_avg(a1):
+    ma1=[] # moving average list
+    avg1=0 # movinf average pointwise
+    count=0
+    for i in range(len(a1)):
+        count+=1
+        avg1=((count-1)*avg1+a1[i])/count
+        ma1.append(avg1) #cumulative average formula
+        # μ_n=((n-1) μ_(n-1)  + x_n)/n
+    return ma1
+
+
 def plot_wait_time():
     return 0
 
+
 def plot_rtts():
     ax3.grid(True, color='k')
-    ax3.plot(calculate_mov_avg(x_axis), linewidth=5, label='RTT')
-    ax3.plot(calculate_mov_avg(y_axis), linewidth=5, label='CPU')
-    ax3.set_title('CPU and RTT Utilization over Time')
-    ax3.set_ylabel('CPU and RTT')
+    for i in mec_rtt:
+        ax3.plot(_mov_avg(mec_rtt[i]), linewidth=5, label='i')
+    ax3.set_title('RTT Utilization over Time')
+    ax3.set_ylabel('Moving RTT')
     ax3.set_xlabel('Time (seconds)')
     ax3.legend()
     plt.subplot(ax3)
 
 def plot_cpu():
+    return 0
+
+def plot_offloaded_remote():
     return 0
 
 
@@ -385,6 +405,7 @@ def receive_message():
 
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
+            mec_rtt[address[0]] = []
 
         elif address[0] != host_ip:
             w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
