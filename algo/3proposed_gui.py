@@ -63,7 +63,8 @@ mec_rtt = {}               # {ip: [RTT]}
 prev_t = 0            # variable for cpu util
 _cpu = []             # cpu plot list
 
-_off = 0             # used to keep a count of tasks offloaded
+_off_mec = 0          # used to keep a count of tasks offloaded to mec
+_off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
 
 fig = plt.figure()
@@ -86,9 +87,9 @@ def _mov_avg(a1):
 
 
 def plot_offloaded_remote():
-    keys = ['Remote', 'Local']
-    val = [_off, _loc]
-    cols = ['r', 'g']
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [_off_mec, _off_cloud, _loc]
+    cols = ['r', 'g', 'b']
     explode = []
     for i in val:
         if i == max(val):
@@ -356,7 +357,7 @@ def isSafe(processes, avail, need, allot):
     if len(offload) > 0:
         safeSeq = safeSeq[:safeSeq.index(0)]
         print('offloading tasks: ', offload)
-        _off += len(offload)
+        # _off += len(offload)
         cooperative_mec(offload, 0)
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
@@ -500,12 +501,16 @@ def mec_task_unicast(task, host_):
 
 
 def cooperative_mec(mec_list, n):
+    global _off_cloud
+    global _off_mec
+
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
             mec_task_unicast(i, cloud_ip)
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
+            _off_cloud += 1
 
         elif n == 0:
             j = '_'.join(i.split('_')[:-1])
@@ -515,10 +520,13 @@ def cooperative_mec(mec_list, n):
 
                 mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])      # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+                _off_mec += 1
+
             else:
                 mec_task_unicast(i, cloud_ip)
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
+                _off_cloud += 1
         else:
             j = '_'.join(i.split('_')[:-1])
             if mec_waiting_time[_host][-1] < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
@@ -527,10 +535,13 @@ def cooperative_mec(mec_list, n):
 
                 mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+                _off_mec += 1
+
             else:
                 mec_task_unicast(i, cloud_ip)
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
+                _off_cloud += 1
 
 
 def check_mec_offload():
@@ -612,7 +623,6 @@ def run_me():
 
 def start_loop():
     global _loc
-    global _off
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
     while True:
@@ -631,7 +641,7 @@ def start_loop():
                     print('\nExecute Locally: ', compare_result[1])
                     _loc += len(compare_result[1])
                     print('\nExecute in MEC: ', compare_result[0])
-                    _off += len(compare_result[0])
+
                     print('\nSending to cooperative platform')
                     if len(compare_result[0]) > 0:
                         cooperative_mec(compare_result[0], 1)
