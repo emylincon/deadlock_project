@@ -194,7 +194,7 @@ def check_mec_offload():
             t_time[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
         fr.close()
         os.system('rm /home/mec/deadlock_project/temp/task_share.txt')
-        print('Tasks Offloaded to MEC: {}'.format(t_time.keys()))
+        print('Tasks Offloaded to Cloud Server: {}'.format(t_time.keys()))
     except Exception as e:
         return 0
     return 1
