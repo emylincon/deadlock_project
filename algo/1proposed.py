@@ -230,7 +230,20 @@ def isSafe(processes, avail, need, allot):
         if (found == False):
             print("System is not in safe state")
 
-            offload = list(set(processes) - set(safeSeq))
+            a = list(set(processes) - set(safeSeq) - set(offload))
+            _max = np.array([0, 0, 0])
+            n = {}
+            for i in a:
+                n[i] = sum(allocation[i])
+            _max = max(n, key=n.get)
+            print('work: ', work, 'need: ', _need[_max])
+            offload.append(_max)
+            work = np.array(work) + np.array(allocation[_max])
+            count += 1
+
+            # Mark this p as finished
+            finish[processes.index(_max)] = 1
+            found = True
 
     # If system is in safe state then
     # safe sequence will be as below
@@ -385,11 +398,11 @@ def cooperative_mec(mec_list, n):
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
         elif n == 0:
-            if mec_waiting_time[_host] < t_time[i][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            if mec_waiting_time[_host][-1] < t_time[i][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
                 mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host][-1] += t_time[i][0]      # increments average waiting time
+                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[i][0])      # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 mec_task_unicast(i, cloud_ip)
@@ -397,11 +410,11 @@ def cooperative_mec(mec_list, n):
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
         else:
             i = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host] < t_time[i][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            if mec_waiting_time[_host][-1] < t_time[i][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
                 mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host][-1] += t_time[i][0]  # increments average waiting time
+                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[i][0])  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 mec_task_unicast(i, cloud_ip)
