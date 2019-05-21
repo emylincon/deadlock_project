@@ -264,6 +264,8 @@ def scheduler(D):
 
 # safe state or not
 def isSafe(processes, avail, need, allot):
+    global _off
+
     # tasks to offload if exit
     offload = []
 
@@ -343,6 +345,7 @@ def isSafe(processes, avail, need, allot):
     if len(offload) > 0:
         safeSeq = safeSeq[:safeSeq.index(0)]
         print('offloading tasks: ', offload)
+        _off += offload
         cooperative_mec(offload, 0)
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
@@ -596,6 +599,9 @@ def run_me():
 
 
 def start_loop():
+    global _loc
+    global _off
+
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
     while True:
         x = gp.getpass('Press any key to Start...').lower()
@@ -611,7 +617,9 @@ def start_loop():
                     print('\nWaiting Time List: ', wait_list)
                     compare_result = compare_local_mec(wait_list)
                     print('\nExecute Locally: ', compare_result[1])
+                    _loc += len(compare_result[1])
                     print('\nExecute in MEC: ', compare_result[0])
+                    _off += compare_result[0]
                     print('\nSending to cooperative platform')
                     if len(compare_result[0]) > 0:
                         cooperative_mec(compare_result[0], 1)
