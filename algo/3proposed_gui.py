@@ -60,6 +60,9 @@ offload_register = {}      # {task: host_ip}
 
 mec_rtt = {}               # {ip: [RTT]}
 
+_off = 0             # used to keep a count of tasks offloaded
+_loc = 0              # used to keep a count of tasks executed locally
+
 fig = plt.figure()
 ax1 = fig.add_subplot(131)
 ax2 = fig.add_subplot(132)
@@ -76,6 +79,22 @@ def _mov_avg(a1):
         ma1.append(avg1) #cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
+
+
+def plot_offloaded_remote():
+    keys = ['Remote', 'Local']
+    val = [_off, _loc]
+    cols = ['r', 'g']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax1.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax1.set_title('Remote vs Local Frequency')
+    plt.subplot(ax1)
 
 
 def plot_wait_time():
@@ -101,9 +120,6 @@ def plot_rtts():
 
 
 def plot_cpu():
-    return 0
-
-def plot_offloaded_remote():
     return 0
 
 
