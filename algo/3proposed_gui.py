@@ -67,9 +67,10 @@ _off = 0             # used to keep a count of tasks offloaded
 _loc = 0              # used to keep a count of tasks executed locally
 
 fig = plt.figure()
-ax1 = fig.add_subplot(131)
-ax2 = fig.add_subplot(132)
-ax3 = fig.add_subplot(133)
+ax1 = fig.add_subplot(221)
+ax2 = fig.add_subplot(222)
+ax3 = fig.add_subplot(223)
+ax4 = fig.add_subplot(224)
 
 
 def _mov_avg(a1):
