@@ -511,16 +511,18 @@ def start_loop():
                 print('RMS List of Processes: ', rms_list, '\n')
                 print('\nRunning Bankers Algorithm')
                 list_seq = get_safe_seq(rms_list)
-                wait_list = calc_wait_time(list_seq)
-                print('\nWaiting Time List: ', wait_list)
-                compare_result = compare_local_mec(wait_list)
-                print('\nExecute Locally: ', compare_result[1])
-                print('\nExecute in MEC: ', compare_result[0])
-                print('\nSending to cooperative platform')
-                if len(compare_result[0]) > 0:
-                    cooperative_mec(compare_result[0], 1)
-                local_ = execute(compare_result[1])
-                send_back_task(local_)
+                if len(list_seq) > 0:              # do only when there is a task in safe sequence
+                    wait_list = calc_wait_time(list_seq)
+                    print('\nWaiting Time List: ', wait_list)
+                    compare_result = compare_local_mec(wait_list)
+                    print('\nExecute Locally: ', compare_result[1])
+                    print('\nExecute in MEC: ', compare_result[0])
+                    print('\nSending to cooperative platform')
+                    if len(compare_result[0]) > 0:
+                        cooperative_mec(compare_result[0], 1)
+                    local_ = execute(compare_result[1])
+                    if len(local_) > 0:            # do only when there is a task to send back
+                        send_back_task(local_)
                 receive_executed_task()
                 time.sleep(3)
             print('\nEnter "Exit" to stop Programme!')
