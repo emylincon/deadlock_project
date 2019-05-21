@@ -399,23 +399,24 @@ def cooperative_mec(mec_list, n):
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
         elif n == 0:
-            if mec_waiting_time[_host][-1] < t_time[i][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            j = '_'.join(i.split('_')[:-1])
+            if mec_waiting_time[_host][-1] < t_time[j][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
                 mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[i][0])      # adds a new average waiting time
+                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])      # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 mec_task_unicast(i, cloud_ip)
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
         else:
-            i = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[i][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            j = '_'.join(i.split('_')[:-1])
+            if mec_waiting_time[_host][-1] < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
                 mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[i][0])  # adds a new average waiting time
+                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 mec_task_unicast(i, cloud_ip)
