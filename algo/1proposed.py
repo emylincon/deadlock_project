@@ -236,9 +236,9 @@ def isSafe(processes, avail, need, allot):
             for i in a:
                 n[i] = sum(allocation[i[:2]])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max])
+            print('work: ', work, 'need: ', _need[_max[:2]])
             offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max])
+            work = np.array(work) + np.array(allocation[_max[:2]])
             count += 1
 
             # Mark this p as finished
