@@ -112,7 +112,13 @@ def plot_wait_time():
     plt.subplot(ax2)
 
 
+def get_mec_rtts():
+    for i in mec_rtt:
+        mec_rtt[i].append(get_rtt(i))
+
+
 def plot_rtts():
+    get_mec_rtts()
     ax3.grid(True, color='k')
     for i in mec_rtt:
         ax3.plot(_mov_avg(mec_rtt[i]), linewidth=5, label='i')
@@ -143,10 +149,15 @@ def plot_cpu():
 
 
 def plot_graphs():
-    plot_cpu()
-    plot_rtts()
+    plot_offloaded_remote()
     plot_wait_time()
+    plot_rtts()
+    plot_cpu()
     fig.suptitle('MEC Performance During Deadlock Experiment')
+
+
+def graphs():
+    drawnow(plot_graphs())
 
 
 def ip_address():
