@@ -356,7 +356,7 @@ def isSafe(processes, avail, need, allot):
     if len(offload) > 0:
         safeSeq = safeSeq[:safeSeq.index(0)]
         print('offloading tasks: ', offload)
-        _off += offload
+        _off += len(offload)
         cooperative_mec(offload, 0)
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
