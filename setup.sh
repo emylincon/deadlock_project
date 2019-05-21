@@ -5,6 +5,8 @@ echo '============ Preparing your MEC Platform =============='
 sleep 3
 apt update && apt upgrade -y
 apt install python3 -y
+apt install python3-pip -y
+pip3 install drawnow -y
 apt install python3-psutil -y
 apt install python3-matplotlib -y
 apt install python3-paramiko -y
