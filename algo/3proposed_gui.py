@@ -104,7 +104,7 @@ def plot_offloaded_remote():
 def plot_wait_time():
     ax2.grid(True, color='k')
     for i in mec_waiting_time:
-        ax2.plot(_mov_avg(mec_waiting_time[i]), linewidth=5, label='i')
+        ax2.plot(_mov_avg(mec_waiting_time[i]), linewidth=5, label=i)
     ax2.set_title('Waiting Time Queue')
     ax2.set_ylabel('Moving Wait + RTT')
     ax2.set_xlabel('Time (seconds)')
@@ -121,7 +121,7 @@ def plot_rtts():
     get_mec_rtts()
     ax3.grid(True, color='k')
     for i in mec_rtt:
-        ax3.plot(_mov_avg(mec_rtt[i]), linewidth=5, label='i')
+        ax3.plot(_mov_avg(mec_rtt[i]), linewidth=5, label=i)
     ax3.set_title('RTT Utilization over Time')
     ax3.set_ylabel('Moving RTT')
     ax3.set_xlabel('Time (seconds)')
