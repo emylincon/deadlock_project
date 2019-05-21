@@ -156,7 +156,7 @@ def plot_graphs():
     fig.suptitle('MEC Performance During Deadlock Experiment')
 
 
-def graphs():
+def show_graphs():
     drawnow(plot_graphs())
 
 
@@ -638,6 +638,7 @@ def start_loop():
                     if len(local_) > 0:            # do only when there is a task to send back
                         send_back_task(local_)
                 receive_executed_task()
+                show_graphs()                           # shows graph plots
                 time.sleep(3)
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
