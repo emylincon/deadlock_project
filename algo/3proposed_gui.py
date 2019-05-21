@@ -630,7 +630,7 @@ def start_loop():
                     print('\nExecute Locally: ', compare_result[1])
                     _loc += len(compare_result[1])
                     print('\nExecute in MEC: ', compare_result[0])
-                    _off += compare_result[0]
+                    _off += len(compare_result[0])
                     print('\nSending to cooperative platform')
                     if len(compare_result[0]) > 0:
                         cooperative_mec(compare_result[0], 1)
