@@ -157,7 +157,7 @@ def plot_graphs():
 
 
 def show_graphs():
-    drawnow(plot_graphs())
+    drawnow(plot_graphs)
 
 
 def ip_address():
