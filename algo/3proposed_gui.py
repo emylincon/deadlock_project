@@ -12,6 +12,8 @@ import ast
 import time
 import os
 import getpass as gp
+from drawnow import *
+from matplotlib import pyplot as plt
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -54,6 +56,34 @@ allocation = {
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
+
+fig = plt.figure()
+ax1 = fig.add_subplot(131)
+ax2 = fig.add_subplot(132)
+ax3 = fig.add_subplot(133)
+
+def plot_wait_time():
+    return 0
+
+def plot_rtts():
+    ax3.grid(True, color='k')
+    ax3.plot(calculate_mov_avg(x_axis), linewidth=5, label='RTT')
+    ax3.plot(calculate_mov_avg(y_axis), linewidth=5, label='CPU')
+    ax3.set_title('CPU and RTT Utilization over Time')
+    ax3.set_ylabel('CPU and RTT')
+    ax3.set_xlabel('Time (seconds)')
+    ax3.legend()
+    plt.subplot(ax3)
+
+def plot_cpu():
+    return 0
+
+
+def plot_graphs():
+    plot_cpu()
+    plot_rtts()
+    plot_wait_time()
+    fig.suptitle('MEC Performance During Deadlock Experiment')
 
 
 def ip_address():
