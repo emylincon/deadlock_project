@@ -92,6 +92,7 @@ def plot_rtts():
     ax3.legend()
     plt.subplot(ax3)
 
+
 def plot_cpu():
     return 0
 
