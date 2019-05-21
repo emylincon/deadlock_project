@@ -515,7 +515,8 @@ def start_loop():
                 print('\nExecute Locally: ', compare_result[1])
                 print('\nExecute in MEC: ', compare_result[0])
                 print('\nSending to cooperative platform')
-                cooperative_mec(compare_result[0], 1)
+                if len(compare_result[0]) > 0:
+                    cooperative_mec(compare_result[0], 1)
                 local_ = execute(compare_result[1])
                 send_back_task(local_)
                 receive_executed_task()
