@@ -60,6 +60,9 @@ offload_register = {}      # {task: host_ip}
 
 mec_rtt = {}               # {ip: [RTT]}
 
+prev_t = 0            # variable for cpu util
+_cpu = []             # cpu plot list
+
 _off = 0             # used to keep a count of tasks offloaded
 _loc = 0              # used to keep a count of tasks executed locally
 
@@ -120,7 +123,22 @@ def plot_rtts():
 
 
 def plot_cpu():
-    return 0
+    global prev_t
+
+    # get cpu
+    next_t = psutil.cpu_percent(percpu=False)
+    delta = abs(prev_t - next_t)
+    prev_t = next_t
+    _cpu.append(delta)
+
+    # plot graph
+    ax4.grid(True, color='k')
+    ax4.plot(_mov_avg(_cpu), linewidth=5, label='CPU')
+    ax4.set_title('Moving CPU Utilization')
+    ax4.set_ylabel('Moving CPU')
+    ax4.set_xlabel('Time (seconds)')
+    ax4.legend()
+    plt.subplot(ax4)
 
 
 def plot_graphs():
