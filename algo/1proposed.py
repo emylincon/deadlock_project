@@ -485,6 +485,7 @@ def receive_executed_task():
             i = i[:-1].split()
             print('Received Executed task {} from {}'.format(i[0], i[1]))
         fr.close()
+        os.system('rm /home/mec/deadlock_project/temp/executed.txt')
     except Exception as e:
         print('No Executed Tasks from MEC Received')
 
