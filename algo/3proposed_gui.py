@@ -79,7 +79,14 @@ def _mov_avg(a1):
 
 
 def plot_wait_time():
-    return 0
+    ax2.grid(True, color='k')
+    for i in mec_waiting_time:
+        ax2.plot(_mov_avg(mec_waiting_time[i]), linewidth=5, label='i')
+    ax2.set_title('Waiting Time Queue')
+    ax2.set_ylabel('Moving Wait + RTT')
+    ax2.set_xlabel('Time (seconds)')
+    ax2.legend()
+    plt.subplot(ax2)
 
 
 def plot_rtts():
