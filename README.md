@@ -17,8 +17,8 @@ password
 password  
 usermod -aG sudo mec  
 su - mec  
-git clone https://github.com/emylincon/caching_project.git  
-cd caching_project  
+git clone https://github.com/emylincon/deadlock_project.git  
+cd deadlock_project  
 sudo bash set_up.sh  
 password
 ```
