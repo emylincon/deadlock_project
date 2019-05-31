@@ -22,6 +22,9 @@ def lcm(_list):
     return reduce(_lcm, _list)
 
 
-a = [tasks[i][-1] for i in tasks]
+t_lcm = lcm([tasks[i][-1] for i in tasks])
 
-print(lcm(a))
+t_dead = {i: tasks[i][1] for i in tasks}
+
+print(sorted(t_dead.items(), key =
+             lambda kv:(kv[1], kv[0])))
