@@ -22,3 +22,6 @@ def lcm(_list):
     return reduce(_lcm, _list)
 
 
+a = [tasks[i][-1] for i in tasks]
+
+print(lcm(a))
