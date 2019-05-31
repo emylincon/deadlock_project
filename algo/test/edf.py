@@ -41,7 +41,7 @@ def edf():
             last_dead += period
 
     ready_task = sorted(ready_task, key=lambda t: t[1])
-    print(ready_task)
+    # print(ready_task)
 
     t_time = 0
     schedule = []
