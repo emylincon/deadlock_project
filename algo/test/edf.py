@@ -3,7 +3,7 @@ from functools import reduce
 # tasks = {ti: [capacity, deadline, period]}
 tasks = {
     't1': [3, 7, 20],
-    't2': [2, 4, 5],
+    't2': [2, 2, 5],
     't3': [2, 8, 10],
 }
 
@@ -41,7 +41,7 @@ def edf():
             last_dead += period
 
     ready_task = sorted(ready_task, key=lambda t: t[1])
-    # print(ready_task)
+    print(ready_task)
 
     t_time = 0
     schedule = []
@@ -59,7 +59,7 @@ def edf():
             else:
                 print('Deadline missed: ', i)
 
-    print('s: ', schedule)
+    print('s (task, execution_time): ', schedule)
     print('r: ', register)
 
 
