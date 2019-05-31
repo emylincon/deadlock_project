@@ -5,6 +5,10 @@
 @Author: Emeka Emmanuel Ugwuanyi ugwuanye@lsbu.ac.uk with contributions from Saptarshi Ghosh
 
 
+```
+First Stage Done. still on progress!
+```
+
 #### SET UP Commands
 ```
 apt update  
