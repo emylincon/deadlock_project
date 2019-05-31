@@ -45,6 +45,7 @@ def edf():
 
     t_time = 0
     schedule = []
+    missed = []
     register = {i: 0 for i in tasks.keys()}   # {ti : amount executed}
     for i in ready_task:
         if (t_time//tasks[i[0]][-1])+1 <= register[i[0]]:
@@ -58,9 +59,12 @@ def edf():
                 schedule.append((i[0], t_time))
             else:
                 print('Deadline missed: ', i)
+                missed.append(i[0])
 
     print('s (task, execution_time): ', schedule)
     print('r: ', register)
+    if len(missed) > 0:
+        print('missed deadline: ', missed)
 
 
 if __name__ == '__main__':
