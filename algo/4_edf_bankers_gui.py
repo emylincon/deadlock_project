@@ -195,7 +195,7 @@ def get_rms():
 
     print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
-    a = load_tasks()
+
     return scheduler(a)
 
 
@@ -209,15 +209,7 @@ def waiting_time_init():
     print('[Execution_time, Latency]: ', t_time)
 
 
-def load_tasks():
-    global tasks
 
-    period_list = [tasks[i]['period'] for i in tasks]
-
-    lcm_period = LCM(period_list)
-    # insert idle task
-    tasks['idle'] = {'wcet': lcm_period, 'period': lcm_period + 1}
-    return lcm_period
 
 
 def scheduler(D):
