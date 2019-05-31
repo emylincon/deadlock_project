@@ -30,11 +30,11 @@ group = socket.inet_aton(multicast_group)
 mreq = struct.pack('4sL', group, socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
-_tasks = {'t1': {'wcet': 3, 'period': 20},
-          't2': {'wcet': 1, 'period': 5},
-          't3': {'wcet': 2, 'period': 10},
-          't4': {'wcet': 1, 'period': 10},
-          't5': {'wcet': 3, 'period': 15}
+_tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
+          't2': {'wcet': 1, 'period': 5, 'deadline': 4},
+          't3': {'wcet': 2, 'period': 10, 'deadline': 8},
+          't4': {'wcet': 1, 'period': 10, 'deadline': 9},
+          't5': {'wcet': 3, 'period': 15, 'deadline': 12}
           }
 
 # mat = {'p0': ['cpu', 'mem', 'storage']}
