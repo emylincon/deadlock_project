@@ -63,4 +63,5 @@ def edf():
     print('r: ', register)
 
 
-edf()
+if __name__ == '__main__':
+    edf()
