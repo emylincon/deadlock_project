@@ -124,19 +124,19 @@ def edf():
     ready_task = sorted(ready_task, key=lambda t: t[1])
     print(ready_task)
 
-    t_time = 0
+    t_time_ = 0
     schedule = []
     missed = []
     register = {i: 0 for i in tasks.keys()}   # {ti : amount executed}
     for i in ready_task:
-        if (t_time//tasks[i[0]]['period'])+1 <= register[i[0]]:
-            while (t_time//tasks[i[0]]['period'])+1 <= register[i[0]]:
-                t_time += 1
+        if (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
+            while (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
+                t_time_ += 1
                 # schedule.append(('idle', t_time))
-        if (t_time//tasks[i[0]]['period'])+1 > register[i[0]]:
-            if t_time + tasks[i[0]]['wcet'] <= i[1]:
+        if (t_time_//tasks[i[0]]['period'])+1 > register[i[0]]:
+            if t_time_ + tasks[i[0]]['wcet'] <= i[1]:
                 register[i[0]] += 1
-                t_time += tasks[i[0]]['wcet']
+                t_time_ += tasks[i[0]]['wcet']
                 schedule.append(i[0])
             else:
                 print('Deadline missed: ', i)
