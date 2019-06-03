@@ -65,7 +65,7 @@ def edf():
     print('r: ', register)
     if len(missed) > 0:
         print('missed deadline: ', missed)
-    print(t_time)
+    print('Last scheduled task Time: ', t_time)
 
 
 if __name__ == '__main__':
