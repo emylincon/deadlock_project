@@ -552,6 +552,7 @@ def speaking_node():
         if len(hosts) > mec_no:
             send_message('update')
             mec_no = len(hosts)
+        time.sleep(2)
 
 
 def initialization():
