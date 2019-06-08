@@ -338,9 +338,7 @@ def send_message(mg):
             smg = mg + ' ' + message()
             sock.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
-        elif mg == 'update':
-            smg = mg + ' ' + str(hosts)
-            sock.sendto(str.encode(smg), _multicast_group)
+
         else:
             sock.sendto(str.encode(mg), _multicast_group)
 
@@ -543,15 +541,6 @@ def start_loop():
         if x == 'exit':
             print('\nProgramme Terminated')
             break
-
-
-def speaking_node():
-    global mec_no
-
-    while True:
-        if len(hosts) > mec_no:
-            send_message('update')
-            mec_no = len(hosts)
 
 
 def initialization():
