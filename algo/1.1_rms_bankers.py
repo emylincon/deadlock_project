@@ -55,6 +55,8 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
 
+discovering = 0            # if discovering == 0 update host
+
 
 def ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -336,6 +338,9 @@ def send_message(mg):
             smg = mg + ' ' + message()
             sock.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
+        elif mg == 'update':
+            smg = mg + ' ' + str(hosts)
+            sock.sendto(str.encode(smg), _multicast_group)
         else:
             sock.sendto(str.encode(mg), _multicast_group)
 
@@ -350,11 +355,16 @@ def message():
 
 
 def receive_message():
+    global hosts
+
     while True:
         data, address = sock.recvfrom(1024)
 
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
+
+        elif (data.decode()[:6] == 'update') and (discovering == 0):
+            hosts = ast.literal_eval(data.decode()[7:])
 
         elif address[0] != host_ip:
             w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
@@ -491,11 +501,14 @@ def receive_executed_task():
 
 
 def run_me():
+    global discovering
+
     initialization()
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
             del hosts[message()]
+            discovering = 1
             break
         time.sleep(2)
     start_loop()
@@ -532,6 +545,13 @@ def start_loop():
             break
 
 
+def speaking_node():
+    global mec_no
+
+    while True:
+        if len(hosts) > mec_no:
+            send_message('update')
+            mec_no = len(hosts)
 
 
 def initialization():
