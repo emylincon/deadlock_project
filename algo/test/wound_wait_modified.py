@@ -31,7 +31,7 @@ R = 3
 def wound_wait(processes, avail, _need, allocation):
     offload = []
 
-    # To store safe sequence
+    # To store execution sequence
     exec_seq = []
 
     # Make a copy of available resources
