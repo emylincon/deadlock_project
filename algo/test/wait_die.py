@@ -54,12 +54,12 @@ def isSafe(processes, avail, maxm, allot):
         else:
             break
 
-        print('comparing| process: ', i, _need[i], 'work: ', avail)
+        # print('comparing| process: ', i, _need[i], 'work: ', avail)
         if not (False in list(np.greater_equal(avail, _need[i]))):
             exec_seq.append(i)
             avail = np.add(avail, allocation[i])
             work[ind] = 1
-            print('added: ', exec_seq)
+            # print('added: ', exec_seq)
 
         else:
             a = list(set(processes) - set(exec_seq) - set(offload))
@@ -67,25 +67,25 @@ def isSafe(processes, avail, maxm, allot):
             for j in a:
                 n[j] = sum(allocation[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max])
+            # print('work: ', work, 'need: ', _need[_max])
             if processes.index(_max) > processes.index(i):   # if true, i is older
                 # if process is already waiting then offload process
                 if work[ind] == 'w':
                     offload.append(i)
                     avail = np.array(avail) + np.array(allocation[i])
                     work[processes.index(i)] = 1
-                    print('offload reentry: ', i, offload)
+                    # print('offload reentry: ', i, offload)
                 else:
                     # wait put process to waiting
                     work[processes.index(i)] = 'w'
-                    print('waiting: ', i)
+                    # print('waiting: ', i)
 
             else:
                 # abort i
                 offload.append(i)
                 avail = np.array(avail) + np.array(allocation[i])
                 work[processes.index(i)] = 1
-                print('offload: ', i)
+                # print('offload: ', i)
 
     print('seq: ', exec_seq)
     print('offload: ', offload)
