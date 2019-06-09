@@ -27,11 +27,11 @@ group = socket.inet_aton(multicast_group)
 mreq = struct.pack('4sL', group, socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
-_tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
-          't2': {'wcet': 1, 'period': 5, 'deadline': 4},
-          't3': {'wcet': 2, 'period': 10, 'deadline': 8},
-          't4': {'wcet': 1, 'period': 10, 'deadline': 9},
-          't5': {'wcet': 3, 'period': 15, 'deadline': 12}
+_tasks = {'t1': {'wcet': 3, 'period': 20},
+          't2': {'wcet': 1, 'period': 5},
+          't3': {'wcet': 2, 'period': 10},
+          't4': {'wcet': 1, 'period': 10},
+          't5': {'wcet': 3, 'period': 15}
           }
 
 # mat = {'p0': ['cpu', 'mem', 'storage']}
@@ -55,6 +55,8 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
 
+discovering = 0            # if discovering == 0 update host
+
 
 def ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -73,15 +75,15 @@ def gcd(a, b):
     return gcd(b, a % b)
 
 
-def _lcm(a, b):
+def lcm(a, b):
     return int(a * b / gcd(a, b))
 
 
-def lcm(_list):
-    return reduce(_lcm, _list)
+def LCM(list):
+    return reduce(lcm, list)
 
 
-def get_edf():
+def get_rms():
     global tasks
     tasks = {}
     while len(tasks) < 3:
@@ -90,7 +92,8 @@ def get_edf():
 
     print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
-    return edf()
+    a = load_tasks()
+    return scheduler(a)
 
 
 def waiting_time_init():
@@ -103,144 +106,118 @@ def waiting_time_init():
     print('[Execution_time, Latency]: ', t_time)
 
 
-def edf():
-    t_lcm = lcm([tasks[i]['period'] for i in tasks])
+def load_tasks():
+    global tasks
 
-    t_dead = {i: tasks[i]['deadline'] for i in tasks}
+    period_list = [tasks[i]['period'] for i in tasks]
 
-    sorted_dead = sorted(t_dead.items(), key=lambda kv: (kv[1], kv[0]))
-    # print(sorted_dead)
+    lcm_period = LCM(period_list)
+    # insert idle task
+    tasks['idle'] = {'wcet': lcm_period, 'period': lcm_period + 1}
+    return lcm_period
 
-    ready_task = []
-    for i in sorted_dead:
-        period = tasks[i[0]]['period']
-        # print('lcm: ', t_lcm, ' period: ', period)
-        t_range = int(t_lcm/period)
-        last_dead = 0
-        for j in range(t_range):
-            ready_task.append((i[0], last_dead+tasks[i[0]]['deadline']))
-            last_dead += period
 
-    ready_task = sorted(ready_task, key=lambda t: t[1])
-    print(ready_task)
-
-    t_time_ = 0
+def scheduler(D):
+    queue = list(tasks.keys())  # initialize task queue
     schedule = []
-    missed = []
-    register = {i: 0 for i in tasks.keys()}   # {ti : amount executed}
-    for i in ready_task:
-        if (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
-            while (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
-                t_time_ += 1
-                # schedule.append(('idle', t_time))
-        if (t_time_//tasks[i[0]]['period'])+1 > register[i[0]]:
-            if t_time_ + tasks[i[0]]['wcet'] <= i[1]:
-                register[i[0]] += 1
-                t_time_ += tasks[i[0]]['wcet']
-                schedule.append(i[0])
-            else:
-                print('Deadline missed: ', i)
-                missed.append(i[0])
+    rms = []
+    curr = ''  # current task
+    prev = ''  # previous task
+    tmp = {}
+    for task in tasks.keys():
+        tmp[task] = {}  # temporary data for each task
+        tmp[task]['deadline'] = tasks[task]['period']
+        tmp[task]['executed'] = 0
 
-    print('s (task, execution_time): ', schedule)
-    print('r: ', register)
-    if len(missed) > 0:
-        print('missed deadline: ', missed)
-        cooperative_mec(missed, 0)
+    # start scheduling...
+    # proceed by one timestamp to handle preemption
+    for time in range(D):
+        # insert new tasks into the queue
+        for t in tmp.keys():
+            if time == tmp[t]['deadline']:
+                if tasks[t]['wcet'] > tmp[t]['executed']:
+                    # print('Scheduling Failed at %d' % time)
+                    exit(1)
+                else:
+                    tmp[t]['deadline'] += tasks[t]['period']
+                    tmp[t]['executed'] = 0
+                    queue.append(t)
+        # select next task to be scheduled
+        min = D * 2
+        for task in queue:
+            if tmp[task]['deadline'] < min:
+                min = tmp[task]['deadline']
+                curr = task
+        tmp[curr]['executed'] += 1
+        # print(time, queue, curr)
 
-    return offloaded + schedule
+        # dequeue the execution-completed task
+        if tmp[curr]['executed'] == tasks[curr]['wcet']:
+            for i in range(len(queue)):
+                if curr == queue[i]:
+                    del queue[i]
+                    break
+
+        # record to the schedule trace
+        if prev != curr:
+            if prev in queue and prev != 'idle':  # previous task is preempted..
+                s = schedule.pop()
+                schedule.append([s[0], s[1], '*'])
+                rms.append(s[1])
+            schedule.append([time, curr])
+            if curr != 'idle': rms.append(curr)
+        prev = curr
+
+    return offloaded + rms
 
 
-# safe state or not
-def isSafe(processes, avail, need, allot):
-    # tasks to offload if exit
+# generate execution sequence
+def wound_wait(processes, avail, n_need, allocat):
     offload = []
 
-    # Mark all processes as infinish
-    finish = [0] * P
-
-    # To store safe sequence
-    safeSeq = [0] * P
+    # To store execution sequence
+    exec_seq = []
 
     # Make a copy of available resources
-    work = [0] * R
-    for i in range(R):
-        work[i] = avail[i]
+    work = [0] * len(processes)
 
-        # While all processes are not finished
+    # While all processes are not finished
     # or system is not in safe state.
-    count = 0
-    while (count < P):
+    while 0 in work:
+        ind = work.index(0)
+        i = processes[ind]
+        print('comparing| process: ', i, n_need[i], 'work: ', avail)
+        if not (False in list(np.greater_equal(avail, n_need[i]))):
+            exec_seq.append(i)
+            avail = np.add(avail, allocat[i])
+            work[ind] = 1
 
-        # Find a process which is not finish
-        # and whose needs can be satisfied
-        # with current work[] resources.
-        found = False
-        for p in range(P):
-
-            # First check if a process is finished,
-            # if no, go for next condition
-            if (finish[p] == 0):
-
-                # Check if for all resources
-                # of current P need is less
-                # than work
-                for j in range(R):
-                    if (need[p][j] > work[j]):
-                        break
-
-                # If all needs of p were satisfied.
-                if (j == R - 1):
-
-                    # Add the allocated resources of
-                    # current P to the available/work
-                    # resources i.e.free the resources
-                    for k in range(R):
-                        work[k] += allot[p][k]
-
-                        # Add this process to safe sequence.
-                    safeSeq[count] = processes[p]
-                    count += 1
-
-                    # Mark this p as finished
-                    finish[p] = 1
-
-                    found = True
-
-        # If we could not find a next process
-        # in safe sequence.
-        if (found == False):
-            print("System is not in safe state")
-
-            a = list(set(processes) - set(safeSeq) - set(offload))
-            _max = np.array([0, 0, 0])
+        else:
+            a = list(set(processes) - set(exec_seq) - set(offload))
             n = {}
-            for i in a:
-                n[i] = sum(allocation[i[:2]])
+            for j in a:
+                n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max[:2]])
-            offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max[:2]])
-            count += 1
+            print('work: ', work, 'need: ', _need[_max])
+            if not (False in list(np.greater_equal(np.array(avail) + np.array(allocat[_max]), n_need[i]))):
+                offload.append(_max)
+                avail = np.array(avail) + np.array(allocat[_max])
+                work[processes.index(_max)] = 1
+            else:
+                offload.append(i)
+                avail = np.array(avail) + np.array(allocat[i])
+                work[processes.index(i)] = 1
 
-            # Mark this p as finished
-            finish[processes.index(_max)] = 1
-            found = True
-
-    # If system is in safe state then
-    # safe sequence will be as below
     if len(offload) > 0:
-        safeSeq = safeSeq[:safeSeq.index(0)]
         print('offloading tasks: ', offload)
         cooperative_mec(offload, 0)
-    print("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    print('safe seq: ', safeSeq)
 
-    return safeSeq
+    print('Execution seq: ', exec_seq)
+
+    return exec_seq
 
 
-def get_safe_seq(pro):
+def get_exec_seq(pro):
     global P
     global R
 
@@ -253,19 +230,13 @@ def get_safe_seq(pro):
 
     # Available instances of resources
     avail = [3, 5, 3]
-    n_need = [_need[i[:2]] for i in pro]
+    n_need = {i: _need[i[:2]] for i in pro}
     # print('need', n_need)
     # Resources allocated to processes
-    allot = [allocation[i[:2]] for i in pro]
-    # print('allocation', allot)
+    allot = {i: allocation[i[:2]] for i in pro}
 
-    # Maximum R that can be allocated
-    # to processes
-    # maxm = [np.array(allot[i]) + np.array(n_need[i]) for i in range(len(n_need))]
-    # print('max_matrix:', maxm)
-
-    # Check system is in safe state or not
-    return isSafe(processes, avail, n_need, allot)
+    # return execution sequence
+    return wound_wait(processes, avail, n_need, allot)
 
 
 def calc_wait_time(list_seq):
@@ -318,6 +289,12 @@ def send_message(mg):
             smg = mg + ' ' + message()
             sock.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
+        elif mg == 'update':
+            ho = hosts.copy()
+            ho[message()] = host_ip
+            smg = mg + ' ' + str(ho)
+            sock.sendto(str.encode(smg), _multicast_group)
+            # print('\n===**====**==update message sent===**======**=========')
         else:
             sock.sendto(str.encode(mg), _multicast_group)
 
@@ -332,13 +309,19 @@ def message():
 
 
 def receive_message():
+    global hosts
+
     while True:
         data, address = sock.recvfrom(1024)
 
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
 
-        elif address[0] != host_ip:
+        elif (data.decode()[:6] == 'update') and (discovering == 0):
+            hosts = ast.literal_eval(data.decode()[7:])
+            # print('received: ', hosts)
+
+        elif (data.decode()[:6] != 'update') and (address[0] != host_ip):
             w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
             if address[0] in mec_waiting_time:
                 mec_waiting_time[address[0]].append(w_time)
@@ -473,13 +456,18 @@ def receive_executed_task():
 
 
 def run_me():
+    global discovering
+
     initialization()
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
             del hosts[message()]
+            discovering = 1
             break
         time.sleep(2)
+    speak = Thread(target=speaking_node)
+    speak.start()
     start_loop()
 
 
@@ -490,10 +478,10 @@ def start_loop():
         if x != 'exit':
             for i in range(30):
 
-                rms_list = get_edf()
+                rms_list = get_rms()
                 print('RMS List of Processes: ', rms_list, '\n')
                 print('\nRunning Bankers Algorithm')
-                list_seq = get_safe_seq(rms_list)
+                list_seq = get_exec_seq(rms_list)
                 if len(list_seq) > 0:              # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)
                     print('\nWaiting Time List: ', wait_list)
@@ -512,6 +500,16 @@ def start_loop():
         if x == 'exit':
             print('\nProgramme Terminated')
             break
+
+
+def speaking_node():
+    global mec_no
+
+    while True:
+        if len(hosts) > (mec_no - 1):
+            send_message('update')
+            mec_no = len(hosts) + 1
+        time.sleep(2)
 
 
 def initialization():
