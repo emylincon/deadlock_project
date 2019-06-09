@@ -43,9 +43,13 @@ def isSafe(processes, avail, maxm, allot):
 
     # While all processes are not finished
     # or system is not in safe state.
-    while 0 in work:
-        ind = work.index(0)
-        i = processes[ind]
+    while 'w' or 0 in work:
+        if 0 in work:
+            ind = work.index(0)
+            i = processes[ind]
+        else:
+            ind = work.index('w')
+            i = processes[ind]
         print('comparing| process: ', i, _need[i], 'work: ', avail)
         if not (False in list(np.greater_equal(avail, _need[i]))):
             exec_seq.append(i)
@@ -59,6 +63,17 @@ def isSafe(processes, avail, maxm, allot):
                 n[j] = sum(allocation[j])
             _max = max(n, key=n.get)
             print('work: ', work, 'need: ', _need[_max])
+            if processes.index(_max) > processes.index(i):   # if true, i is older
+                # wait i
+                work[processes.index(i)] = 'w'
+
+            else:
+                # abort i
+                offload.append(i)
+                avail = np.array(avail) + np.array(allocation[i])
+                work[processes.index(i)] = 1
+
+            '''
             if not (False in list(np.greater_equal(np.array(avail) + np.array(allocation[_max]), _need[i]))):
                 offload.append(_max)
                 avail = np.array(avail) + np.array(allocation[_max])
@@ -67,6 +82,7 @@ def isSafe(processes, avail, maxm, allot):
                 offload.append(i)
                 avail = np.array(avail) + np.array(allocation[i])
                 work[processes.index(i)] = 1
+            '''
 
     print('seq: ', exec_seq)
     print('offload: ', offload)
