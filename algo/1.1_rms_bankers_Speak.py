@@ -555,9 +555,9 @@ def speaking_node():
     global mec_no
 
     while True:
-        if len(hosts) > mec_no:
+        if len(hosts) > (mec_no - 1):
             send_message('update')
-            mec_no = len(hosts)
+            mec_no = len(hosts) + 1
         time.sleep(2)
 
 
