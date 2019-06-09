@@ -89,7 +89,7 @@ def isSafe(processes, avail, maxm, allot):
             print("System is not in safe state")
 
             a = list(set(processes) - set(safeSeq) - set(offload))
-            _max = np.array([0, 0, 0])
+            # _max = np.array([0, 0, 0])
             n = {}
             for i in a:
                 n[i] = sum(allocation[i])
