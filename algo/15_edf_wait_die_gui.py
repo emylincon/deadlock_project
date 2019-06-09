@@ -258,7 +258,7 @@ def edf():
 
 
 # generate execution sequence
-def wound_wait(processes, avail, n_need, allocat):
+def wait_die(processes, avail, n_need, allocat):
     offload = []
 
     # To store execution sequence
@@ -269,14 +269,23 @@ def wound_wait(processes, avail, n_need, allocat):
 
     # While all processes are not finished
     # or system is not in safe state.
-    while 0 in work:
-        ind = work.index(0)
-        i = processes[ind]
-        print('comparing| process: ', i, n_need[i], 'work: ', avail)
+    while 'w' or 0 in work:
+        if 0 in work:
+            ind = work.index(0)
+            i = processes[ind]
+        elif 'w' in work:
+            # print('wk: ', work)
+            ind = work.index('w')
+            i = processes[ind]
+        else:
+            break
+
+        # print('comparing| process: ', i, _need[i], 'work: ', avail)
         if not (False in list(np.greater_equal(avail, n_need[i]))):
             exec_seq.append(i)
             avail = np.add(avail, allocat[i])
             work[ind] = 1
+            # print('added: ', exec_seq)
 
         else:
             a = list(set(processes) - set(exec_seq) - set(offload))
@@ -284,15 +293,25 @@ def wound_wait(processes, avail, n_need, allocat):
             for j in a:
                 n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max])
-            if not (False in list(np.greater_equal(np.array(avail) + np.array(allocat[_max]), n_need[i]))):
-                offload.append(_max)
-                avail = np.array(avail) + np.array(allocat[_max])
-                work[processes.index(_max)] = 1
+            # print('work: ', work, 'need: ', _need[_max])
+            if processes.index(_max) > processes.index(i):   # if true, i is older
+                # if process is already waiting then offload process
+                if work[ind] == 'w':
+                    offload.append(i)
+                    avail = np.array(avail) + np.array(allocat[i])
+                    work[processes.index(i)] = 1
+                    # print('offload reentry: ', i, offload)
+                else:
+                    # wait put process to waiting
+                    work[processes.index(i)] = 'w'
+                    # print('waiting: ', i)
+
             else:
+                # abort i
                 offload.append(i)
                 avail = np.array(avail) + np.array(allocat[i])
                 work[processes.index(i)] = 1
+                # print('offload: ', i)
 
     if len(offload) > 0:
         print('offloading tasks: ', offload)
@@ -322,8 +341,7 @@ def get_exec_seq(pro):
     allot = {i: allocation[i[:2]] for i in pro}
 
     # return execution sequence
-    return wound_wait(processes, avail, n_need, allot)
-
+    return wait_die(processes, avail, n_need, allot)
 
 
 def calc_wait_time(list_seq):
