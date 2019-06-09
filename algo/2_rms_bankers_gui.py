@@ -682,6 +682,7 @@ def initialization():
 
 
 def main():
+    os.system('clear')
     run_me()
 
 
