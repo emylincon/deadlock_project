@@ -339,7 +339,9 @@ def send_message(mg):
             sock.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
         elif mg == 'update':
-            smg = mg + ' ' + str(hosts)
+            ho = hosts.copy()
+            ho[message()] = host_ip
+            smg = mg + ' ' + str(ho)
             sock.sendto(str.encode(smg), _multicast_group)
         else:
             sock.sendto(str.encode(mg), _multicast_group)
