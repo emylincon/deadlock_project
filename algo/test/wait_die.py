@@ -28,7 +28,7 @@ R = 3
 
 
 # safe state or not
-def isSafe(processes, avail, _need, allocation):
+def wait_die(processes, avail, _need, allocation):
 
     offload = []
 
@@ -99,4 +99,4 @@ if __name__ == "__main__":
     avail = [3, 1, 2]
 
     # Check system is in safe state or not
-    isSafe(processes, avail, _need, allocation)
+    wait_die(processes, avail, _need, allocation)
