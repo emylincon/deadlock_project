@@ -500,6 +500,7 @@ def receive_executed_task():
 
 def run_me():
     global discovering
+    global hosts
 
     initialization()
     while True:
