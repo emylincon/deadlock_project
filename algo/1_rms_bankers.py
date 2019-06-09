@@ -356,7 +356,7 @@ def receive_message():
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
 
-        elif address[0] != host_ip:
+        elif (data.decode()[:6] != 'update') and (address[0] != host_ip):
             w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
             if address[0] in mec_waiting_time:
                 mec_waiting_time[address[0]].append(w_time)
