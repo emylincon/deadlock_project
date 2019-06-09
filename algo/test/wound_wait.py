@@ -36,82 +36,40 @@ def isSafe(processes, avail, maxm, allot):
     finish = [0] * P
 
     # To store safe sequence
-    safeSeq = [0] * P
+    exec_seq = []
 
     # Make a copy of available resources
-    work = [0] * R
-    for i in range(R):
-        work[i] = avail[i]
+    work = [0] * len(processes)
 
-        # While all processes are not finished
+    # While all processes are not finished
     # or system is not in safe state.
-    count = 0
-    while (count < P):
+    while 0 in work:
+        ind = work.index(0)
+        i = processes[ind]
+        print('comparing| process: ', i, _need[i], 'work: ', avail)
+        if not (False in list(np.greater_equal(avail, _need[i]))):
+            exec_seq.append(i)
+            avail = np.add(avail, allocation[i])
+            work[ind] = 1
 
-        # Find a process which is not finish
-        # and whose needs can be satisfied
-        # with current work[] resources.
-        found = False
-        for p in range(P):
-
-            # First check if a process is finished,
-            # if no, go for next condition
-            if (finish[p] == 0):
-
-                # Check if for all resources
-                # of current P need is less
-                # than work
-                for j in range(R):
-                    if (need[p][j] > work[j]):
-                        break
-
-                # If all needs of p were satisfied.
-                if (j == R - 1):
-
-                    # Add the allocated resources of
-                    # current P to the available/work
-                    # resources i.e.free the resources
-                    for k in range(R):
-                        work[k] += allot[p][k]
-
-                        # Add this process to safe sequence.
-                    safeSeq[count] = processes[p]
-                    count += 1
-
-                    # Mark this p as finished
-                    finish[p] = 1
-
-                    found = True
-
-        # If we could not find a next process
-        # in safe sequence.
-        if (found == False):
-            print("System is not in safe state")
-
-            a = list(set(processes) - set(safeSeq) - set(offload))
-            _max = np.array([0, 0, 0])
+        else:
+            a = list(set(processes) - set(exec_seq) - set(offload))
             n = {}
-            for i in a:
-                n[i] = sum(allocation[i])
+            for j in a:
+                n[j] = sum(allocation[j])
             _max = max(n, key=n.get)
             print('work: ', work, 'need: ', _need[_max])
-            offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max])
-            count += 1
+            if not (False in list(np.greater_equal(np.array(avail) + np.array(allocation[_max]), _need[i]))):
+                offload.append(_max)
+                avail = np.array(avail) + np.array(allocation[_max])
+                work[processes.index(_max)] = 1
+            else:
+                offload.append(i)
+                avail = np.array(avail) + np.array(allocation[i])
+                work[processes.index(i)] = 1
 
-            # Mark this p as finished
-            finish[processes.index(_max)] = 1
-            found = True
-
-
-    # If system is in safe state then
-    # safe sequence will be as below
-    print("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    print(*safeSeq)
-    print(offload)
-
-    return True
+    print('seq: ', exec_seq)
+    print('offload: ', offload)
 
 
 # Driver code
