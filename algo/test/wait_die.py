@@ -29,11 +29,7 @@ R = 3
 
 # safe state or not
 def wait_die(processes, avail, _need, allocation):
-
     offload = []
-
-    # Mark all processes as infinish
-    finish = [0] * P
 
     # To store safe sequence
     exec_seq = []
