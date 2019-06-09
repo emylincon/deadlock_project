@@ -59,14 +59,10 @@ def isSafe(processes, avail, maxm, allot):
                 n[j] = sum(allocation[j])
             _max = max(n, key=n.get)
             print('work: ', work, 'need: ', _need[_max])
-            if not (False in list(np.greater_equal(np.array(avail) + np.array(allocation[_max]), _need[i]))):
-                offload.append(_max)
-                avail = np.array(avail) + np.array(allocation[_max])
-                work[processes.index(_max)] = 1
-            else:
-                offload.append(i)
-                avail = np.array(avail) + np.array(allocation[i])
-                work[processes.index(i)] = 1
+
+            offload.append(_max)
+            avail = np.array(avail) + np.array(allocation[_max])
+            work[processes.index(_max)] = 1
 
     print('seq: ', exec_seq)
     print('offload: ', offload)
