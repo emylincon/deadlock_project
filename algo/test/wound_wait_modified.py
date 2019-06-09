@@ -28,8 +28,7 @@ R = 3
 
 
 # safe state or not
-def isSafe(processes, avail, maxm, allot):
-    need = [_need[i] for i in _need]
+def wound_wait(processes, avail, _need, allocation):
     offload = []
 
     # Mark all processes as infinish
@@ -79,12 +78,5 @@ if __name__ == "__main__":
     # Available instances of resources
     avail = [3, 1, 2]
 
-    # Maximum R that can be allocated
-    # to processes
-    maxm = [np.array(allocation[i]) + np.array(_need[i]) for i in _need]
-
-    # Resources allocated to processes
-    allot = [allocation[i] for i in allocation]
-
     # Check system is in safe state or not
-    isSafe(processes, avail, maxm, allot)
+    wound_wait(processes, avail, _need, allocation)
