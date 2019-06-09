@@ -600,7 +600,7 @@ def start_loop():
                 rms_list = get_rms()
                 print('RMS List of Processes: ', rms_list, '\n')
                 print('\nRunning Bankers Algorithm')
-                list_seq = get_safe_seq(rms_list)
+                list_seq = get_exec_seq(rms_list)
                 if len(list_seq) > 0:              # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)
                     print('\nWaiting Time List: ', wait_list)
