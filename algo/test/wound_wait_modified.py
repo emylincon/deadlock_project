@@ -31,9 +31,6 @@ R = 3
 def wound_wait(processes, avail, _need, allocation):
     offload = []
 
-    # Mark all processes as infinish
-    finish = [0] * P
-
     # To store safe sequence
     exec_seq = []
 
