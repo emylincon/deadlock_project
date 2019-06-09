@@ -27,7 +27,7 @@ P = len(allocation)
 R = 3
 
 
-# safe state or not
+# generate execution sequence
 def wait_die(processes, avail, _need, allocation):
     offload = []
 
