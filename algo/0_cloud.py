@@ -294,6 +294,7 @@ def run_me():
 
 
 def main():
+    os.system('clear')
     run_me()
 
 
