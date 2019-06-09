@@ -186,7 +186,7 @@ def lcm(_list):
     return reduce(_lcm, _list)
 
 
-def get_rms():
+def get_edf():
     global tasks
     tasks = {}
     while len(tasks) < 3:
@@ -257,99 +257,53 @@ def edf():
     return offloaded + schedule
 
 
-# safe state or not
-def isSafe(processes, avail, need, allot):
-    global _off
-
-    # tasks to offload if exit
+# generate execution sequence
+def wound_wait(processes, avail, n_need, allocat):
     offload = []
 
-    # Mark all processes as infinish
-    finish = [0] * P
-
-    # To store safe sequence
-    safeSeq = [0] * P
+    # To store execution sequence
+    exec_seq = []
 
     # Make a copy of available resources
-    work = [0] * R
-    for i in range(R):
-        work[i] = avail[i]
+    work = [0] * len(processes)
 
-        # While all processes are not finished
+    # While all processes are not finished
     # or system is not in safe state.
-    count = 0
-    while (count < P):
+    while 0 in work:
+        ind = work.index(0)
+        i = processes[ind]
+        print('comparing| process: ', i, n_need[i], 'work: ', avail)
+        if not (False in list(np.greater_equal(avail, n_need[i]))):
+            exec_seq.append(i)
+            avail = np.add(avail, allocat[i])
+            work[ind] = 1
 
-        # Find a process which is not finish
-        # and whose needs can be satisfied
-        # with current work[] resources.
-        found = False
-        for p in range(P):
-
-            # First check if a process is finished,
-            # if no, go for next condition
-            if (finish[p] == 0):
-
-                # Check if for all resources
-                # of current P need is less
-                # than work
-                for j in range(R):
-                    if (need[p][j] > work[j]):
-                        break
-
-                # If all needs of p were satisfied.
-                if (j == R - 1):
-
-                    # Add the allocated resources of
-                    # current P to the available/work
-                    # resources i.e.free the resources
-                    for k in range(R):
-                        work[k] += allot[p][k]
-
-                        # Add this process to safe sequence.
-                    safeSeq[count] = processes[p]
-                    count += 1
-
-                    # Mark this p as finished
-                    finish[p] = 1
-
-                    found = True
-
-        # If we could not find a next process
-        # in safe sequence.
-        if (found == False):
-            print("System is not in safe state")
-
-            a = list(set(processes) - set(safeSeq) - set(offload))
-            _max = np.array([0, 0, 0])
+        else:
+            a = list(set(processes) - set(exec_seq) - set(offload))
             n = {}
-            for i in a:
-                n[i] = sum(allocation[i[:2]])
+            for j in a:
+                n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max[:2]])
-            offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max[:2]])
-            count += 1
+            print('work: ', work, 'need: ', _need[_max])
+            if not (False in list(np.greater_equal(np.array(avail) + np.array(allocat[_max]), n_need[i]))):
+                offload.append(_max)
+                avail = np.array(avail) + np.array(allocat[_max])
+                work[processes.index(_max)] = 1
+            else:
+                offload.append(i)
+                avail = np.array(avail) + np.array(allocat[i])
+                work[processes.index(i)] = 1
 
-            # Mark this p as finished
-            finish[processes.index(_max)] = 1
-            found = True
-
-    # If system is in safe state then
-    # safe sequence will be as below
     if len(offload) > 0:
-        safeSeq = safeSeq[:safeSeq.index(0)]
         print('offloading tasks: ', offload)
-        # _off += len(offload)
         cooperative_mec(offload, 0)
-    print("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    print('safe seq: ', safeSeq)
 
-    return safeSeq
+    print('Execution seq: ', exec_seq)
+
+    return exec_seq
 
 
-def get_safe_seq(pro):
+def get_exec_seq(pro):
     global P
     global R
 
@@ -362,19 +316,14 @@ def get_safe_seq(pro):
 
     # Available instances of resources
     avail = [3, 5, 3]
-    n_need = [_need[i[:2]] for i in pro]
+    n_need = {i: _need[i[:2]] for i in pro}
     # print('need', n_need)
     # Resources allocated to processes
-    allot = [allocation[i[:2]] for i in pro]
-    # print('allocation', allot)
+    allot = {i: allocation[i[:2]] for i in pro}
 
-    # Maximum R that can be allocated
-    # to processes
-    # maxm = [np.array(allot[i]) + np.array(n_need[i]) for i in range(len(n_need))]
-    # print('max_matrix:', maxm)
+    # return execution sequence
+    return wound_wait(processes, avail, n_need, allot)
 
-    # Check system is in safe state or not
-    return isSafe(processes, avail, n_need, allot)
 
 
 def calc_wait_time(list_seq):
@@ -613,10 +562,10 @@ def start_loop():
         if x != 'exit':
             for i in range(30):
 
-                rms_list = get_rms()
-                print('RMS List of Processes: ', rms_list, '\n')
+                edf_list = get_edf()
+                print('RMS List of Processes: ', edf_list, '\n')
                 print('\nRunning Bankers Algorithm')
-                list_seq = get_safe_seq(rms_list)
+                list_seq = get_exec_seq(edf_list)
                 if len(list_seq) > 0:              # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)
                     print('\nWaiting Time List: ', wait_list)
