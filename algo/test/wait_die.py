@@ -48,7 +48,7 @@ def isSafe(processes, avail, maxm, allot):
             ind = work.index(0)
             i = processes[ind]
         elif 'w' in work:
-            print('wk: ', work)
+            # print('wk: ', work)
             ind = work.index('w')
             i = processes[ind]
         else:
