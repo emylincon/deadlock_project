@@ -86,7 +86,7 @@ def LCM(list):
 def get_rms():
     global tasks
     tasks = {}
-    while len(tasks) < 3:
+    while len(tasks) < 2:
         a = list(_tasks.keys())[r.randrange(5)]
         tasks[a] = _tasks[a]
 
@@ -248,7 +248,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
-    avail = [3, 5, 3]
+    avail = [5, 5, 3]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
