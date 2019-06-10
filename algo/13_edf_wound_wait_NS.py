@@ -27,11 +27,11 @@ group = socket.inet_aton(multicast_group)
 mreq = struct.pack('4sL', group, socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
-_tasks = {'t1': {'wcet': 3, 'period': 20},
-          't2': {'wcet': 1, 'period': 5},
-          't3': {'wcet': 2, 'period': 10},
-          't4': {'wcet': 1, 'period': 10},
-          't5': {'wcet': 3, 'period': 15}
+_tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
+          't2': {'wcet': 1, 'period': 5, 'deadline': 4},
+          't3': {'wcet': 2, 'period': 10, 'deadline': 8},
+          't4': {'wcet': 1, 'period': 10, 'deadline': 9},
+          't5': {'wcet': 3, 'period': 15, 'deadline': 12}
           }
 
 # mat = {'p0': ['cpu', 'mem', 'storage']}
@@ -83,7 +83,7 @@ def LCM(list):
     return reduce(lcm, list)
 
 
-def get_rms():
+def get_edf():
     global tasks
     tasks = {}
     while len(tasks) < 3:
@@ -92,8 +92,7 @@ def get_rms():
 
     print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
-    a = load_tasks()
-    return scheduler(a)
+    return edf()
 
 
 def waiting_time_init():
@@ -106,69 +105,52 @@ def waiting_time_init():
     print('[Execution_time, Latency]: ', t_time)
 
 
-def load_tasks():
-    global tasks
+def edf():
+    t_lcm = lcm([tasks[i]['period'] for i in tasks])
 
-    period_list = [tasks[i]['period'] for i in tasks]
+    t_dead = {i: tasks[i]['deadline'] for i in tasks}
 
-    lcm_period = LCM(period_list)
-    # insert idle task
-    tasks['idle'] = {'wcet': lcm_period, 'period': lcm_period + 1}
-    return lcm_period
+    sorted_dead = sorted(t_dead.items(), key=lambda kv: (kv[1], kv[0]))
+    # print(sorted_dead)
 
+    ready_task = []
+    for i in sorted_dead:
+        period = tasks[i[0]]['period']
+        # print('lcm: ', t_lcm, ' period: ', period)
+        t_range = int(t_lcm/period)
+        last_dead = 0
+        for j in range(t_range):
+            ready_task.append((i[0], last_dead+tasks[i[0]]['deadline']))
+            last_dead += period
 
-def scheduler(D):
-    queue = list(tasks.keys())  # initialize task queue
+    ready_task = sorted(ready_task, key=lambda t: t[1])
+    print(ready_task)
+
+    t_time_ = 0
     schedule = []
-    rms = []
-    curr = ''  # current task
-    prev = ''  # previous task
-    tmp = {}
-    for task in tasks.keys():
-        tmp[task] = {}  # temporary data for each task
-        tmp[task]['deadline'] = tasks[task]['period']
-        tmp[task]['executed'] = 0
+    missed = []
+    register = {i: 0 for i in tasks.keys()}   # {ti : amount executed}
+    for i in ready_task:
+        if (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
+            while (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
+                t_time_ += 1
+                # schedule.append(('idle', t_time))
+        if (t_time_//tasks[i[0]]['period'])+1 > register[i[0]]:
+            if t_time_ + tasks[i[0]]['wcet'] <= i[1]:
+                register[i[0]] += 1
+                t_time_ += tasks[i[0]]['wcet']
+                schedule.append(i[0])
+            else:
+                print('Deadline missed: ', i)
+                missed.append(i[0])
 
-    # start scheduling...
-    # proceed by one timestamp to handle preemption
-    for time in range(D):
-        # insert new tasks into the queue
-        for t in tmp.keys():
-            if time == tmp[t]['deadline']:
-                if tasks[t]['wcet'] > tmp[t]['executed']:
-                    # print('Scheduling Failed at %d' % time)
-                    exit(1)
-                else:
-                    tmp[t]['deadline'] += tasks[t]['period']
-                    tmp[t]['executed'] = 0
-                    queue.append(t)
-        # select next task to be scheduled
-        min = D * 2
-        for task in queue:
-            if tmp[task]['deadline'] < min:
-                min = tmp[task]['deadline']
-                curr = task
-        tmp[curr]['executed'] += 1
-        # print(time, queue, curr)
+    print('s (task, execution_time): ', schedule)
+    print('r: ', register)
+    if len(missed) > 0:
+        print('missed deadline: ', missed)
+        cooperative_mec(missed, 0)
 
-        # dequeue the execution-completed task
-        if tmp[curr]['executed'] == tasks[curr]['wcet']:
-            for i in range(len(queue)):
-                if curr == queue[i]:
-                    del queue[i]
-                    break
-
-        # record to the schedule trace
-        if prev != curr:
-            if prev in queue and prev != 'idle':  # previous task is preempted..
-                s = schedule.pop()
-                schedule.append([s[0], s[1], '*'])
-                rms.append(s[1])
-            schedule.append([time, curr])
-            if curr != 'idle': rms.append(curr)
-        prev = curr
-
-    return offloaded + rms
+    return offloaded + schedule
 
 
 # generate execution sequence
@@ -472,10 +454,10 @@ def start_loop():
         if x != 'exit':
             for i in range(30):
 
-                rms_list = get_rms()
-                print('RMS List of Processes: ', rms_list, '\n')
+                edf_list = get_edf()
+                print('RMS List of Processes: ', edf_list, '\n')
                 print('\nRunning Bankers Algorithm')
-                list_seq = get_exec_seq(rms_list)
+                list_seq = get_exec_seq(edf_list)
                 if len(list_seq) > 0:              # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)
                     print('\nWaiting Time List: ', wait_list)
