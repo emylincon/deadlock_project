@@ -75,12 +75,12 @@ def gcd(a, b):
     return gcd(b, a % b)
 
 
-def lcm(a, b):
+def _lcm(a, b):
     return int(a * b / gcd(a, b))
 
 
-def LCM(list):
-    return reduce(lcm, list)
+def lcm(_list):
+    return reduce(_lcm, _list)
 
 
 def get_edf():
