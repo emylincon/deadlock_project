@@ -289,7 +289,7 @@ def wound_wait(processes, avail, n_need, allocat):
     while 0 in work:
         ind = work.index(0)
         i = processes[ind]
-        print('comparing| process: ', i, n_need[i], 'work: ', avail)
+        # print('comparing| process: ', i, n_need[i], 'work: ', avail)
         if not (False in list(np.greater_equal(avail, n_need[i]))):
             exec_seq.append(i)
             avail = np.add(avail, allocat[i])
@@ -301,7 +301,7 @@ def wound_wait(processes, avail, n_need, allocat):
             for j in a:
                 n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max])
+            # print('work: ', work, 'need: ', n_need[_max])
             if not (False in list(np.greater_equal(np.array(avail) + np.array(allocat[_max]), n_need[i]))):
                 offload.append(_max)
                 avail = np.array(avail) + np.array(allocat[_max])
