@@ -352,10 +352,10 @@ def get_exec_seq(pro):
 
     # Available instances of resources
     avail = [3, 5, 3]
-    n_need = {i: _need[i[:2]] for i in pro}
+    n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
-    allot = {i: allocation[i[:2]] for i in pro}
+    allot = {i: allocation[i[:2]] for i in processes}
 
     # return execution sequence
     return wait_die(processes, avail, n_need, allot)
