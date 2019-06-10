@@ -108,7 +108,7 @@ def plot_wait_time():
         ax2.plot(_mov_avg(mec_waiting_time[i]), linewidth=5, label=i)
     ax2.set_title('Waiting Time Queue')
     ax2.set_ylabel('Moving Wait + RTT')
-    ax2.set_xlabel('Time (seconds)')
+    # ax2.set_xlabel('Time (seconds)')
     ax2.legend()
     plt.subplot(ax2)
 
