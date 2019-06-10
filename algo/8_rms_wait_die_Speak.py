@@ -194,7 +194,7 @@ def wait_die(processes, avail, n_need, allocat):
         else:
             break
 
-        # print('comparing| process: ', i, _need[i], 'work: ', avail)
+        # print('comparing| process: ', i, n_need[i], 'work: ', avail)
         if not (False in list(np.greater_equal(avail, n_need[i]))):
             exec_seq.append(i)
             avail = np.add(avail, allocat[i])
@@ -207,7 +207,7 @@ def wait_die(processes, avail, n_need, allocat):
             for j in a:
                 n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            # print('work: ', work, 'need: ', _need[_max])
+            # print('work: ', work, 'need: ', n_need[_max])
             if processes.index(_max) > processes.index(i):   # if true, i is older
                 # if process is already waiting then offload process
                 if work[ind] == 'w':
