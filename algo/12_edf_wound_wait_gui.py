@@ -325,7 +325,6 @@ def get_exec_seq(pro):
     return wound_wait(processes, avail, n_need, allot)
 
 
-
 def calc_wait_time(list_seq):
     pre = 0
     time_dic = {}
