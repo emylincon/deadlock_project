@@ -616,7 +616,7 @@ def start_loop():
                     if len(local_) > 0:            # do only when there is a task to send back
                         send_back_task(local_)
                 receive_executed_task()
-                show_graphs()                           # shows graph plots
+                show_graphs()                           # shows graph plots on screen
                 time.sleep(3)
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
