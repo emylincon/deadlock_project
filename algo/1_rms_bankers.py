@@ -81,11 +81,15 @@ def LCM(list):
     return reduce(lcm, list)
 
 
+def gosh_dist(_range):
+    return ((23 ** r.randrange(1331)) % r.randrange(1777)) % _range
+
+
 def get_rms():
     global tasks
     tasks = {}
     while len(tasks) < 3:
-        a = list(_tasks.keys())[r.randrange(5)]
+        a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
