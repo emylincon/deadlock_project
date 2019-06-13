@@ -56,6 +56,7 @@ allocation = {
 
 
 color_code = ['orange', 'brown', 'purple', 'pink']
+style = ['g--^', 'r:o', 'b-.s']
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
@@ -103,14 +104,17 @@ def plot_offloaded_remote():
     ax1.set_title('Remote vs Local Frequency')
     plt.subplot(ax1)
 
+# color=color_code[list(hosts.values()).index(i)]
+
 
 def plot_wait_time():
     ax2.grid(True)
     for i in mec_waiting_time:
-        ax2.plot(_mov_avg(mec_waiting_time[i]),
+        ax2.plot(list(range(len(_mov_avg(mec_waiting_time[i])))),
+                 _mov_avg(mec_waiting_time[i]),
+                 style[list(hosts.values()).index(i)],
                  linewidth=2,
-                 label=i,
-                 color=color_code[list(hosts.values()).index(i)])
+                 label=i)
     ax2.set_title('Waiting Time Queue')
     ax2.set_ylabel('Moving Wait + RTT')
     # ax2.set_xlabel('Time (seconds)')
@@ -127,7 +131,11 @@ def plot_rtts():
     get_mec_rtts()
     ax3.grid(True)
     for i in mec_rtt:
-        ax3.plot(_mov_avg(mec_rtt[i]), linewidth=2, label=i, color=color_code[list(hosts.values()).index(i)])
+        ax3.plot(list(range(len(_mov_avg(mec_rtt[i])))),
+                 _mov_avg(mec_rtt[i]),
+                 style[list(hosts.values()).index(i)],
+                 linewidth=2,
+                 label=i)
     ax3.set_title('RTT Utilization over Time')
     ax3.set_ylabel('Moving RTT')
     ax3.set_xlabel('Time (seconds)')
