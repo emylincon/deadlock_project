@@ -55,7 +55,7 @@ allocation = {
 }
 
 
-color_code = ['pink', 'brown', 'purple', 'orange']
+color_code = ['orange', 'brown', 'purple', 'pink']
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
