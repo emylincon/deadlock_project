@@ -109,9 +109,15 @@ def plot_offloaded_remote():
 
 def plot_wait_time():
     ax2.grid(True)
+
     for i in mec_waiting_time:
-        ax2.plot(list(range(len(_mov_avg(mec_waiting_time[i])))),
-                 _mov_avg(mec_waiting_time[i]),
+        mv = _mov_avg(mec_waiting_time[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax2.plot(ptx,
+                 pt,
                  style[list(hosts.values()).index(i)],
                  linewidth=2,
                  label=i)
