@@ -97,7 +97,7 @@ def plot_offloaded_remote():
         else:
             explode.append(0)
 
-    ax1.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols, alpha=0.5)
+    ax1.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
     ax1.set_title('Remote vs Local Frequency')
     plt.subplot(ax1)
 
