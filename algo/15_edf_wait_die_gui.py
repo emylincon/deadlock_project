@@ -105,7 +105,7 @@ def plot_offloaded_remote():
 def plot_wait_time():
     ax2.grid(True)
     for i in mec_waiting_time:
-        ax2.plot(_mov_avg(mec_waiting_time[i]), linewidth=5, label=i)
+        ax2.plot(_mov_avg(mec_waiting_time[i]), linewidth=2, label=i)
     ax2.set_title('Waiting Time Queue')
     ax2.set_ylabel('Moving Wait + RTT')
     # ax2.set_xlabel('Time (seconds)')
@@ -122,7 +122,7 @@ def plot_rtts():
     get_mec_rtts()
     ax3.grid(True)
     for i in mec_rtt:
-        ax3.plot(_mov_avg(mec_rtt[i]), linewidth=5, label=i)
+        ax3.plot(_mov_avg(mec_rtt[i]), linewidth=2, label=i)
     ax3.set_title('RTT Utilization over Time')
     ax3.set_ylabel('Moving RTT')
     ax3.set_xlabel('Time (seconds)')
@@ -141,7 +141,7 @@ def plot_cpu():
 
     # plot graph
     ax4.grid(True)
-    ax4.plot(list(range(len(_mov_avg(_cpu)))), _mov_avg(_cpu), linewidth=5, label='CPU')
+    ax4.plot(list(range(len(_mov_avg(_cpu)))), _mov_avg(_cpu), linewidth=2, label='CPU')
     ax4.set_title('Moving CPU Utilization')
     ax4.set_ylabel('Moving CPU')
     ax4.set_xlabel('Time (seconds)')
