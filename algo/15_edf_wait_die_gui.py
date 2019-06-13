@@ -145,7 +145,7 @@ def plot_cpu():
     ax4.set_title('Moving CPU Utilization')
     ax4.set_ylabel('Moving CPU')
     ax4.set_xlabel('Time (seconds)')
-    ax4.fill_between(list(range(len(_mov_avg(_cpu)))), _mov_avg(_cpu), 0, alpha=0.3)
+    ax4.fill_between(list(range(len(_mov_avg(_cpu)))), _mov_avg(_cpu), 0, alpha=0.5)
     ax4.legend()
     plt.subplot(ax4)
 
