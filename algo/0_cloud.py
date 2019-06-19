@@ -6,7 +6,7 @@ import os
 import operator
 import socket
 
-
+# deadlock project
 _tasks = {'t1': {'wcet': 3, 'period': 20},
           't2': {'wcet': 2, 'period': 5},
           't3': {'wcet': 2, 'period': 10},
