@@ -263,7 +263,7 @@ def run_me():
     print('Cloud ip: ', ip_address())
     m = input('Start (Y/N): ').lower()
     if m == 'y':
-        print('\n==========* Cloud Server Active *============\n')
+        print('\n============* Cloud Server Active *==============\n')
         try:
             while True:
                 if check_mec_offload() == 0:
