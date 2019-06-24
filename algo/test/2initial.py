@@ -41,7 +41,7 @@ def sel_task():
 def main():
     for i in range(10):
         while True:
-            c=ra.randint(1,5)
+            c=ra.randint(2,6)
             d=ra.randint(6,30)
             if c!=d:
                 break
@@ -52,22 +52,36 @@ def main():
             task_list.append(r)
             print(f'\t id={r[0]}, c={r[1]}, d={r[2]}\n')
 
-    for i in range(1000):
-        try:
-            t = sel_task()
-            if t[0] not in d_task.keys():
-                d_task[t[0]]=[i]
-            else:
-                d_task[t[0]].append(i/(d_task[t[0]][-1] + 1))
-            task_queue.append((t[0], t[1], d_task[t[0]][-1], t[2]))
-        except():
-            pass
-
+    select_task()
 
     for i in task_queue:
         print(i)
 
     plot_me()
+
+def task_buffer():
+    t_buffer = []
+    for i in range(6):
+        t = ra.randrange(len(task_list))
+        t_buffer.append(task_list[t])
+    return t_buffer
+
+
+def select_task():
+    i = 0
+    while i < 1000:
+        for j in range(ra.randrange(70)):
+            tas = task_buffer()
+            t = tas[ra.randint(0, len(tas) - 1)]
+            if t[0] not in d_task.keys():
+                d_task[t[0]]=[1]
+                i += 1
+            else:
+                d_task[t[0]].append(i/(d_task[t[0]][-1] + 1))
+                i += 1
+            task_queue.append((t[0], t[1], d_task[t[0]][-1], t[2]))
+            if i == 1000:
+                break
 
 
 
