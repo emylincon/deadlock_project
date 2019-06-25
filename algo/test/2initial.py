@@ -27,16 +27,19 @@ def plot_me():
     plt.legend()
     plt.show()
 
+
 def gen_task(c_lim, d_lim):
     c=ghosh_dist(1, c_lim)
     return (int(len(task_list)), c,
             c + ra.randint(int((d_lim-c_lim) / 2), d_lim - c_lim))
+
 
 def sel_task():
     if ra.randint(0,133331)%2 == 0:
         return task_list[ghosh_dist(0,len(task_list)-1)]
     else:
         return task_list[ra.randint(0, len(task_list) - 1)]
+
 
 def main():
     for i in range(10):
@@ -58,6 +61,7 @@ def main():
         print(i)
 
     plot_me()
+
 
 def task_buffer():
     t_buffer = []
@@ -82,7 +86,6 @@ def select_task():
             task_queue.append((t[0], t[1], d_task[t[0]][-1], t[2]))
             if i == 1000:
                 break
-
 
 
 main()
