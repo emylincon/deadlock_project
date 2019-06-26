@@ -634,6 +634,8 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            cmd = 'echo {} >> test.py'.format(test)
+            os.system(cmd)
             break
 
 
