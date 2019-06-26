@@ -480,7 +480,7 @@ def start_loop():
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
-            for i in range(30):
+            for i in range(500):
 
                 edf_list = get_edf()
                 print('RMS List of Processes: ', edf_list, '\n')
@@ -503,6 +503,10 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            cmd = 'echo "task = {}" >> test.py'.format(test)
+            os.system(cmd)
+            cmd = 'echo "_time = {}" >> test.py'.format(_time)
+            os.system(cmd)
             break
 
 
@@ -527,10 +531,6 @@ def initialization():
                 print('\nPlease Type "y" to send Hello message\n')
     except KeyboardInterrupt:
         print('\nProgramme Terminated')
-        cmd = 'echo "task = {}" >> test.py'.format(test)
-        os.system(cmd)
-        cmd = 'echo "_time = {}" >> test.py'.format(_time)
-        os.system(cmd)
         exit(0)
 
 
