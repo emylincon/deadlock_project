@@ -71,6 +71,10 @@ def task_buffer():
     return t_buffer
 
 
+def cal_period(tim, ca, freq):
+    return round((tim+ca)/freq, 3)
+
+
 def select_task():
     i = 0
     while i < 1000:
