@@ -639,7 +639,15 @@ def start_loop():
             print('\nProgramme Terminated')
             cmd = 'echo "task = {}" >> test.py'.format(test)
             os.system(cmd)
-            cmd = 'echo "_time = {}" >> test.py'.format(_time)
+
+            cmd = 'echo "_time = {} \nwt_16 = {} \nrtt_16 = {} \ncpu_16 = {} \noff_mec16 = {}' \
+                  '\noff_cloud16 = {} \nloc = {}" >> test.py'.format(_time,
+                                                                     mec_waiting_time,
+                                                                     mec_rtt,
+                                                                     _cpu,
+                                                                     _off_mec,
+                                                                     _off_cloud,
+                                                                     _loc)
             os.system(cmd)
             break
 
