@@ -54,7 +54,7 @@ allocation = {
     't5': [0, 0, 2]
 }
 
-
+test = []
 color_code = ['orange', 'brown', 'purple', 'pink']
 style = ['g--^', 'r:o', 'b-.s']
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
@@ -223,6 +223,7 @@ def get_edf():
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
+    test.append(tasks)
     waiting_time_init()
 
     return edf()

@@ -56,6 +56,7 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 offload_register = {}      # {task: host_ip}
 
 discovering = 0            # if discovering == 0 update host
+test = []
 
 
 def ip_address():
@@ -95,6 +96,7 @@ def get_edf():
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
+    test.append(tasks)
     waiting_time_init()
     return edf()
 
