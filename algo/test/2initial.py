@@ -5,6 +5,7 @@
 import random as ra
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 task_list = []
 task_queue = []
@@ -57,9 +58,12 @@ def main():
 
     select_task()
 
+    '''
     for i in task_queue:
         print(i)
-
+    '''
+    print('Tasks: \t', task_list)
+    print(task_queue)
     plot_me()
 
 
@@ -77,22 +81,45 @@ def cal_period(tim, ca, freq):
 
 def select_task():
     i = 0
+    _time = 1
+    fre = {}  # task: freq
     while i < 1000:
-        for j in range(ra.randrange(70)):
-            tas = task_buffer()
+        tas = task_buffer()
+        for j in range(ra.randrange(57)):
+
             t = tas[ra.randint(0, len(tas) - 1)]
             if t[0] not in d_task.keys():
-                d_task[t[0]]=[1]
+                d_task[t[0]]=[cal_period(_time, t[1], 1)]
                 i += 1
+                _time += t[1]
+                fre[t[0]] = 2
             else:
-                d_task[t[0]].append(i/(d_task[t[0]][-1] + 1))
+                d_task[t[0]].append(cal_period(_time, t[1], fre[t[0]]))
                 i += 1
+                _time += t[1]
+                fre[t[0]] += 1
             task_queue.append((t[0], t[1], d_task[t[0]][-1], t[2]))
             if i == 1000:
                 break
 
 
+def fetching_task():
+    global task_queue
+
+    while len(task_queue) > 0:
+        u = ra.randrange(2, 5)
+        t = task_queue[:u]
+        task_queue = task_queue[u:]
+        task = {}
+        for i in t:
+            task['t' + str(i[0]) + '_{}'.format(t.index(i))] = {'wcet': i[1], 'period': i[2], 'deadline': i[3]}
+        print('task: ', task)
+        _t = ra.randrange(2, 5)
+        time.sleep(_t)
+
+
 main()
-print('Tasks: \t', task_list)
+
+fetching_task()
 
 # finish this

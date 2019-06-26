@@ -66,6 +66,9 @@ def edf():
     if len(missed) > 0:
         print('missed deadline: ', missed)
 
-
+'''
 if __name__ == '__main__':
     edf()
+'''
+
+print(lcm([6, 6, 6]))
