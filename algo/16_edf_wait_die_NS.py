@@ -524,6 +524,8 @@ def initialization():
                 print('\nPlease Type "y" to send Hello message\n')
     except KeyboardInterrupt:
         print('\nProgramme Terminated')
+        cmd = 'echo {} >> test.py'.format(test)
+        os.system(cmd)
         exit(0)
 
 
