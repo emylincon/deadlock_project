@@ -486,7 +486,7 @@ def start_loop():
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
-            for i in range(30):
+            for i in range(500):
 
                 edf_list = get_edf()
                 print('RMS List of Processes: ', edf_list, '\n')
