@@ -57,6 +57,8 @@ offload_register = {}      # {task: host_ip}
 
 discovering = 0            # if discovering == 0 update host
 
+test = []
+
 
 def ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -95,6 +97,7 @@ def get_rms():
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
+    test.append(tasks)
     waiting_time_init()
     a = load_tasks()
     return scheduler(a)
@@ -570,6 +573,8 @@ def initialization():
                 print('\nPlease Type "y" to send Hello message\n')
     except KeyboardInterrupt:
         print('\nProgramme Terminated')
+        cmd = 'echo {} >> test.py'.format(test)
+        os.system(cmd)
         exit(0)
 
 

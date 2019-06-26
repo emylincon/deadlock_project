@@ -55,6 +55,8 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
 
+test = []
+
 
 def ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -93,6 +95,7 @@ def get_rms():
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
+    test.append(tasks)
     waiting_time_init()
     a = load_tasks()
     return scheduler(a)
@@ -533,6 +536,8 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            cmd = 'echo {} >> test.py'.format(test)
+            os.system(cmd)
             break
 
 
