@@ -57,6 +57,7 @@ offload_register = {}      # {task: host_ip}
 
 discovering = 0            # if discovering == 0 update host
 test = []
+_time = []
 
 
 def ip_address():
@@ -91,12 +92,14 @@ def gosh_dist(_range):
 def get_edf():
     global tasks
     tasks = {}
-    while len(tasks) < 2:
+    _t = r.randrange(2,4)
+    while len(tasks) < _t:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
     test.append(tasks)
+    _time.append(_t)
     waiting_time_init()
     return edf()
 
@@ -524,7 +527,9 @@ def initialization():
                 print('\nPlease Type "y" to send Hello message\n')
     except KeyboardInterrupt:
         print('\nProgramme Terminated')
-        cmd = 'echo {} >> test.py'.format(test)
+        cmd = 'echo "task = {}" >> test.py'.format(test)
+        os.system(cmd)
+        cmd = 'echo "_time = {}" >> test.py'.format(_time)
         os.system(cmd)
         exit(0)
 
