@@ -67,6 +67,8 @@ _off_mec = 0          # used to keep a count of tasks offloaded to mec
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
 
+test = []
+
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
 ax2 = fig.add_subplot(222)
@@ -199,6 +201,7 @@ def get_rms():
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
+    test.append(tasks)
     waiting_time_init()
     a = load_tasks()
     return scheduler(a)
@@ -659,6 +662,8 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            cmd = 'echo {} >> test.py'.format(test)
+            os.system(cmd)
             break
 
 
