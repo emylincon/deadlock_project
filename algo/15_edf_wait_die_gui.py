@@ -55,6 +55,7 @@ allocation = {
 }
 
 test = []
+_time = []
 color_code = ['orange', 'brown', 'purple', 'pink']
 style = ['g--^', 'r:o', 'b-.s']
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
@@ -218,12 +219,14 @@ def gosh_dist(_range):
 def get_edf():
     global tasks
     tasks = {}
-    while len(tasks) < 3:
+    _t = r.randrange(2, 4)
+    while len(tasks) < _t:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
     test.append(tasks)
+    _time.append(_t)
     waiting_time_init()
 
     return edf()
@@ -364,7 +367,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
-    avail = [3, 5, 3]
+    avail = [5, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -634,7 +637,9 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            cmd = 'echo {} >> test.py'.format(test)
+            cmd = 'echo "task = {}" >> test.py'.format(test)
+            os.system(cmd)
+            cmd = 'echo "_time = {}" >> test.py'.format(_time)
             os.system(cmd)
             break
 
