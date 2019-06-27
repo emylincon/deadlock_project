@@ -12,6 +12,7 @@ import ast
 import time
 import os
 import getpass as gp
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -55,7 +56,7 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
 
-test = []
+_pos = 0       # counting position of task and time
 
 
 def ip_address():
@@ -89,13 +90,18 @@ def gosh_dist(_range):
 
 def get_rms():
     global tasks
-    tasks = {}
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+
+    '''
     while len(tasks) < 3:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
+    '''
 
     print('Running RMS on Tasks: ', tasks, '\n')
-    test.append(tasks)
     waiting_time_init()
     a = load_tasks()
     return scheduler(a)
@@ -513,7 +519,7 @@ def start_loop():
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
-            for i in range(30):
+            for i in range(500):
 
                 rms_list = get_rms()
                 print('RMS List of Processes: ', rms_list, '\n')
@@ -536,8 +542,6 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            cmd = 'echo {} >> test.py'.format(test)
-            os.system(cmd)
             break
 
 
