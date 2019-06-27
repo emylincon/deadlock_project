@@ -15,6 +15,7 @@ import getpass as gp
 import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -66,6 +67,7 @@ _cpu = []             # cpu plot list
 _off_mec = 0          # used to keep a count of tasks offloaded to mec
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
+_pos = 0
 
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
@@ -193,11 +195,17 @@ def gosh_dist(_range):
 
 def get_rms():
     global tasks
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+
+    '''
     tasks = {}
     while len(tasks) < 3:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
-
+    '''
     print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
 
