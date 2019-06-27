@@ -410,6 +410,7 @@ def mec_task_unicast(task, host_):
         stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
         print(e)
+        print('error line 515')
 
 
 def cooperative_mec(mec_list, n):
