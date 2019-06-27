@@ -650,8 +650,8 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            cmd = 'echo "wt_1 = {} \nrtt_1 = {} \ncpu_1 = {} \noff_mec1 = {}' \
-                  '\noff_cloud1 = {} \nloc1 = {}" >> data.py'.format(mec_waiting_time,
+            cmd = 'echo "wt_3 = {} \nrtt_3 = {} \ncpu_3 = {} \noff_mec3 = {}' \
+                  '\noff_cloud3 = {} \nloc3 = {}" >> data.py'.format(mec_waiting_time,
                                                                      mec_rtt,
                                                                      _cpu,
                                                                      _off_mec,
