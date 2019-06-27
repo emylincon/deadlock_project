@@ -514,7 +514,6 @@ def mec_task_unicast(task, host_):
         print(e)
 
 
-
 def cooperative_mec(mec_list, n):
     global _off_cloud
     global _off_mec
