@@ -15,6 +15,7 @@ import getpass as gp
 import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -66,6 +67,7 @@ _cpu = []             # cpu plot list
 _off_mec = 0          # used to keep a count of tasks offloaded to mec
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
+_pos = 0              # tracks position of tasks and time
 
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
@@ -192,10 +194,17 @@ def gosh_dist(_range):
 
 def get_rms():
     global tasks
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+
+    '''
     tasks = {}
     while len(tasks) < 3:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
+    '''
 
     print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
@@ -355,7 +364,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
-    avail = [5, 5, 3]
+    avail = [5, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -599,7 +608,7 @@ def start_loop():
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
-            for i in range(30):
+            for i in range(500):
 
                 rms_list = get_rms()
                 print('RMS List of Processes: ', rms_list, '\n')
@@ -625,6 +634,14 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            cmd = 'echo "wt_8 = {} \nrtt_8 = {} \ncpu_8 = {} \noff_mec8 = {}' \
+                  '\noff_cloud8 = {} \nloc8 = {}" >> data.py'.format(mec_waiting_time,
+                                                                     mec_rtt,
+                                                                     _cpu,
+                                                                     _off_mec,
+                                                                     _off_cloud,
+                                                                     _loc)
+            os.system(cmd)
             break
 
 
