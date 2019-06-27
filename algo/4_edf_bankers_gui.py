@@ -624,7 +624,7 @@ def start_loop():
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
-            for i in range(30):
+            for i in range(500):
 
                 rms_list = get_rms()
                 print('RMS List of Processes: ', rms_list, '\n')
@@ -650,6 +650,14 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            cmd = 'echo "wt_1 = {} \nrtt_1 = {} \ncpu_1 = {} \noff_mec1 = {}' \
+                  '\noff_cloud1 = {} \nloc1 = {}" >> data.py'.format(mec_waiting_time,
+                                                                     mec_rtt,
+                                                                     _cpu,
+                                                                     _off_mec,
+                                                                     _off_cloud,
+                                                                     _loc)
+            os.system(cmd)
             break
 
 
