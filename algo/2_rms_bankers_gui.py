@@ -15,6 +15,7 @@ import getpass as gp
 import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -67,7 +68,7 @@ _off_mec = 0          # used to keep a count of tasks offloaded to mec
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
 
-test = []
+_pos = 0
 
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
@@ -195,13 +196,18 @@ def gosh_dist(_range):
 
 def get_rms():
     global tasks
-    tasks = {}
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+
+    '''
     while len(tasks) < 3:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
+    '''
 
     print('Running RMS on Tasks: ', tasks, '\n')
-    test.append(tasks)
     waiting_time_init()
     a = load_tasks()
     return scheduler(a)
@@ -636,7 +642,7 @@ def start_loop():
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
-            for i in range(30):
+            for i in range(500):
 
                 rms_list = get_rms()
                 print('RMS List of Processes: ', rms_list, '\n')
@@ -662,7 +668,13 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            cmd = 'echo {} >> test.py'.format(test)
+            cmd = 'echo "wt_1 = {} \nrtt_1 = {} \ncpu_1 = {} \noff_mec1 = {}' \
+                  '\noff_cloud1 = {} \nloc1 = {}" >> data.py'.format(mec_waiting_time,
+                                                                     mec_rtt,
+                                                                     _cpu,
+                                                                     _off_mec,
+                                                                     _off_cloud,
+                                                                     _loc)
             os.system(cmd)
             break
 
