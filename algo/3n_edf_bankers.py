@@ -12,7 +12,7 @@ import ast
 import time
 import os
 import getpass as gp
-import data
+
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -55,7 +55,6 @@ allocation = {
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip}
-_pos = 0       # counting position of task and time
 
 
 def ip_address():
@@ -89,15 +88,10 @@ def gosh_dist(_range):
 
 def get_edf():
     global tasks
-    global _pos
 
-    tasks = data.task[_pos]
-    _pos += 1
-    '''
-    while len(tasks) < 3:
+    while len(tasks) < 2:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
-    '''
 
     print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
