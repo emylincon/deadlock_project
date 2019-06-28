@@ -12,6 +12,7 @@ import ast
 import time
 import os
 import getpass as gp
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -56,6 +57,7 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 offload_register = {}      # {task: host_ip}
 
 discovering = 0            # if discovering == 0 update host
+_pos = 0              # tracks position of tasks and time
 
 
 def ip_address():
@@ -89,10 +91,17 @@ def gosh_dist(_range):
 
 def get_edf():
     global tasks
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+
+    '''
     tasks = {}
     while len(tasks) < 3:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
+    '''
 
     print('Running RMS on Tasks: ', tasks, '\n')
     waiting_time_init()
@@ -215,7 +224,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
-    avail = [3, 5, 3]
+    avail = [5, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -462,7 +471,7 @@ def start_loop():
     while True:
         x = gp.getpass('Press any key to Start...').lower()
         if x != 'exit':
-            for i in range(30):
+            for i in range(500):
 
                 edf_list = get_edf()
                 print('RMS List of Processes: ', edf_list, '\n')
