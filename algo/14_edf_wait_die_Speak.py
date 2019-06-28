@@ -1,4 +1,4 @@
-# Author Emeka Ugwuanyi
+# Author Emeka Ugwuanyi Emmanuel
 
 from functools import reduce
 from sys import *
