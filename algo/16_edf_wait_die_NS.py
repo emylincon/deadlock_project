@@ -12,6 +12,7 @@ import ast
 import time
 import os
 import getpass as gp
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -58,6 +59,7 @@ offload_register = {}      # {task: host_ip}
 discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
+_pos = 0
 
 
 def ip_address():
@@ -91,15 +93,21 @@ def gosh_dist(_range):
 
 def get_edf():
     global tasks
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+    '''
     tasks = {}
     _t = r.randrange(2,4)
     while len(tasks) < _t:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
+    '''
 
     print('Running RMS on Tasks: ', tasks, '\n')
-    test.append(tasks)
-    _time.append(_t)
+    # test.append(tasks)
+    # _time.append(_t)
     waiting_time_init()
     return edf()
 
