@@ -14,6 +14,7 @@ import ast
 import time
 import os
 import getpass as gp
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -94,14 +95,14 @@ def gosh_dist(_range):
 def get_edf():
     global tasks
     tasks = {}
-    _t = r.randrange(2, 4)
-    while len(tasks) < _t:
+    # _t = r.randrange(2, 4)
+    while len(tasks) < 2:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
 
     print('Running RMS on Tasks: ', tasks, '\n')
-    test.append(tasks)
-    _time.append(_t)
+    # test.append(tasks)
+    # _time.append(_t)
     waiting_time_init()
     return edf()
 
@@ -511,10 +512,12 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            '''
             cmd = 'echo "task = {}" >> test.py'.format(test)
             os.system(cmd)
             cmd = 'echo "_time = {}" >> test.py'.format(_time)
             os.system(cmd)
+            '''
             break
 
 
