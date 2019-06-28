@@ -511,10 +511,12 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            '''
             cmd = 'echo "task = {}" >> test.py'.format(test)
             os.system(cmd)
             cmd = 'echo "_time = {}" >> test.py'.format(_time)
             os.system(cmd)
+            '''
             break
 
 
