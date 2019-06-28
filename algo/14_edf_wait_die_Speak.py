@@ -1,3 +1,5 @@
+# Author Emeka Ugwuanyi
+
 from functools import reduce
 from sys import *
 import numpy as np
