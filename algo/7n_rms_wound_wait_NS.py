@@ -494,6 +494,7 @@ def start_loop():
                     local_ = execute(compare_result[1])
                     if len(local_) > 0:            # do only when there is a task to send back
                         send_back_task(local_)
+                        print('\nsending back tasks\n')
                 receive_executed_task()
                 time.sleep(3)
             print('\nEnter "Exit" to stop Programme!')
