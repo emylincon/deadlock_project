@@ -91,6 +91,7 @@ def gosh_dist(_range):
 def get_rms():
     global tasks
 
+    tasks = {}
     while len(tasks) < 2:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
