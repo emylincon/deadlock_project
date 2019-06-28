@@ -15,6 +15,7 @@ import getpass as gp
 import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
+import data
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
@@ -70,7 +71,7 @@ _cpu = []             # cpu plot list
 _off_mec = 0          # used to keep a count of tasks offloaded to mec
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
-
+_pos = 0
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
 ax2 = fig.add_subplot(222)
@@ -218,15 +219,21 @@ def gosh_dist(_range):
 
 def get_edf():
     global tasks
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+    '''
     tasks = {}
     _t = r.randrange(2, 4)
     while len(tasks) < _t:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
+    '''
 
     print('Running RMS on Tasks: ', tasks, '\n')
-    test.append(tasks)
-    _time.append(_t)
+    # test.append(tasks)
+    # _time.append(_t)
     waiting_time_init()
 
     return edf()
@@ -637,11 +644,11 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            cmd = 'echo "task = {}" >> test.py'.format(test)
-            os.system(cmd)
+            # cmd = 'echo "task = {}" >> test.py'.format(test)
+            # os.system(cmd)
 
             cmd = 'echo "_time = {} \nwt_16 = {} \nrtt_16 = {} \ncpu_16 = {} \noff_mec16 = {}' \
-                  '\noff_cloud16 = {} \nloc = {}" >> test.py'.format(_time,
+                  '\noff_cloud16 = {} \nloc = {}" >> data.py'.format(_time,
                                                                      mec_waiting_time,
                                                                      mec_rtt,
                                                                      _cpu,
