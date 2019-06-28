@@ -94,12 +94,17 @@ def gosh_dist(_range):
 
 def get_edf():
     global tasks
+    global _pos
+
+    tasks = data.task[_pos]
+    _pos += 1
+    '''
     tasks = {}
-    # _t = r.randrange(2, 4)
+    _t = r.randrange(2, 4)
     while len(tasks) < 2:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
-
+    '''
     print('Running RMS on Tasks: ', tasks, '\n')
     # test.append(tasks)
     # _time.append(_t)
