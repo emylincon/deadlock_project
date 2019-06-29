@@ -213,7 +213,7 @@ def execute(local):
     send = []
     for i in local:
         i = '_'.join(i.split('_')[:-1])
-        time.sleep(t_time[i][0])
+        time.sleep((t_time[i][0])/2)           # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
         if len(i) > 2:
             send.append(i)
@@ -225,7 +225,7 @@ def _execute(local):
     print('\nExecuting :', local)
     send = []
     for i in local:
-        time.sleep(t_time[i][0])
+        time.sleep((t_time[i][0]) / 2)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
         if len(i) > 2:
             send.append(i)
