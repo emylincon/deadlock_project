@@ -8,7 +8,7 @@
 `g/g/1 (((23**r.randrange(1, 1331)) % r.randrange(1, 1777)) % 5)`
 
 ```
-fifth Stage Done. still on progress!
+sixth Stage not Done. still on progress!
 ```
 
 #### SET UP Commands
