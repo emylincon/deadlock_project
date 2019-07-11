@@ -61,7 +61,7 @@ offload_register = {}      # {task: host_ip}
 discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
-
+_pos = 0
 
 def ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
