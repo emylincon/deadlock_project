@@ -647,7 +647,7 @@ def start_loop():
             # cmd = 'echo "task = {}" >> test.py'.format(test)
             # os.system(cmd)
 
-            cmd = 'echo "_time = {} \nwt_16 = {} \nrtt_16 = {} \ncpu_16 = {} \noff_mec16 = {}' \
+            cmd = 'echo "wt_16 = {} \nrtt_16 = {} \ncpu_16 = {} \noff_mec16 = {}' \
                   '\noff_cloud16 = {} \nloc = {}" >> data.py'.format(_time,
                                                                      mec_waiting_time,
                                                                      mec_rtt,
