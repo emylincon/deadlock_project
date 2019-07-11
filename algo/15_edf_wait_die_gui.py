@@ -504,7 +504,7 @@ def cooperative_mec(mec_list, n):
 
         elif n == 0:
             j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            if (mec_waiting_time[_host][-1])/2 < t_time[j][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
                 mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
 
@@ -519,7 +519,7 @@ def cooperative_mec(mec_list, n):
                 _off_cloud += 1
         else:
             j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            if (mec_waiting_time[_host][-1])/2 < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
                 mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
 
