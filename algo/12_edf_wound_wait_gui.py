@@ -598,8 +598,8 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            cmd = 'echo "wt_11_5 = {} \nrtt_11_5 = {} \ncpu_11_5 = {} \noff_mec11_5 = {}' \
-                  '\noff_cloud11_5 = {} \nloc11_5 = {}" >> data.py'.format(mec_waiting_time,
+            cmd = 'echo "wt_11_6 = {} \nrtt_11_6 = {} \ncpu_11_6 = {} \noff_mec11_6 = {}' \
+                  '\noff_cloud11_6 = {} \nloc11_6 = {}" >> data.py'.format(mec_waiting_time,
                                                                        mec_rtt,
                                                                        _cpu,
                                                                        _off_mec,
