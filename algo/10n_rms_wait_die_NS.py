@@ -85,7 +85,7 @@ def LCM(list):
 
 
 def gosh_dist(_range):
-    return ((23 ** r.randrange(1331)) % r.randrange(1777)) % _range
+    return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
 def get_rms():
