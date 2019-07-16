@@ -56,7 +56,7 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 offload_register = {}      # {task: host_ip}
 
 discovering = 0            # if discovering == 0 update host
-test = []
+test = []                # record for data collection
 _time = []
 
 
