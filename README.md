@@ -8,7 +8,7 @@
 `g/g/1 (((23**r.randrange(1, 1331)) % r.randrange(1, 1777)) % 5)`
 
 ```
-sixth Stage not Done. still on progress!
+homogenous experiment done. still on progress!
 ```
 
 #### SET UP Commands
