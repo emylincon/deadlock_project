@@ -3,9 +3,9 @@
 clear
 echo '============ Preparing your MEC Platform =============='
 sleep 3
-apt update && apt upgrade -y
-apt install python3 -y
-apt install python3-pip -y
+apk update && apk upgrade
+apk add python3
+apk add python3-pip -y
 pip3 install drawnow -y
 apt install python3-psutil -y
 apt install python3-matplotlib -y
