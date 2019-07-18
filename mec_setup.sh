@@ -22,4 +22,3 @@ apk add nmap
 clear
 echo '============= All done.. Ready to use! ==============='
 
-#pip3 install matplotlib
