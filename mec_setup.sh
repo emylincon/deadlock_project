@@ -97,8 +97,6 @@ touch /run/openrc/softlevel
 /etc/init.d/sshd start
 
 
-
-
 /etc/init.d/ssh start
 clear
 echo '============= All done.. Ready to use! ==============='
