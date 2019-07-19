@@ -41,10 +41,36 @@ python3.7 -m ensurepip
 python3.7 -m pip install --upgrade pip
 pip3 install --upgrade pip setuptools
 pip3 install freetype-py pypng
-
+pip3 install docwriter
+clear
 
 echo "Setting up environment for python packages"
+sleep 2
 cd
+wget http://www.zlib.net/zlib-1.2.11.tar.gz
+tar -xvzf zlib-1.2.11.tar.gz
+cd zlib-1.2.11/
+./configure
+make
+make install
+
+cd
+wget http://prdownloads.sourceforge.net/libpng/libpng-1.6.37.tar.gz?download
+tar -xvzf libpng-1.6.37.tar.gz?download
+cd libpng-1.6.37
+./configure
+make
+make install
+
+cd
+wget https://sourceforge.net/projects/freetype/files/freetype2/2.10.1/freetype-2.10.1.tar.gz
+tar -xvzf freetype-2.10.1.tar.gz
+cd freetype-2.10.1/
+./configure
+make
+make install
+
+
 echo "installing python3 packages"
 sleep 2
 pip3 install psutil
@@ -52,10 +78,19 @@ pip3 install paramiko
 pip3 install numpy
 pip3 install matplotlib
 pip3 install drawnow
+clear
 
+echo "installing "
 apk add openssh-client
 apk add openssh
 apk add acf-openssh
+apk add --no-cache openrc
+rc-update add sshd
+apk add --update openssh
+rm  -rf /tmp/* /var/cache/apk/*
+rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
+touch /run/openrc/softlevel
+ /etc/init.d/sshd start
 
 
 
