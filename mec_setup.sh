@@ -8,6 +8,10 @@ apk add busybox-static apk-tools-static
 apk add make
 cd
 apk add git
+apk add wget
+apk add nano
+apk add net-tools
+apk add nmap
 clear
 
 
@@ -42,10 +46,7 @@ apk add openssh
 apk add acf-openssh
 
 
-apk add wget
-apk add nano
-apk add net-tools
-apk add nmap
+
 
 /etc/init.d/ssh start
 clear
