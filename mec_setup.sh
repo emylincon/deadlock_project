@@ -7,6 +7,7 @@ apk update
 apk upgrade
 apk add busybox-static apk-tools-static
 apk add make
+apk add sudo
 cd
 apk add git
 apk add wget
@@ -80,7 +81,10 @@ pip3 install matplotlib
 pip3 install drawnow
 clear
 
-echo "installing "
+echo "installing openssh "
+sleep 2
+apk upgrade
+apk add --upgrade busybox
 apk add openssh-client
 apk add openssh
 apk add acf-openssh
@@ -90,7 +94,7 @@ apk add --update openssh
 rm  -rf /tmp/* /var/cache/apk/*
 rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
 touch /run/openrc/softlevel
- /etc/init.d/sshd start
+/etc/init.d/sshd start
 
 
 
