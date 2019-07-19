@@ -3,7 +3,8 @@
 clear
 echo '============ Preparing your MEC Platform =============='
 sleep 3
-apk update && apk upgrade
+apk update
+apk upgrade
 apk add busybox-static apk-tools-static
 apk add make
 cd
@@ -12,6 +13,8 @@ apk add wget
 apk add nano
 apk add net-tools
 apk add nmap
+apk add libpng
+apk add freetype
 clear
 
 
@@ -36,10 +39,19 @@ apk add pkgconf build-base python3-dev
 apk add --no-cache --virtual .build-deps g++ python3-dev libffi-dev openssl-dev
 python3.7 -m ensurepip
 python3.7 -m pip install --upgrade pip
+pip3 install --upgrade pip setuptools
+pip3 install freetype-py pypng
 
+
+echo "Setting up environment for python packages"
+cd
+echo "installing python3 packages"
+sleep 2
 pip3 install psutil
 pip3 install paramiko
 pip3 install numpy
+pip3 install matplotlib
+pip3 install drawnow
 
 apk add openssh-client
 apk add openssh
