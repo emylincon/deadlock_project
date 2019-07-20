@@ -16,6 +16,7 @@ apk add net-tools
 apk add nmap
 apk add libpng
 apk add freetype
+apk add gcc
 clear
 
 
