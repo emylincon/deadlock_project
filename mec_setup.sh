@@ -20,6 +20,7 @@ apk add gcc
 apk add g++
 apk add bzip2
 apk add harfbuzz
+apk add linux-headers
 clear
 
 
