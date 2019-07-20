@@ -42,8 +42,8 @@ sleep 2
 apk add python3
 apk add pkgconf build-base python3-dev
 apk add --no-cache --virtual .build-deps g++ python3-dev libffi-dev openssl-dev
-python3.7 -m ensurepip
-python3.7 -m pip install --upgrade pip
+python3.6 -m ensurepip
+python3.6 -m pip install --upgrade pip
 pip3 install --upgrade pip setuptools
 pip3 install freetype-py pypng
 pip3 install docwriter
