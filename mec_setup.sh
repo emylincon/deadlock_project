@@ -17,6 +17,7 @@ apk add nmap
 apk add libpng
 apk add freetype
 apk add gcc
+apk add g++
 clear
 
 
