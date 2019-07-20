@@ -18,6 +18,8 @@ apk add libpng
 apk add freetype
 apk add gcc
 apk add g++
+apk add bzip2
+apk add harfbuzz
 clear
 
 
