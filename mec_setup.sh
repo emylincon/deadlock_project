@@ -26,7 +26,7 @@ sleep 2
 git clone https://github.com/alpinelinux/alpine-conf.git
 cd alpine-conf
 make
-mv libalpine.sh /lib/
+cp libalpine.sh /lib/
 sh setup-apkrepos
 r
 apk update
