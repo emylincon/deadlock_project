@@ -105,3 +105,31 @@ touch /run/openrc/softlevel
 clear
 echo '============= All done.. Ready to use! ==============='
 
+
+## updating an installing ssh
+ git clone https://github.com/alpinelinux/alpine-conf.git
+ cd alpine-conf/
+ make
+ cp libalpine.sh /lib/
+ sh setup-apkrepos
+ apk update
+ sed -i -e 's/v3\.3/v3.8/g' /etc/apk/repositories
+ apk.static update
+ apk.static upgrade --no-self-upgrade --available --simulate
+ apk update
+ apk upgrade
+ apk.static upgrade --no-self-upgrade --available --simulate
+ apk upgrade
+ apk add --upgrade busybox
+ apk add openssh
+ apk add openrc
+ apk update
+ apk upgrade
+ rc-update add sshd
+ rc-status
+ apk add acf-openssh
+ rc-status
+ /etc/init.d/sshd status
+ touch /run/openrc/softlevel
+ /etc/init.d/sshd status
+ /etc/init.d/sshd start
