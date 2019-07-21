@@ -33,7 +33,7 @@ cp libalpine.sh /lib/
 sh setup-apkrepos
 r
 apk update
-sed -i -e 's/v3\.3/v3.8/g' /etc/apk/repositories
+sed -i -e 's/v3\.3/v3.6/g' /etc/apk/repositories
 apk update
 apk upgrade
 apk.static update
@@ -116,7 +116,7 @@ echo '============= All done.. Ready to use! ==============='
  cp libalpine.sh /lib/
  sh setup-apkrepos
  apk update
- sed -i -e 's/v3\.3/v3.8/g' /etc/apk/repositories
+ sed -i -e 's/v3\.3/v3.6/g' /etc/apk/repositories
  apk.static update
  apk.static upgrade --no-self-upgrade --available --simulate
  apk update
