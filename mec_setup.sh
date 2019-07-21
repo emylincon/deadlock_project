@@ -136,3 +136,6 @@ echo '============= All done.. Ready to use! ==============='
  touch /run/openrc/softlevel
  /etc/init.d/sshd status
  /etc/init.d/sshd start
+
+
+# find  / -type d -name "openvswitch"
