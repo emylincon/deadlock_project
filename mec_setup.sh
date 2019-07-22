@@ -43,6 +43,7 @@ clear
 echo "installing python3"
 sleep 2
 apk add python3
+apk add python3-tkinter
 apk add pkgconf build-base python3-dev
 apk add --no-cache --virtual .build-deps g++ python3-dev libffi-dev openssl-dev
 python3.6 -m ensurepip
@@ -82,6 +83,7 @@ make install
 echo "installing python3 packages"
 sleep 2
 pip3 install psutil
+pip3 install tk
 pip3 install paramiko
 pip3 install numpy
 pip3 install matplotlib
@@ -139,3 +141,16 @@ echo '============= All done.. Ready to use! ==============='
 
 
 # find  / -type d -name "openvswitch"
+
+# enabling x11 forwarding on alpine linux
+apk add authx
+# edit /etc/ssh/sshd_config and uncomment the following lines
+# X11Forwarding yes
+# X11UseLocalhost no
+# AllowTcpForwarding     yes
+# X11DisplayOffset       10
+# X11Forwarding          yes
+
+/etc/init.d/sshd reload
+
+# ssh -X username@ip_address
