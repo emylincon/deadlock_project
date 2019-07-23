@@ -26,7 +26,6 @@ P = len(allocation)
 # Number of resources
 R = 3
 
-
 # generate execution sequence
 def wound_wait(processes, avail, _need, allocation):
     offload = []
