@@ -648,13 +648,12 @@ def start_loop():
             # os.system(cmd)
 
             cmd = 'echo "wt_16_6 = {} \nrtt_16_6 = {} \ncpu_16_6 = {} \noff_mec16_6 = {}' \
-                  '\noff_cloud16_6 = {} \nloc16_6 = {}" >> data.py'.format(_time,
-                                                                     mec_waiting_time,
-                                                                     mec_rtt,
-                                                                     _cpu,
-                                                                     _off_mec,
-                                                                     _off_cloud,
-                                                                     _loc)
+                  '\noff_cloud16_6 = {} \nloc16_6 = {}" >> data.py'.format(mec_waiting_time,
+                                                                           mec_rtt,
+                                                                           _cpu,
+                                                                           _off_mec,
+                                                                           _off_cloud,
+                                                                           _loc)
             os.system(cmd)
             break
 
