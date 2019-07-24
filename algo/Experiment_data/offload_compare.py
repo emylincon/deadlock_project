@@ -35,7 +35,7 @@ def one_four():
             explode.append(0)
 
     ax1.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax1.set_title('Remote vs Local Frequency')
+    ax1.set_title('RMS + Bankers ')
     plt.subplot(ax1)
 
 
@@ -51,7 +51,7 @@ def three_four():
             explode.append(0)
 
     ax2.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax2.set_title('Remote vs Local Frequency')
+    ax2.set_title('EDF + Bankers')
     plt.subplot(ax2)
 
 
@@ -67,7 +67,7 @@ def five_four():
             explode.append(0)
 
     ax3.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax3.set_title('Remote vs Local Frequency')
+    ax3.set_title('RMS + Wound Wait')
     plt.subplot(ax3)
 
 
@@ -83,7 +83,7 @@ def eight_four():
             explode.append(0)
 
     ax4.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax4.set_title('Remote vs Local Frequency')
+    ax4.set_title('RMS + Wait Die')
     plt.subplot(ax4)
 
 
@@ -99,7 +99,7 @@ def eleven_four():
             explode.append(0)
 
     ax5.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax5.set_title('Remote vs Local Frequency')
+    ax5.set_title('EDF + Wound Wait')
     plt.subplot(ax5)
 
 
@@ -115,7 +115,7 @@ def sixteen_four():
             explode.append(0)
 
     ax6.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax6.set_title('Remote vs Local Frequency')
+    ax6.set_title('EDF + Wait Die')
     plt.subplot(ax6)
 
 
@@ -131,7 +131,7 @@ def one_five():
             explode.append(0)
 
     ax7.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax7.set_title('Remote vs Local Frequency')
+    #ax7.set_title('Remote vs Local Frequency')
     plt.subplot(ax7)
 
 
@@ -147,7 +147,7 @@ def three_five():
             explode.append(0)
 
     ax8.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax8.set_title('Remote vs Local Frequency')
+    #ax8.set_title('Remote vs Local Frequency')
     plt.subplot(ax8)
 
 
@@ -163,7 +163,7 @@ def five_five():
             explode.append(0)
 
     ax9.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax9.set_title('Remote vs Local Frequency')
+    #ax9.set_title('Remote vs Local Frequency')
     plt.subplot(ax9)
 
 
@@ -179,7 +179,7 @@ def eight_five():
             explode.append(0)
 
     ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax10.set_title('Remote vs Local Frequency')
+    #ax10.set_title('Remote vs Local Frequency')
     plt.subplot(ax10)
 
 
@@ -195,7 +195,7 @@ def eleven_five():
             explode.append(0)
 
     ax11.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax11.set_title('Remote vs Local Frequency')
+    #ax11.set_title('Remote vs Local Frequency')
     plt.subplot(ax11)
 
 
@@ -211,7 +211,7 @@ def sixteen_five():
             explode.append(0)
 
     ax12.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax12.set_title('Remote vs Local Frequency')
+    #ax12.set_title('Remote vs Local Frequency')
     plt.subplot(ax12)
 
 
@@ -227,7 +227,7 @@ def one_six():
             explode.append(0)
 
     ax13.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax13.set_title('Remote vs Local Frequency')
+    #ax13.set_title('Remote vs Local Frequency')
     plt.subplot(ax13)
 
 
@@ -243,7 +243,7 @@ def three_six():
             explode.append(0)
 
     ax14.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax14.set_title('Remote vs Local Frequency')
+    #ax14.set_title('Remote vs Local Frequency')
     plt.subplot(ax14)
 
 
@@ -259,7 +259,7 @@ def five_six():
             explode.append(0)
 
     ax15.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax15.set_title('Remote vs Local Frequency')
+    #ax15.set_title('Remote vs Local Frequency')
     plt.subplot(ax15)
 
 
@@ -275,7 +275,7 @@ def eight_six():
             explode.append(0)
 
     ax16.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax16.set_title('Remote vs Local Frequency')
+    #ax16.set_title('Remote vs Local Frequency')
     plt.subplot(ax16)
 
 
@@ -291,7 +291,7 @@ def eleven_six():
             explode.append(0)
 
     ax17.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax17.set_title('Remote vs Local Frequency')
+    #ax17.set_title('Remote vs Local Frequency')
     plt.subplot(ax17)
 
 
@@ -307,7 +307,7 @@ def sixteen_six():
             explode.append(0)
 
     ax18.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax18.set_title('Remote vs Local Frequency')
+    #ax18.set_title('Remote vs Local Frequency')
     plt.subplot(ax18)
 
 
