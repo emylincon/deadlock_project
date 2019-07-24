@@ -65,5 +65,19 @@ def six_mec():
     ax2.set_ylabel('Moving CPU')
     ax2.set_xlabel('Time (seconds)')
     ax2.legend()
-    plt.subplot(ax2)
+    plt.subplot(ax3)
 
+
+def plot_graphs():
+    four_mec()
+    five_mec()
+    six_mec()
+    fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
+    plt.show()
+
+
+def show_graphs():
+    drawnow(plot_graphs)
+
+
+show_graphs()
