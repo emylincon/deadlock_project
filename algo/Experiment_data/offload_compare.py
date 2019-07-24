@@ -12,12 +12,12 @@ ax6 = fig.add_subplot(366)
 ax7 = fig.add_subplot(367)
 ax8 = fig.add_subplot(368)
 ax9 = fig.add_subplot(369)
-ax10 = fig.add_subplot(3610)
+#ax10 = fig.add_subplot(3610)
 
 
 def one_four():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec1, data.off_cloud1, data.off_loc1]
+    val = [data.off_mec1, data.off_cloud1, data.loc1]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -33,7 +33,7 @@ def one_four():
 
 def three_four():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3, data.off_cloud3, data.off_loc3]
+    val = [data.off_mec3, data.off_cloud3, data.loc3]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -49,7 +49,7 @@ def three_four():
 
 def five_four():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5, data.off_cloud5, data.off_loc5]
+    val = [data.off_mec5, data.off_cloud5, data.loc5]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -65,7 +65,7 @@ def five_four():
 
 def eight_four():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8, data.off_cloud8, data.off_loc8]
+    val = [data.off_mec8, data.off_cloud8, data.loc8]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -81,7 +81,7 @@ def eight_four():
 
 def eleven_four():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec11, data.off_cloud11, data.off_loc11]
+    val = [data.off_mec11, data.off_cloud11, data.loc11]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -97,7 +97,7 @@ def eleven_four():
 
 def sixteen_four():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec16, data.off_cloud16, data.off_loc16]
+    val = [data.off_mec16, data.off_cloud16, data.loc16]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -113,7 +113,7 @@ def sixteen_four():
 
 def one_five():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec1_5, data.off_cloud1_5, data.off_loc1_5]
+    val = [data.off_mec1_5, data.off_cloud1_5, data.loc1_5]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -129,7 +129,7 @@ def one_five():
 
 def three_five():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3_5, data.off_cloud3_5, data.off_loc3_5]
+    val = [data.off_mec3_5, data.off_cloud3_5, data.loc3_5]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -145,7 +145,7 @@ def three_five():
 
 def five_five():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5_5, data.off_cloud5_5, data.off_loc5_5]
+    val = [data.off_mec5_5, data.off_cloud5_5, data.loc5_5]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -161,7 +161,7 @@ def five_five():
 
 def eight_five():
     keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8_5, data.off_cloud8_5, data.off_loc8_5]
+    val = [data.off_mec8_5, data.off_cloud8_5, data.loc8_5]
     cols = ['r', 'g', 'b']
     explode = []
     for i in val:
@@ -185,9 +185,11 @@ def plot_graphs():
     one_five()
     three_five()
     five_five()
-    eight_five()
+    #eight_five()
     fig.suptitle('MEC Performance During Deadlock Experiment')
 
 
 def show_graphs():
     drawnow(plot_graphs)
+
+show_graphs()
