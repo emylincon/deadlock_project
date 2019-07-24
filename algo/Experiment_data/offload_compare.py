@@ -11,8 +11,16 @@ ax5 = fig.add_subplot(365)
 ax6 = fig.add_subplot(366)
 ax7 = fig.add_subplot(367)
 ax8 = fig.add_subplot(368)
-ax9 = fig.add_subplot(369)
-#ax10 = fig.add_subplot(3610)
+ax9 = fig.add_subplot(3,6,9)
+ax10 = fig.add_subplot(3,6,10)
+ax11 = fig.add_subplot(3,6,11)
+ax12 = fig.add_subplot(3,6,12)
+ax13 = fig.add_subplot(3,6,13)
+ax14 = fig.add_subplot(3,6,14)
+ax15 = fig.add_subplot(3,6,15)
+ax16 = fig.add_subplot(3,6,16)
+ax17 = fig.add_subplot(3,6,17)
+ax18 = fig.add_subplot(3,6,18)
 
 
 def one_four():
@@ -175,6 +183,134 @@ def eight_five():
     plt.subplot(ax10)
 
 
+def eleven_five():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec11_5, data.off_cloud11_5, data.loc11_5]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
+def sixteen_five():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec16_5, data.off_cloud16_5, data.loc16_5]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
+def one_six():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec1_6, data.off_cloud1_6, data.loc1_6]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
+def three_six():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec3_6, data.off_cloud3_6, data.loc3_6]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
+def five_six():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec5_6, data.off_cloud5_6, data.loc5_6]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
+def eight_six():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec8_6, data.off_cloud8_6, data.loc8_6]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
+def eleven_six():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec11_6, data.off_cloud11_6, data.loc11_6]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
+def sixteen_six():
+    keys = ['MEC', 'Cloud', 'Local']
+    val = [data.off_mec16_6, data.off_cloud16_6, data.loc16_6]
+    cols = ['r', 'g', 'b']
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
+    ax10.set_title('Remote vs Local Frequency')
+    plt.subplot(ax10)
+
+
 def plot_graphs():
     one_four()
     three_four()
@@ -185,11 +321,21 @@ def plot_graphs():
     one_five()
     three_five()
     five_five()
-    #eight_five()
+    eight_five()
+    eleven_five()
+    sixteen_five()
+    one_six()
+    three_six()
+    five_six()
+    eight_six()
+    eleven_six()
+    sixteen_six()
     fig.suptitle('MEC Performance During Deadlock Experiment')
+    plt.show()
 
 
 def show_graphs():
     drawnow(plot_graphs)
+
 
 show_graphs()
