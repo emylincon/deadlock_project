@@ -22,6 +22,7 @@ ax16 = fig.add_subplot(3,6,16)
 ax17 = fig.add_subplot(3,6,17)
 ax18 = fig.add_subplot(3,6,18)
 
+style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>']
 
 def _mov_avg(a1):
     ma1=[] # moving average list
@@ -36,16 +37,56 @@ def _mov_avg(a1):
 
 
 def one_four():
+    ax1.grid(True)
+    for i in data.rtt_1:
+        mv = _mov_avg(data.rtt_1[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax1.plot(ptx,
+                 pt,
+                 style[list(data.rtt_1.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax1.set_title('RTT Utilization over Time')
+    ax1.set_ylabel('Moving RTT')
+    ax1.set_xlabel('Time (seconds)')
+    ax1.legend()
+    plt.subplot(ax1)
+
+
+def three_four():
+    ax2.grid(True)
+    for i in data.rtt_3:
+        mv = _mov_avg(data.rtt_3[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax2.plot(ptx,
+                 pt,
+                 style[list(data.rtt_3.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax2.set_title('RTT Utilization over Time')
+    ax2.set_ylabel('Moving RTT')
+    ax2.set_xlabel('Time (seconds)')
+    ax2.legend()
+    plt.subplot(ax2)
+
+
+def five_four():
     ax3.grid(True)
-    for i in mec_rtt:
-        mv = _mov_avg(mec_rtt[i])
+    for i in data.rtt_5:
+        mv = _mov_avg(data.rtt_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax3.plot(ptx,
                  pt,
-                 style[list(hosts.values()).index(i)],
+                 style[list(data.rtt_5.keys()).index(i)],
                  linewidth=2,
                  label=i)
     ax3.set_title('RTT Utilization over Time')
@@ -55,83 +96,63 @@ def one_four():
     plt.subplot(ax3)
 
 
-def three_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3, data.off_cloud3, data.loc3]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax2.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax2.set_title('EDF + Bankers')
-    plt.subplot(ax2)
-
-
-def five_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5, data.off_cloud5, data.loc5]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax3.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax3.set_title('RMS + Wound Wait')
-    plt.subplot(ax3)
-
-
 def eight_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8, data.off_cloud8, data.loc8]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax4.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax4.set_title('RMS + Wait Die')
+    ax4.grid(True)
+    for i in data.rtt_8:
+        mv = _mov_avg(data.rtt_8[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax4.plot(ptx,
+                 pt,
+                 style[list(data.rtt_8.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax4.set_title('RTT Utilization over Time')
+    ax4.set_ylabel('Moving RTT')
+    ax4.set_xlabel('Time (seconds)')
+    ax4.legend()
     plt.subplot(ax4)
 
 
 def eleven_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec11, data.off_cloud11, data.loc11]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax5.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax5.set_title('EDF + Wound Wait')
+    ax5.grid(True)
+    for i in data.rtt_11:
+        mv = _mov_avg(data.rtt_11[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax5.plot(ptx,
+                 pt,
+                 style[list(data.rtt_11.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax5.set_title('RTT Utilization over Time')
+    ax5.set_ylabel('Moving RTT')
+    ax5.set_xlabel('Time (seconds)')
+    ax5.legend()
     plt.subplot(ax5)
 
 
-def sixteen_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec16, data.off_cloud16, data.loc16]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax6.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    ax6.set_title('EDF + Wait Die')
+def sixteen_four(a):
+    ax6.grid(True)
+    for i in data.rtt_16:
+        mv = _mov_avg(data.rtt_1[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax6.plot(ptx,
+                 pt,
+                 style[list(data.rtt_1.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax6.set_title('RTT Utilization over Time')
+    ax6.set_ylabel('Moving RTT')
+    ax6.set_xlabel('Time (seconds)')
+    ax6.legend()
     plt.subplot(ax6)
 
 
