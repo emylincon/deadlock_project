@@ -49,7 +49,7 @@ def one_four():
                  style[list(data.rtt_1.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax1.set_title('RTT Utilization over Time')
+    ax1.set_title('RMS + Bankers ')
     ax1.set_ylabel('Moving RTT')
     ax1.set_xlabel('Time (seconds)')
     ax1.legend()
@@ -69,8 +69,7 @@ def three_four():
                  style[list(data.rtt_3.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax2.set_title('RTT Utilization over Time')
-    ax2.set_ylabel('Moving RTT')
+    ax2.set_title('EDF + Bankers')
     ax2.set_xlabel('Time (seconds)')
     ax2.legend()
     plt.subplot(ax2)
@@ -89,8 +88,7 @@ def five_four():
                  style[list(data.rtt_5.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax3.set_title('RTT Utilization over Time')
-    ax3.set_ylabel('Moving RTT')
+    ax3.set_title('RMS + Wound Wait')
     ax3.set_xlabel('Time (seconds)')
     ax3.legend()
     plt.subplot(ax3)
@@ -109,8 +107,7 @@ def eight_four():
                  style[list(data.rtt_8.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax4.set_title('RTT Utilization over Time')
-    ax4.set_ylabel('Moving RTT')
+    ax4.set_title('RMS + Wait Die')
     ax4.set_xlabel('Time (seconds)')
     ax4.legend()
     plt.subplot(ax4)
@@ -129,8 +126,7 @@ def eleven_four():
                  style[list(data.rtt_11.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax5.set_title('RTT Utilization over Time')
-    ax5.set_ylabel('Moving RTT')
+    ax5.set_title('EDF + Wound Wait')
     ax5.set_xlabel('Time (seconds)')
     ax5.legend()
     plt.subplot(ax5)
@@ -149,8 +145,7 @@ def sixteen_four():
                  style[list(data.rtt_16.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax6.set_title('RTT Utilization over Time')
-    ax6.set_ylabel('Moving RTT')
+    ax6.set_title('EDF + Wait Die')
     ax6.set_xlabel('Time (seconds)')
     ax6.legend()
     plt.subplot(ax6)
@@ -188,7 +183,6 @@ def three_five():
                  style[list(data.rtt_3_5.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax8.set_ylabel('Moving RTT')
     ax8.set_xlabel('Time (seconds)')
     ax8.legend()
     plt.subplot(ax8)
@@ -207,7 +201,6 @@ def five_five():
                  style[list(data.rtt_5_5.keys()).index(i)],
                  linewidth=2,
                  label=i)
-    ax9.set_ylabel('Moving RTT')
     ax9.set_xlabel('Time (seconds)')
     ax9.legend()
     plt.subplot(ax9)
@@ -226,7 +219,6 @@ def eight_five():
                   style[list(data.rtt_8_5.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax10.set_ylabel('Moving RTT')
     ax10.set_xlabel('Time (seconds)')
     ax10.legend()
     plt.subplot(ax10)
@@ -245,7 +237,6 @@ def eleven_five():
                   style[list(data.rtt_11_5.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax11.set_ylabel('Moving RTT')
     ax11.set_xlabel('Time (seconds)')
     ax11.legend()
     plt.subplot(ax11)
@@ -264,7 +255,6 @@ def sixteen_five():
                   style[list(data.rtt_16_5.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax12.set_ylabel('Moving RTT')
     ax12.set_xlabel('Time (seconds)')
     ax12.legend()
     plt.subplot(ax12)
@@ -302,7 +292,6 @@ def three_six():
                   style[list(data.rtt_3_6.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax14.set_ylabel('Moving RTT')
     ax14.set_xlabel('Time (seconds)')
     ax14.legend()
     plt.subplot(ax14)
@@ -321,7 +310,6 @@ def five_six():
                   style[list(data.rtt_5_6.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax15.set_ylabel('Moving RTT')
     ax15.set_xlabel('Time (seconds)')
     ax15.legend()
     plt.subplot(ax15)
@@ -340,7 +328,6 @@ def eight_six():
                   style[list(data.rtt_8_6.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax16.set_ylabel('Moving RTT')
     ax16.set_xlabel('Time (seconds)')
     ax16.legend()
     plt.subplot(ax16)
@@ -359,7 +346,6 @@ def eleven_six():
                   style[list(data.rtt_11_6.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax17.set_ylabel('Moving RTT')
     ax17.set_xlabel('Time (seconds)')
     ax17.legend()
     plt.subplot(ax17)
@@ -378,7 +364,6 @@ def sixteen_six():
                   style[list(data.rtt_16_6.keys()).index(i)],
                   linewidth=2,
                   label=i)
-    ax18.set_ylabel('Moving RTT')
     ax18.set_xlabel('Time (seconds)')
     ax18.legend()
     plt.subplot(ax18)
