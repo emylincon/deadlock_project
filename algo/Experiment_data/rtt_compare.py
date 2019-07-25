@@ -136,17 +136,17 @@ def eleven_four():
     plt.subplot(ax5)
 
 
-def sixteen_four(a):
+def sixteen_four():
     ax6.grid(True)
     for i in data.rtt_16:
-        mv = _mov_avg(data.rtt_1[i])
+        mv = _mov_avg(data.rtt_16[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax6.plot(ptx,
                  pt,
-                 style[list(data.rtt_1.keys()).index(i)],
+                 style[list(data.rtt_16.keys()).index(i)],
                  linewidth=2,
                  label=i)
     ax6.set_title('RTT Utilization over Time')
@@ -157,194 +157,230 @@ def sixteen_four(a):
 
 
 def one_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec1_5, data.off_cloud1_5, data.loc1_5]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax7.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax7.set_title('Remote vs Local Frequency')
+    ax7.grid(True)
+    for i in data.rtt_1_5:
+        mv = _mov_avg(data.rtt_1_5[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax7.plot(ptx,
+                 pt,
+                 style[list(data.rtt_1_5.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax7.set_ylabel('Moving RTT')
+    ax7.set_xlabel('Time (seconds)')
+    ax7.legend()
     plt.subplot(ax7)
 
 
 def three_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3_5, data.off_cloud3_5, data.loc3_5]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax8.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax8.set_title('Remote vs Local Frequency')
+    ax8.grid(True)
+    for i in data.rtt_3_5:
+        mv = _mov_avg(data.rtt_3_5[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax8.plot(ptx,
+                 pt,
+                 style[list(data.rtt_3_5.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax8.set_ylabel('Moving RTT')
+    ax8.set_xlabel('Time (seconds)')
+    ax8.legend()
     plt.subplot(ax8)
 
 
 def five_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5_5, data.off_cloud5_5, data.loc5_5]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax9.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax9.set_title('Remote vs Local Frequency')
+    ax9.grid(True)
+    for i in data.rtt_5_5:
+        mv = _mov_avg(data.rtt_5_5[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax9.plot(ptx,
+                 pt,
+                 style[list(data.rtt_5_5.keys()).index(i)],
+                 linewidth=2,
+                 label=i)
+    ax9.set_ylabel('Moving RTT')
+    ax9.set_xlabel('Time (seconds)')
+    ax9.legend()
     plt.subplot(ax9)
 
 
 def eight_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8_5, data.off_cloud8_5, data.loc8_5]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax10.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax10.set_title('Remote vs Local Frequency')
+    ax10.grid(True)
+    for i in data.rtt_8_5:
+        mv = _mov_avg(data.rtt_8_5[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax10.plot(ptx,
+                  pt,
+                  style[list(data.rtt_8_5.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax10.set_ylabel('Moving RTT')
+    ax10.set_xlabel('Time (seconds)')
+    ax10.legend()
     plt.subplot(ax10)
 
 
 def eleven_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec11_5, data.off_cloud11_5, data.loc11_5]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax11.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax11.set_title('Remote vs Local Frequency')
+    ax11.grid(True)
+    for i in data.rtt_11_5:
+        mv = _mov_avg(data.rtt_11_5[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax11.plot(ptx,
+                  pt,
+                  style[list(data.rtt_11_5.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax11.set_ylabel('Moving RTT')
+    ax11.set_xlabel('Time (seconds)')
+    ax11.legend()
     plt.subplot(ax11)
 
 
 def sixteen_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec16_5, data.off_cloud16_5, data.loc16_5]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax12.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax12.set_title('Remote vs Local Frequency')
+    ax12.grid(True)
+    for i in data.rtt_16_5:
+        mv = _mov_avg(data.rtt_16_5[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax12.plot(ptx,
+                  pt,
+                  style[list(data.rtt_16_5.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax12.set_ylabel('Moving RTT')
+    ax12.set_xlabel('Time (seconds)')
+    ax12.legend()
     plt.subplot(ax12)
 
 
 def one_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec1_6, data.off_cloud1_6, data.loc1_6]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax13.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax13.set_title('Remote vs Local Frequency')
+    ax13.grid(True)
+    for i in data.rtt_1_6:
+        mv = _mov_avg(data.rtt_1_6[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax13.plot(ptx,
+                  pt,
+                  style[list(data.rtt_1_6.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax13.set_ylabel('Moving RTT')
+    ax13.set_xlabel('Time (seconds)')
+    ax13.legend()
     plt.subplot(ax13)
 
 
 def three_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3_6, data.off_cloud3_6, data.loc3_6]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax14.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax14.set_title('Remote vs Local Frequency')
+    ax14.grid(True)
+    for i in data.rtt_3_6:
+        mv = _mov_avg(data.rtt_3_6[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax14.plot(ptx,
+                  pt,
+                  style[list(data.rtt_3_6.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax14.set_ylabel('Moving RTT')
+    ax14.set_xlabel('Time (seconds)')
+    ax14.legend()
     plt.subplot(ax14)
 
 
 def five_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5_6, data.off_cloud5_6, data.loc5_6]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax15.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax15.set_title('Remote vs Local Frequency')
+    ax15.grid(True)
+    for i in data.rtt_5_6:
+        mv = _mov_avg(data.rtt_5_6[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax15.plot(ptx,
+                  pt,
+                  style[list(data.rtt_5_6.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax15.set_ylabel('Moving RTT')
+    ax15.set_xlabel('Time (seconds)')
+    ax15.legend()
     plt.subplot(ax15)
 
 
 def eight_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8_6, data.off_cloud8_6, data.loc8_6]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax16.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax16.set_title('Remote vs Local Frequency')
+    ax16.grid(True)
+    for i in data.rtt_8_6:
+        mv = _mov_avg(data.rtt_8_6[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax16.plot(ptx,
+                  pt,
+                  style[list(data.rtt_8_6.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax16.set_ylabel('Moving RTT')
+    ax16.set_xlabel('Time (seconds)')
+    ax16.legend()
     plt.subplot(ax16)
 
 
 def eleven_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec11_6, data.off_cloud11_6, data.loc11_6]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax17.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax17.set_title('Remote vs Local Frequency')
+    ax17.grid(True)
+    for i in data.rtt_11_6:
+        mv = _mov_avg(data.rtt_11_6[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax17.plot(ptx,
+                  pt,
+                  style[list(data.rtt_11_6.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax17.set_ylabel('Moving RTT')
+    ax17.set_xlabel('Time (seconds)')
+    ax17.legend()
     plt.subplot(ax17)
 
 
 def sixteen_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec16_6, data.off_cloud16_6, data.loc16_6]
-    cols = ['r', 'g', 'b']
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax18.pie(val, labels=keys, autopct='%.3f%%', shadow=True, explode=explode, colors=cols)
-    #ax18.set_title('Remote vs Local Frequency')
+    ax18.grid(True)
+    for i in data.rtt_16_6:
+        mv = _mov_avg(data.rtt_16_6[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax18.plot(ptx,
+                  pt,
+                  style[list(data.rtt_16_6.keys()).index(i)],
+                  linewidth=2,
+                  label=i)
+    ax18.set_ylabel('Moving RTT')
+    ax18.set_xlabel('Time (seconds)')
+    ax18.legend()
     plt.subplot(ax18)
 
 
