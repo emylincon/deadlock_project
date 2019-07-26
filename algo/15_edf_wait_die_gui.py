@@ -68,9 +68,10 @@ mec_rtt = {}               # {ip: [RTT]}
 prev_t = 0            # variable for cpu util
 _cpu = []             # cpu plot list
 
-_off_mec = 0          # used to keep a count of tasks offloaded to mec
+_off_mec = 0          # used to keep a count of tasks offloaded from local mec to another mec
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
+_inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
 _pos = 0
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
@@ -536,6 +537,7 @@ def cooperative_mec(mec_list, n):
 
 def check_mec_offload():
     global offloaded
+    global _inward_mec
 
     offloaded = []
     t_mec = {}                # {t1: [execution, latency}
@@ -552,6 +554,7 @@ def check_mec_offload():
         print('Tasks Offloaded to MEC: {}'.format(offloaded))
     except Exception as e:
         print('no offloaded Task!')
+    _inward_mec += len(t_mec)
     return t_mec
 
 
@@ -629,15 +632,17 @@ def start_loop():
                     print('\nWaiting Time List: ', wait_list)
                     compare_result = compare_local_mec(wait_list)
                     print('\nExecute Locally: ', compare_result[1])
-                    _loc += len(compare_result[1])
+                    t_loc = len(compare_result[1])         # total number of tasks to be executed locally
                     print('\nExecute in MEC: ', compare_result[0])
 
                     print('\nSending to cooperative platform')
                     if len(compare_result[0]) > 0:
                         cooperative_mec(compare_result[0], 1)
-                    local_ = execute(compare_result[1])
-                    if len(local_) > 0:            # do only when there is a task to send back
-                        send_back_task(local_)
+                    _send_back = execute(compare_result[1])
+                    _loc = t_loc
+                    if len(_send_back) > 0:            # do only when there is a task to send back
+                        send_back_task(_send_back)
+                        _loc = t_loc - len(_send_back)
                 receive_executed_task()
                 show_graphs()                           # shows graph plots
                 time.sleep(3)
