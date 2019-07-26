@@ -24,6 +24,7 @@ ax18 = fig.add_subplot(3,6,18)
 
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>']
 
+
 def _mov_avg(a1):
     ma1=[] # moving average list
     avg1=0 # movinf average pointwise
