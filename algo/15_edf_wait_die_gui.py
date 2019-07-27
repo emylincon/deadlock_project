@@ -79,6 +79,7 @@ ax1 = fig.add_subplot(221)
 ax2 = fig.add_subplot(222)
 ax3 = fig.add_subplot(223)
 ax4 = fig.add_subplot(224)
+ax5 = fig.add_subplot(338)
 
 
 def _mov_avg(a1):
@@ -301,6 +302,8 @@ def edf():
 
 # generate execution sequence
 def wait_die(processes, avail, n_need, allocat):
+    global deadlock
+
     offload = []
 
     # To store execution sequence
@@ -358,6 +361,7 @@ def wait_die(processes, avail, n_need, allocat):
     if len(offload) > 0:
         print('offloading tasks: ', offload)
         cooperative_mec(offload, 0)
+        deadlock += 1
 
     print('Execution seq: ', exec_seq)
 
