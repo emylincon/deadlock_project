@@ -72,6 +72,7 @@ _off_mec = 0          # used to keep a count of tasks offloaded from local mec t
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
 _inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
+deadlock = 0          # keeps count of how many deadlock is resolved
 _pos = 0
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
@@ -82,7 +83,7 @@ ax4 = fig.add_subplot(224)
 
 def _mov_avg(a1):
     ma1=[] # moving average list
-    avg1=0 # movinf average pointwise
+    avg1=0 # moving average pointwise
     count=0
     for i in range(len(a1)):
         count+=1
