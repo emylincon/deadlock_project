@@ -93,7 +93,7 @@ def _mov_avg(a1):
 
 
 def plot_offloaded_remote():
-    keys = ['MEC', 'Cloud', 'Local']
+    keys = ['Offload In', 'Cloud', 'Local', 'Offload Out' ]
     val = [_off_mec, _off_cloud, _loc, _inward_mec]
     cols = ['r', 'g', 'b', 'm']
     explode = []
