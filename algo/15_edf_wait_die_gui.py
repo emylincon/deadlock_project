@@ -72,7 +72,7 @@ _off_mec = 0          # used to keep a count of tasks offloaded from local mec t
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
 _inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
-deadlock = 0          # keeps count of how many deadlock is resolved
+deadlock = [0]          # keeps count of how many deadlock is resolved
 _pos = 0
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
@@ -110,6 +110,18 @@ def plot_offloaded_remote():
     plt.subplot(ax1)
 
 # color=color_code[list(hosts.values()).index(i)]
+
+
+def plot_deadlock():
+    cols = ['r']
+    text = str(deadlock[-1]) + " Deadlock resolved"
+    wedges, texts, autotexts = ax5.pie(deadlock, shadow=True, autopct=text,
+                                       textprops=dict(rotation_mode='anchor', color="w", ha='left'), colors=cols)
+
+    plt.setp(autotexts, size=9, weight="bold")
+
+    ax5.set_title("Deadlock Resolved Counter")
+    plt.subplot(ax5)
 
 
 def plot_wait_time():
@@ -184,6 +196,7 @@ def plot_graphs():
     plot_wait_time()
     plot_rtts()
     plot_cpu()
+    plot_deadlock()
     fig.suptitle('MEC Performance During Deadlock Experiment')
 
 
