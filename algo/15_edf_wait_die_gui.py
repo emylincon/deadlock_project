@@ -10,6 +10,7 @@ from threading import Thread
 import paramiko
 import ast
 import time
+import datetime as dt
 import os
 import getpass as gp
 import psutil
@@ -214,6 +215,11 @@ def get_rtt(host):
     rtt = pc.verbose_ping(host)
 
     return rtt
+
+
+def get_time():
+    _time_ = str(dt.datetime.utcnow()).split()[1]
+    return _time_
 
 
 def gcd(a, b):
@@ -584,28 +590,31 @@ def execute(local):
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
         if len(j) > 2:
+            send_back_task(j)
             send.append(j)
     print('============== EXECUTION DONE ===============')
     return send
 
 
-def send_back_task(l_list):
+def send_back_task(o_task):
     _host_ip = ip_address()
-    for i in l_list:
-        try:
-            c = paramiko.SSHClient()
 
-            un = 'mec'
-            pw = 'password'
-            port = 22
+    try:
+        c = paramiko.SSHClient()
 
-            c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            c.connect(offload_register[i], port, un, pw)
-            cmd = ('echo "{} {}" >> /home/mec/deadlock_project/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
+        un = 'mec'
+        pw = 'password'
+        port = 22
 
-            stdin, stdout, stderr = c.exec_command(cmd)
-        except Exception as e:
-            print(e)
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        c.connect(offload_register[o_task], port, un, pw)
+        cmd = ('echo "{} {} {}" >> '
+               '/home/mec/deadlock_project/temp/executed.txt'.format(o_task, _host_ip, get_time()))
+        # task share, host ip task, execution_time
+
+        stdin, stdout, stderr = c.exec_command(cmd)
+    except Exception as e:
+        print(e)
 
 
 def receive_executed_task():
@@ -659,7 +668,6 @@ def start_loop():
                     _send_back = execute(compare_result[1])
                     _loc = t_loc
                     if len(_send_back) > 0:            # do only when there is a task to send back
-                        send_back_task(_send_back)
                         _loc = t_loc - len(_send_back)
                 receive_executed_task()
                 show_graphs()                           # shows graph plots
