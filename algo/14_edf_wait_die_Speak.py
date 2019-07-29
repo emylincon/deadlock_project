@@ -409,6 +409,7 @@ def cooperative_mec(mec_list, n):
 
 def check_mec_offload():
     global offloaded
+    global _inward_mec
 
     offloaded = []
     t_mec = {}                # {t1: [execution, latency}
@@ -425,6 +426,7 @@ def check_mec_offload():
         print('Tasks Offloaded to MEC: {}'.format(offloaded))
     except Exception as e:
         print('no offloaded Task!')
+    _inward_mec += len(t_mec)
     return t_mec
 
 
