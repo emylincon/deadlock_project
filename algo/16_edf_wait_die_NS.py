@@ -177,8 +177,6 @@ def edf():
 
 # generate execution sequence
 def wait_die(processes, avail, n_need, allocat):
-    global deadlock
-
     offload = []
 
     # To store execution sequence
@@ -236,7 +234,6 @@ def wait_die(processes, avail, n_need, allocat):
     if len(offload) > 0:
         print('offloading tasks: ', offload)
         cooperative_mec(offload, 0)
-        deadlock += 1
 
     print('Execution seq: ', exec_seq)
 
