@@ -65,6 +65,7 @@ def wound_wait(processes, avail, _need, allocation):
 
     print('seq: ', exec_seq)
     print('offload: ', offload)
+    print('w: ', work)
 
 
 # Driver code
