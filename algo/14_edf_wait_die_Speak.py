@@ -63,10 +63,16 @@ test = []
 _time = []
 _pos = 0
 
+
 def ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     return s.getsockname()[0]
+
+
+def get_time():
+    _time_ = str(dt.datetime.utcnow()).split()[1]
+    return _time_
 
 
 def get_rtt(host):
