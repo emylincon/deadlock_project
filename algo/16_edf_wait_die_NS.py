@@ -431,6 +431,7 @@ def execute(local):
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
         if len(j) > 2:
+            send_back_task(j)
             send.append(j)
     print('============== EXECUTION DONE ===============')
     return send
