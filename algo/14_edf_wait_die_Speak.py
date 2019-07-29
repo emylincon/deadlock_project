@@ -490,6 +490,8 @@ def run_me():
 
 
 def start_loop():
+    global _loc
+
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
     while True:
         x = gp.getpass('Press any key to Start...').lower()
@@ -505,13 +507,16 @@ def start_loop():
                     print('\nWaiting Time List: ', wait_list)
                     compare_result = compare_local_mec(wait_list)
                     print('\nExecute Locally: ', compare_result[1])
+                    t_loc = len(compare_result[1])         # total number of tasks to be executed locally
                     print('\nExecute in MEC: ', compare_result[0])
+
                     print('\nSending to cooperative platform')
                     if len(compare_result[0]) > 0:
                         cooperative_mec(compare_result[0], 1)
-                    local_ = execute(compare_result[1])
-                    if len(local_) > 0:            # do only when there is a task to send back
-                        send_back_task(local_)
+                    _send_back = execute(compare_result[1])
+                    _loc = t_loc
+                    if len(_send_back) > 0:            # do only when there is a task to send back
+                        _loc = t_loc - len(_send_back)
                 receive_executed_task()
                 time.sleep(3)
             print('\nEnter "Exit" to stop Programme!')
