@@ -66,6 +66,11 @@ def ip_address():
     return s.getsockname()[0]
 
 
+def get_time():
+    _time_ = str(dt.datetime.utcnow()).split()[1]
+    return _time_
+
+
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
 
