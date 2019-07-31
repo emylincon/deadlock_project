@@ -5,7 +5,7 @@ import os
 import ast
 import struct
 from threading import Thread
-
+import random as r
 
 port = 65000        # The port used by the server
 
@@ -46,6 +46,32 @@ allocation = {
     't4': [2, 1, 1],
     't5': [0, 0, 2]
 }
+
+
+def gosh_dist(_range):
+    return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
+
+
+def get_tasks():
+    global tasks
+    global _pos
+
+    tasks = {}
+    _t = r.randrange(2, 4)
+    while len(tasks) < _t:
+        a = list(_tasks.keys())[gosh_dist(5)]
+        tasks[a] = _tasks[a]
+
+    _t_time = waiting_time_init()
+    return tasks, _t_time
+
+
+def waiting_time_init():
+    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
+              tasks}  # t_time = {'ti': [execution_time, latency], ..}
+
+    return t_time
+
 
 def send_message(mg):
     _multicast_group = ('224.3.29.71', 10000)
