@@ -352,6 +352,8 @@ def receive_message():
                 mec_waiting_time[address[0]].append(w_time)
             else:
                 mec_waiting_time[address[0]] = [w_time]
+        elif data.decode().strip() == 'user':
+            send_message('update')
 
 
 def mec_comparison():
