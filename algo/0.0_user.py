@@ -6,12 +6,14 @@ import ast
 import struct
 from threading import Thread
 import random as r
+import time
 
 port = 65000        # The port used by the server
 
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
 server_address = ('', 10000)
+record = []
 
 # Create the socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -83,9 +85,6 @@ def send_message(mg):
             sock.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
 
-        else:
-            sock.sendto(str.encode(mg), _multicast_group)
-
     except Exception as e:
         print(e)
 
@@ -111,26 +110,43 @@ def send_task(_task, _host):
     port = 65000
 
 
-def client():
+def client(t, h):    # t = tasks, h = host ip
     global port
 
     try:
-        send_task()
+        send_task(t, h)
     except ConnectionRefusedError:
         port += 10
-        client()
+        client(t, h)
     except KeyboardInterrupt:
         print('Programme Terminated')
 
 
 def main():
-    global host
+    global record
 
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
     init = Thread(target=receive_message)
     init.start()
-    client()
+    send_message('hello')
+    while True:
+        time.sleep(1)
+        if len(hosts) > 0:
+            break
+    print('Client is connected to servers: {}'.format(hosts))
+
+    while True:
+        if input('Enter any Key to Start: '):
+            for i in range(500):
+                rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
+                _task_ = get_tasks()
+                record.append([_task_, rand_host])
+                client(_task_, rand_host)
+                time.sleep(2)
+            break
+    cmd = "echo '{}' >> record.py".format(record)
+    os.system(cmd)
 
 
 if __name__ == "__main__":
