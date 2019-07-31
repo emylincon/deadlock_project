@@ -135,16 +135,20 @@ def main():
         if len(hosts) > 0:
             break
     print('Client is connected to servers: {}'.format(hosts))
-
-    while True:
-        if input('Enter any Key to Start: '):
-            for i in range(500):
-                rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
-                _task_ = get_tasks()
-                record.append([_task_, rand_host])
-                client(_task_, rand_host)
-                time.sleep(2)
-            break
+    try:
+        while True:
+            if input('Enter any Key to Start: '):
+                for i in range(500):
+                    rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
+                    _task_ = get_tasks()
+                    record.append([_task_, rand_host])
+                    client(_task_, rand_host)
+                    time.sleep(2)
+                break
+    except KeyboardInterrupt:
+        print('Programme terminated')
+        cmd = "echo '{}' >> record.py".format(record)
+        os.system(cmd)
     cmd = "echo '{}' >> record.py".format(record)
     os.system(cmd)
 
