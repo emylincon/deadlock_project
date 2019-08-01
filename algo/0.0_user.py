@@ -13,7 +13,7 @@ port = 65000        # The port used by the server
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
 server_address = ('', 10000)
-record = []
+record = []  # records the task list and execution and waiting time and host sent
 
 # Create the socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -48,6 +48,12 @@ allocation = {
     't4': [2, 1, 1],
     't5': [0, 0, 2]
 }
+'''
+ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            )
+'''
+thread_record = []
 
 
 def gosh_dist(_range):
@@ -102,6 +108,44 @@ def receive_message():
             break
 
 
+def ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
+
+def receive_data(_con, _addr):
+    with _con:
+        while True:
+            try:
+                data = _con.recv(1024)
+                print(_addr[0], ': ', data.decode())
+            except KeyboardInterrupt:
+                print('Receive Tasks Terminated')
+                break
+
+
+def receive_tasks():
+    _host_ = ip_address()
+    _port_ = 64000        # Port to listen on (non-privileged ports are > 1023)
+
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((_host_, _port_))
+                s.listen()
+                conn, addr = s.accept()
+
+                th = Thread(target=receive_data, args=(conn, addr))
+                thread_record.append(th)
+                th.start()
+                _port_ += 10
+
+        except KeyboardInterrupt:
+            print('\nProgramme Forcefully Terminated')
+            break
+
+
 def send_task(_task, _host):
     global port
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -128,6 +172,7 @@ def main():
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
     init = Thread(target=receive_message)
+    thread_record.append(init)
     init.start()
     send_message('hello')
     while True:
@@ -135,22 +180,27 @@ def main():
         if len(hosts) > 0:
             break
     print('Client is connected to servers: {}'.format(hosts))
-    try:
-        while True:
-            if input('Enter any Key to Start: '):
+    while True:
+        try:
+            x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
+            if x == 'y':
                 for i in range(500):
                     rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
                     _task_ = get_tasks()
                     record.append([_task_, rand_host])
                     client(_task_, rand_host)
                     time.sleep(2)
+            elif x == 'stop':
+                cmd = "echo '{}' >> record.py".format(record)
+                os.system(cmd)
+                for i in thread_record:
+                    i.stop()
                 break
-    except KeyboardInterrupt:
-        print('Programme terminated')
-        cmd = "echo '{}' >> record.py".format(record)
-        os.system(cmd)
-    cmd = "echo '{}' >> record.py".format(record)
-    os.system(cmd)
+        except KeyboardInterrupt:
+            print('Programme terminated')
+            for i in thread_record:
+                i.stop()
+            break
 
 
 if __name__ == "__main__":
