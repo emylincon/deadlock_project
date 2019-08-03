@@ -512,7 +512,7 @@ def start_loop():
 
                 edf_list = get_edf()
                 print('RMS List of Processes: ', edf_list, '\n')
-                print('\nRunning Bankers Algorithm')
+                print('\nDeadlock Algorithm')
                 list_seq = get_exec_seq(edf_list)
                 if len(list_seq) > 0:              # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)

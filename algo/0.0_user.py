@@ -55,6 +55,8 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
 '''
 thread_record = []
 
+# idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
+
 
 def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
