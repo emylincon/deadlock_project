@@ -63,6 +63,8 @@ discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
+received_task_queue = []   # [(task_list,wait_time), ...]
+thread_record = []
 
 
 def ip_address():
@@ -99,8 +101,36 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
-def receive_tasks():
-    pass
+def receive_tasks_client(_con, _addr):
+    with _con:
+        print('Connected: ', _addr)
+        while True:
+            data = _con.recv(1024)
+            # print(_addr[0], ': ', data.decode())
+            received_task = ast.literal_eval(data.decode())
+            received_task_queue.append(received_task)
+
+
+def receive_connection():
+    host = ip_address()
+    port = 65000        # Port to listen on (non-privileged ports are > 1023)
+
+    print('Server IP: {}'.format(host))
+
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, port))
+                s.listen()
+                conn, addr = s.accept()
+
+                thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
+                thread_record[-1].start()
+                port += 10
+
+        except KeyboardInterrupt:
+            print('\nProgramme Forcefully Terminated')
+            break
 
 
 def edf():
@@ -217,15 +247,8 @@ def wait_die(processes, avail, n_need, allocat):
 
 
 def get_exec_seq(pro):
-    global P
-    global R
 
-    # Number of processes
-    P = len(pro)
-
-    # Number of resources
-    R = 3
-    processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
+    processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
 
     # Available instances of resources
     avail = [5, 5, 5]
@@ -477,44 +500,46 @@ def run_me():
 
 def start_loop():
     global _loc
+    global tasks
+    global t_time
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
-    while True:
-        x = gp.getpass('Press any key to Start...').lower()
-        if x != 'exit':
-            for i in range(500):
 
-                edf_list = get_edf()
-                print('RMS List of Processes: ', edf_list, '\n')
-                print('\nDeadlock Algorithm')
-                list_seq = get_exec_seq(edf_list)
-                if len(list_seq) > 0:              # do only when there is a task in safe sequence
-                    wait_list = calc_wait_time(list_seq)
-                    print('\nWaiting Time List: ', wait_list)
-                    compare_result = compare_local_mec(wait_list)
-                    print('\nExecute Locally: ', compare_result[1])
-                    t_loc = len(compare_result[1])         # total number of tasks to be executed locally
-                    print('\nExecute in MEC: ', compare_result[0])
+    x = gp.getpass('Press any key to Start...').lower()
+    if x != 'exit':
+        while True:
+            try:
+                if len(received_task_queue) > 0:
+                    tasks, t_time = received_task_queue.pop(0)
 
-                    print('\nSending to cooperative platform')
-                    if len(compare_result[0]) > 0:
-                        cooperative_mec(compare_result[0], 1)
-                    _send_back = execute(compare_result[1])
-                    _loc = t_loc
-                    if len(_send_back) > 0:            # do only when there is a task to send back
-                        _loc = t_loc - len(_send_back)
-                receive_executed_task()
-                time.sleep(3)
+                    print('EDF List of Processes: ', tasks, '\n')
+                    print('\nDeadlock Algorithm')
+                    list_seq = get_exec_seq(tasks)
+                    if len(list_seq) > 0:  # do only when there is a task in safe sequence
+                        wait_list = calc_wait_time(list_seq)
+                        print('\nWaiting Time List: ', wait_list)
+                        compare_result = compare_local_mec(wait_list)
+                        print('\nExecute Locally: ', compare_result[1])
+                        t_loc = len(compare_result[1])  # total number of tasks to be executed locally
+                        print('\nExecute in MEC: ', compare_result[0])
+
+                        print('\nSending to cooperative platform')
+                        if len(compare_result[0]) > 0:
+                            cooperative_mec(compare_result[0], 1)
+                        _send_back = execute(compare_result[1])
+                        _loc = t_loc
+                        if len(_send_back) > 0:  # do only when there is a task to send back
+                            _loc = t_loc - len(_send_back)
+                    receive_executed_task()
+                else:
+                    print('========= Waiting for tasks ==========')
+                    os.system('clear')
+            except KeyboardInterrupt:
+                print('\nProgramme Terminated')
+                for i in thread_record:
+                    i.stop()
+                    break
             print('\nEnter "Exit" to stop Programme!')
-        if x == 'exit':
-            print('\nProgramme Terminated')
-            '''
-            cmd = 'echo "task = {}" >> test.py'.format(test)
-            os.system(cmd)
-            cmd = 'echo "_time = {}" >> test.py'.format(_time)
-            os.system(cmd)
-            '''
-            break
 
 
 def speaking_node():
