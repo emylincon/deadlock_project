@@ -198,8 +198,9 @@ def client(t, h):    # t = tasks, h = host ip
 
 def name_task(task_list, node_id, seq_no):
     # naming nomenclature of tasks = <task key [2]><node id [2]><seq no [3]>
-    # returns task list with proper identification
-    return [i+str(node_id)+str(seq_no) for i in task_list]
+    # returns task list and waiting_time with proper identification
+    return [i+str(node_id)+str(seq_no) for i in task_list[0]], \
+           {k+str(node_id)+str(seq_no): task_list[1][k] for k in task_list}
 
 
 def main():
@@ -223,9 +224,9 @@ def main():
                 for i in range(500):
                     rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
                     _task_ = get_tasks()                 # tasks, waiting time
-                    _tasks_list = name_task(_task_[0], rand_host[-2:], i)   # id's tasks
-                    s_task = _tasks_list, _task_[1]
-                    record.append([s_task, rand_host])
+                    _tasks_list = name_task(_task_, rand_host[-2:], i)   # id's tasks
+
+                    record.append([_tasks_list, rand_host])
                     for task in _tasks_list:
                         if i not in task_record:
                             task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
