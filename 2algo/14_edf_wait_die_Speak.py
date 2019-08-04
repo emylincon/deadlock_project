@@ -108,7 +108,7 @@ def receive_tasks_client(_con, _addr):
             data = _con.recv(1024)
             # print(_addr[0], ': ', data.decode())
             received_task = ast.literal_eval(data.decode())
-            received_task_queue.append(received_task)
+            received_task_queue.append([received_task, _addr[0]])
 
 
 def receive_connection():
@@ -482,6 +482,26 @@ def receive_executed_task():
         print('No Executed Tasks from MEC Received')
 
 
+def send_task_client(_task, _host):
+    global _port_
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((_host, _port_))
+        s.sendall(str.encode(_task))
+    _port_ = 64000
+
+
+def send_client(t, h):    # t = tasks, h = host ip
+    global _port_
+
+    try:
+        send_task_client(t, h)
+    except ConnectionRefusedError:
+        _port_ += 10
+        send_client(t, h)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
+
+
 def run_me():
     global discovering
 
@@ -502,6 +522,7 @@ def start_loop():
     global _loc
     global tasks
     global t_time
+    global send_back_host
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
@@ -510,7 +531,9 @@ def start_loop():
         while True:
             try:
                 if len(received_task_queue) > 0:
-                    tasks, t_time = received_task_queue.pop(0)
+                    info = received_task_queue.pop(0)
+                    tasks, t_time = info[0]
+                    send_back_host = info[1]
 
                     print('EDF List of Processes: ', tasks, '\n')
                     print('\nDeadlock Algorithm')
