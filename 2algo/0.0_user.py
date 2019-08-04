@@ -7,6 +7,8 @@ import struct
 from threading import Thread
 import random as r
 import time
+import datetime as dt
+import ast
 
 port = 65000        # The port used by the server
 
@@ -54,8 +56,15 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
             )
 '''
 thread_record = []
-
+task_record = {}    # records tasks start time and finish time {seq_no:{task:[duration, start_time,finish_time]}}
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
+tasks_executed_on_time = 0
+tasks_not_executed_on_time = 0
+
+
+def get_time():
+    _time_ = dt.datetime.utcnow()
+    return _time_
 
 
 def gosh_dist(_range):
@@ -71,7 +80,7 @@ def get_tasks():
     while len(tasks) < _t:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
-
+    tasks = list(tasks.keys())
     _t_time = waiting_time_init()
     return tasks, _t_time
 
@@ -117,11 +126,30 @@ def ip_address():
 
 
 def receive_data(_con, _addr):
+    global tasks_executed_on_time
+    global tasks_not_executed_on_time
+
     with _con:
         while True:
             try:
                 data = _con.recv(1024)
                 print(_addr[0], ': ', data.decode())
+                received_task = ast.literal_eval(data.decode())
+                for i in received_task:
+                    tk = i.split('_')
+                    k = task_record[tk[0][4:]][tk]
+                    if len(k) < 3:
+                        k.append(received_task[i])
+                        if k[2] - k[1] < k[0]:
+                            tasks_executed_on_time += 1
+                        else:
+                            tasks_not_executed_on_time += 1
+                    elif len(k) == 3:
+                        if received_task[i] - k[1] < k[0]:
+                            tasks_executed_on_time += 1
+                        else:
+                            tasks_not_executed_on_time += 1
+
             except KeyboardInterrupt:
                 print('Receive Tasks Terminated')
                 break
@@ -168,6 +196,12 @@ def client(t, h):    # t = tasks, h = host ip
         print('Programme Terminated')
 
 
+def name_task(task_list, node_id, seq_no):
+    # naming nomenclature of tasks = <task key [2]><node id [2]><seq no [3]>
+    # returns task list with proper identification
+    return [i+str(node_id)+str(seq_no) for i in task_list]
+
+
 def main():
     global record
 
@@ -188,12 +222,19 @@ def main():
             if x == 'y':
                 for i in range(500):
                     rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
-                    _task_ = get_tasks()
-                    record.append([_task_, rand_host])
+                    _task_ = get_tasks()                 # tasks, waiting time
+                    _tasks_list = name_task(_task_[0], rand_host[-2:], i)   # id's tasks
+                    s_task = _tasks_list, _task_[1]
+                    record.append([s_task, rand_host])
+                    for task in _tasks_list:
+                        if i not in task_record:
+                            task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
+                        else:
+                            task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
                     client(_task_, rand_host)
                     time.sleep(2)
             elif x == 'stop':
-                cmd = "echo '{}' >> record.py".format(record)
+                cmd = "echo 'record = {} \ntask_record = {}' >> record.py".format(record, task_record)
                 os.system(cmd)
                 for i in thread_record:
                     i.stop()
