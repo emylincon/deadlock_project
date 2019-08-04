@@ -124,6 +124,7 @@ def waiting_time_init():
 
     t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
               tasks}  # t_time = {'ti': [execution_time, latency], ..}
+    # execution time is amt of time spent in execute in mec, latency is the whole time a task is expected to execute
 
     t_time = {**t_time, **check_mec_offload()}
     print('[Execution_time, Latency]: ', t_time)
