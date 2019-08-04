@@ -72,7 +72,7 @@ def ip_address():
 
 
 def get_time():
-    _time_ = str(dt.datetime.utcnow()).split()[1]
+    _time_ = dt.datetime.utcnow()
     return _time_
 
 
@@ -99,35 +99,8 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
-def get_edf():
-    global tasks
-    global _pos
-
-    tasks = data.task[_pos]
-    _pos += 1
-    '''
-    tasks = {}
-    _t = r.randrange(2, 4)
-    while len(tasks) < 2:
-        a = list(_tasks.keys())[gosh_dist(5)]
-        tasks[a] = _tasks[a]
-    '''
-    print('Running RMS on Tasks: ', tasks, '\n')
-    # test.append(tasks)
-    # _time.append(_t)
-    waiting_time_init()
-    return edf()
-
-
-def waiting_time_init():
-    global t_time
-
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
-              tasks}  # t_time = {'ti': [execution_time, latency], ..}
-    # execution time is amt of time spent in execute in mec, latency is the whole time a task is expected to execute
-
-    t_time = {**t_time, **check_mec_offload()}
-    print('[Execution_time, Latency]: ', t_time)
+def receive_tasks():
+    pass
 
 
 def edf():
