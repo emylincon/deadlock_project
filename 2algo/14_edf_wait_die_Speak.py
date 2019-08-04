@@ -514,6 +514,7 @@ def run_me():
             break
         time.sleep(2)
     speak = Thread(target=speaking_node)
+    thread_record.append(speak)
     speak.start()
     start_loop()
 
