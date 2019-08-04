@@ -441,7 +441,7 @@ def execute(local):
         j = '_'.join(i.split('_')[:-1])
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
-        if len(j) > 2:
+        if j[2:4] != node_id:
             send_back_task(j)
             send.append(j)
     print('============== EXECUTION DONE ===============')
@@ -524,10 +524,12 @@ def start_loop():
     global tasks
     global t_time
     global send_back_host
+    global node_id
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
     x = gp.getpass('Press any key to Start...').lower()
+    node_id = ip_address()[-2:]
     if x != 'exit':
         while True:
             try:
