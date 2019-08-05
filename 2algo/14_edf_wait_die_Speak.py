@@ -18,18 +18,6 @@ import getpass as gp
 import data
 
 hosts = {}  # {hostname: ip}
-multicast_group = '224.3.29.71'
-server_address = ('', 10000)
-
-# Create the socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# Bind to the server address
-sock.bind(server_address)
-# Tell the operating system to add the socket to the multicast group
-# on all interfaces.
-group = socket.inet_aton(multicast_group)
-mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
@@ -57,7 +45,7 @@ allocation = {
 
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
-offload_register = {}      # {task: host_ip}
+offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
 
 discovering = 0            # if discovering == 0 update host
 test = []
@@ -65,6 +53,42 @@ _time = []
 _pos = 0
 received_task_queue = []   # [(task_list,wait_time), ...]
 thread_record = []
+reoffload_port = 63000
+_port_ = 64000
+
+
+def discovering_group():
+    global sock1
+
+    multicast_group = '224.3.29.71'
+    server_address = ('', 10000)
+
+    # Create the socket
+    sock1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Bind to the server address
+    sock1.bind(server_address)
+    # Tell the operating system to add the socket to the multicast group
+    # on all interfaces.
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    sock1.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+
+def offloading_group():
+    global sock2
+
+    multicast_group = '224.5.5.55'
+    server_address = ('', 20000)
+
+    # Create the socket
+    sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Bind to the server address
+    sock2.bind(server_address)
+    # Tell the operating system to add the socket to the multicast group
+    # on all interfaces.
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    sock2.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 
 def ip_address():
@@ -309,16 +333,16 @@ def send_message(mg):
         # Send data to the multicast group
         if mg == 'hello':
             smg = mg + ' ' + message()
-            sock.sendto(str.encode(smg), _multicast_group)
+            sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
         elif mg == 'update':
             ho = hosts.copy()
             ho[message()] = host_ip
             smg = mg + ' ' + str(ho)
-            sock.sendto(str.encode(smg), _multicast_group)
+            sock1.sendto(str.encode(smg), _multicast_group)
             # print('\n===**====**==update message sent===**======**=========')
         else:
-            sock.sendto(str.encode(mg), _multicast_group)
+            sock1.sendto(str.encode(mg), _multicast_group)
 
     except Exception as e:
         print(e)
@@ -334,7 +358,7 @@ def receive_message():
     global hosts
 
     while True:
-        data, address = sock.recvfrom(1024)
+        data, address = sock1.recvfrom(1024)
 
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
@@ -434,6 +458,13 @@ def check_mec_offload():
     return t_mec
 
 
+def execute_re_offloaded_task(offloaded_task, mec_ip):
+    exec_list = get_exec_seq(offloaded_task[0])
+    for i in exec_list:
+        time.sleep(offloaded_task[1][i][0])
+        # send_back_mec()
+
+
 def execute(local):
     print('\nExecuting :', local)
     send = []
@@ -442,10 +473,29 @@ def execute(local):
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
         if j[2:4] != node_id:
-            send_back_task(j)
+            send_offloaded_task_mec('{} {}'.format(j[2:4], j))
             send.append(j)
+        elif j[2:4] == node_id:
+            send_client({j: get_time()}, send_back_host)
     print('============== EXECUTION DONE ===============')
     return send
+
+
+def receive_offloaded_task_mec():    # run as a thread
+    while True:
+        data, address = sock2.recvfrom(1024)
+        da = data.decode().split(' ')
+        if (address[0] != ip_address()) and da[0] == node_id:
+            send_client({da[1]: get_time()}, offload_register[da[1]])
+
+
+def send_offloaded_task_mec(msg):
+    _multicast_group = ('224.5.5.55', 20000)
+    try:
+        sock2.sendto(str.encode(msg), _multicast_group)
+
+    except Exception as e:
+        print(e)
 
 
 def send_back_task(o_task):
@@ -498,6 +548,27 @@ def send_client(t, h):    # t = tasks, h = host ip
     except ConnectionRefusedError:
         _port_ += 10
         send_client(t, h)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
+
+
+def offload_task(_task, _host):
+    global reoffload_port
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((_host, reoffload_port))
+        s.sendall(str.encode(_task))
+    reoffload_port = 63000
+
+
+def offload_to_mec(t, h):    # t = tasks, h = host ip
+    global reoffload_port
+
+    try:
+        offload_task(t, h)
+    except ConnectionRefusedError:
+        reoffload_port += 10
+        offload_to_mec(t, h)
     except KeyboardInterrupt:
         print('Programme Terminated')
 
@@ -589,7 +660,11 @@ def initialization():
         cloud_ip = input('Cloud Server IP: ').strip()
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
+        h2 = Thread(target=receive_offloaded_task_mec)
+        h1.daemon = True
+        h2.daemon = True
         h1.start()
+        h2.start()
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
@@ -604,6 +679,8 @@ def initialization():
 
 def main():
     os.system('clear')
+    discovering_group()
+    offloading_group()
     run_me()
 
 
