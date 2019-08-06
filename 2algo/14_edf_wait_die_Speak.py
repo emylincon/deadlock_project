@@ -51,7 +51,7 @@ discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
-received_task_queue = []   # [(task_list,wait_time), ...]
+received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
 thread_record = []
 port = 65000
 _port_ = 64000
@@ -141,8 +141,6 @@ def receive_connection():
     host = ip_address()
     port = 65000        # Port to listen on (non-privileged ports are > 1023)
 
-    print('Server IP: {}'.format(host))
-
     while True:
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -151,6 +149,7 @@ def receive_connection():
                 conn, addr = s.accept()
 
                 thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
+                thread_record[-1].daemon = True
                 thread_record[-1].start()
                 port += 10
 
@@ -572,12 +571,13 @@ def start_loop():
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
-
     node_id = ip_address()[-2:]
     receive_offload = Thread(target=receive_offloaded_task_mec)
     listen_offload = Thread(target=call_execute_re_offload)
+    task_receive = Thread(target=receive_connection)
     receive_offload.daemon = True
     listen_offload.daemon = True
+    task_receive.daemon = True
     receive_offload.start()
     listen_offload.start()
     x = gp.getpass('Press any key to Start...').lower()
