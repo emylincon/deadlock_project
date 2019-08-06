@@ -572,7 +572,7 @@ def start_loop():
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
-    x = gp.getpass('Press any key to Start...').lower()
+
     node_id = ip_address()[-2:]
     receive_offload = Thread(target=receive_offloaded_task_mec)
     listen_offload = Thread(target=call_execute_re_offload)
@@ -580,6 +580,7 @@ def start_loop():
     listen_offload.daemon = True
     receive_offload.start()
     listen_offload.start()
+    x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         while True:
             try:
