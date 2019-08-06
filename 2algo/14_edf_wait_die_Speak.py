@@ -46,14 +46,14 @@ allocation = {
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
-
+reoffload_list = [[], {}]   # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
 discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
 received_task_queue = []   # [(task_list,wait_time), ...]
 thread_record = []
-reoffload_port = 63000
+port = 65000
 _port_ = 64000
 
 
@@ -126,6 +126,7 @@ def gosh_dist(_range):
 
 
 def receive_tasks_client(_con, _addr):
+    # unicast socket
     with _con:
         print('Connected: ', _addr)
         while True:
@@ -136,6 +137,7 @@ def receive_tasks_client(_con, _addr):
 
 
 def receive_connection():
+    # unicast socket
     host = ip_address()
     port = 65000        # Port to listen on (non-privileged ports are > 1023)
 
@@ -458,11 +460,12 @@ def check_mec_offload():
     return t_mec
 
 
-def execute_re_offloaded_task(offloaded_task, mec_ip):
+def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:
-        time.sleep(offloaded_task[1][i][0])
-        # send_back_mec()
+        j = i.split('_')
+        time.sleep(offloaded_task[1][j])
+        send_offloaded_task_mec('{} {}'.format(j[0][2:4], j))
 
 
 def execute(local):
@@ -485,8 +488,32 @@ def receive_offloaded_task_mec():    # run as a thread
     while True:
         data, address = sock2.recvfrom(1024)
         da = data.decode().split(' ')
-        if (address[0] != ip_address()) and da[0] == node_id:
-            send_client({da[1]: get_time()}, offload_register[da[1]])
+        if (address[0] != ip_address()) and da[0] == node_id:               # send back to client
+            send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
+        elif (address[0] != ip_address()) and da[0] == 'ex' and da[1] == node_id:
+            _received = ast.literal_eval(da[2])
+            reoffload_list[0].append(_received[0])
+            reoffload_list[1][_received[0]] = _received[1]
+
+
+def call_execute_re_offload():
+    global reoffload_list
+
+    while True:
+        if len(reoffload_list[0]) == 1:
+            t = reoffload_list[0][-1]
+            time.sleep(reoffload_list[1][t])
+            reoffload_list[0].remove(t)
+            del reoffload_list[1][t]
+            send_offloaded_task_mec('{} {}'.format(t[2:4], t))
+        elif len(reoffload_list[0]) > 1:
+            o = reoffload_list.copy()
+            execute_re_offloaded_task(o)
+            for i in o[0]:
+                reoffload_list[0].remove(i)
+                del reoffload_list[1][i]
+
+        time.sleep(1)
 
 
 def send_offloaded_task_mec(msg):
@@ -496,40 +523,6 @@ def send_offloaded_task_mec(msg):
 
     except Exception as e:
         print(e)
-
-
-def send_back_task(o_task):
-    _host_ip = ip_address()
-
-    try:
-        c = paramiko.SSHClient()
-
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(offload_register[o_task], port, un, pw)
-        cmd = ('echo "{} {} {}" >> '
-               '/home/mec/deadlock_project/temp/executed.txt'.format(o_task, _host_ip, get_time()))
-        # task share, host ip task, execution_time
-
-        stdin, stdout, stderr = c.exec_command(cmd)
-    except Exception as e:
-        print(e)
-
-
-def receive_executed_task():
-    try:
-        fr = open('/home/mec/deadlock_project/temp/executed.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            i = i[:-1].split()
-            print('Received Executed task {} from {}'.format(i[0], i[1]))
-        fr.close()
-        os.system('rm /home/mec/deadlock_project/temp/executed.txt')
-    except Exception as e:
-        print('No Executed Tasks from MEC Received')
 
 
 def send_task_client(_task, _host):
@@ -552,27 +545,6 @@ def send_client(t, h):    # t = tasks, h = host ip
         print('Programme Terminated')
 
 
-def offload_task(_task, _host):
-    global reoffload_port
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((_host, reoffload_port))
-        s.sendall(str.encode(_task))
-    reoffload_port = 63000
-
-
-def offload_to_mec(t, h):    # t = tasks, h = host ip
-    global reoffload_port
-
-    try:
-        offload_task(t, h)
-    except ConnectionRefusedError:
-        reoffload_port += 10
-        offload_to_mec(t, h)
-    except KeyboardInterrupt:
-        print('Programme Terminated')
-
-
 def run_me():
     global discovering
 
@@ -586,6 +558,7 @@ def run_me():
         time.sleep(2)
     speak = Thread(target=speaking_node)
     thread_record.append(speak)
+    speak.daemon = True
     speak.start()
     start_loop()
 
@@ -601,6 +574,12 @@ def start_loop():
 
     x = gp.getpass('Press any key to Start...').lower()
     node_id = ip_address()[-2:]
+    receive_offload = Thread(target=receive_offloaded_task_mec)
+    listen_offload = Thread(target=call_execute_re_offload)
+    receive_offload.daemon = True
+    listen_offload.daemon = True
+    receive_offload.start()
+    listen_offload.start()
     if x != 'exit':
         while True:
             try:
