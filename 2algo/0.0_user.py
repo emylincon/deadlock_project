@@ -80,7 +80,7 @@ def get_tasks():
     while len(tasks) < _t:
         a = list(_tasks.keys())[gosh_dist(5)]
         tasks[a] = _tasks[a]
-    tasks = list(tasks.keys())
+
     _t_time = waiting_time_init()
     return tasks, _t_time
 
