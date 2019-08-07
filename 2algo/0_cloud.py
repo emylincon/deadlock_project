@@ -5,13 +5,14 @@ import time
 import os
 import operator
 import socket
+from threading import Thread
 
 # deadlock project
-_tasks = {'t1': {'wcet': 3, 'period': 20},
-          't2': {'wcet': 2, 'period': 5},
-          't3': {'wcet': 2, 'period': 10},
-          't4': {'wcet': 2, 'period': 6},
-          't5': {'wcet': 3, 'period': 15}
+_tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
+          't2': {'wcet': 1, 'period': 5, 'deadline': 4},
+          't3': {'wcet': 2, 'period': 10, 'deadline': 8},
+          't4': {'wcet': 1, 'period': 10, 'deadline': 9},
+          't5': {'wcet': 3, 'period': 15, 'deadline': 12}
           }
 
 # mat = {'p0': ['cpu', 'mem', 'storage']}
@@ -32,8 +33,42 @@ allocation = {
 }
 
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
-
+received_task_queue = [[], {}]      # = [[task_list],{wait_time}]
 # offload_register = {}      # {task: host_ip}
+thread_record = []
+
+def receive_tasks_client(_con, _addr):
+    # unicast socket
+    with _con:
+        print('Connected: ', _addr)
+        while True:
+            data = _con.recv(1024)
+            # print(_addr[0], ': ', data.decode())
+            received_task = ast.literal_eval(data.decode())
+            received_task_queue[0].append(received_task[0])
+            received_task_queue[1][received_task[0]] = received_task[1]
+
+
+def receive_connection():
+    # unicast socket
+    host = ip_address()
+    port = 63000        # Port to listen on (non-privileged ports are > 1023)
+
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, port))
+                s.listen()
+                conn, addr = s.accept()
+
+                thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
+                thread_record[-1].daemon = True
+                thread_record[-1].start()
+                port += 10
+
+        except KeyboardInterrupt:
+            print('\nProgramme Forcefully Terminated')
+            break
 
 
 # safe state or not
