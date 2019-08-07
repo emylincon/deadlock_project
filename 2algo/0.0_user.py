@@ -8,7 +8,7 @@ from threading import Thread
 import random as r
 import time
 import datetime as dt
-import ast
+
 
 port = 65000        # The port used by the server
 

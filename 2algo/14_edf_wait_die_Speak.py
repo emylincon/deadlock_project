@@ -158,6 +158,35 @@ def receive_connection():
             break
 
 
+def receive_tasks_cloud(_con, _addr):
+    # unicast socket
+    with _con:
+        print('Connected: ', _addr)
+        while True:
+            data = _con.recv(1024)
+            # print(_addr[0], ': ', data.decode())
+            received_task = ast.literal_eval(data.decode())
+            received_task_queue.append([received_task, _addr[0]])
+
+
+def receive_cloud_connection():
+    # unicast socket
+    host = ip_address()
+    cloud_port = 62000        # Port to listen on (non-privileged ports are > 1023)
+
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((host, cloud_port))
+            s.listen()
+            conn, addr = s.accept()
+
+            with conn:
+                while True:
+                    data = conn.recv(1024)
+    except KeyboardInterrupt:
+        print('\nProgramme Forcefully Terminated')
+
+
 def edf():
     t_lcm = lcm([tasks[i]['period'] for i in tasks])
 
@@ -203,7 +232,7 @@ def edf():
         print('missed deadline: ', missed)
         cooperative_mec(missed, 0)
 
-    return offloaded + schedule
+    return schedule
 
 
 # generate execution sequence
@@ -438,27 +467,6 @@ def cooperative_mec(mec_list, n):
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
 
-def check_mec_offload():
-    global offloaded
-
-    offloaded = []
-    t_mec = {}                # {t1: [execution, latency}
-    try:
-        fr = open('/home/mec/deadlock_project/temp/task_share.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
-            offloaded.append(ta)
-            offload_register[ta] = i[:-1].split()[0]
-            t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
-        fr.close()
-        os.system('rm /home/mec/deadlock_project/temp/task_share.txt')
-        print('Tasks Offloaded to MEC: {}'.format(offloaded))
-    except Exception as e:
-        print('no offloaded Task!')
-    return t_mec
-
-
 def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:
@@ -469,6 +477,7 @@ def execute_re_offloaded_task(offloaded_task):
 
 def execute(local):
     print('\nExecuting :', local)
+
     send = []
     for i in local:
         j = '_'.join(i.split('_')[:-1])
@@ -544,6 +553,17 @@ def send_client(t, h):    # t = tasks, h = host ip
         print('Programme Terminated')
 
 
+def mec_id():
+    client_ip = ip_address()
+    id = client_ip.split('.')[-1]
+    if len(id) == 1:
+        return '00' + id
+    elif len(id) == 2:
+        return '0' + id
+    else:
+        return id
+
+
 def run_me():
     global discovering
 
@@ -571,7 +591,7 @@ def start_loop():
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
-    node_id = ip_address()[-2:]
+    node_id = mec_id()
     receive_offload = Thread(target=receive_offloaded_task_mec)
     listen_offload = Thread(target=call_execute_re_offload)
     task_receive = Thread(target=receive_connection)
@@ -590,8 +610,9 @@ def start_loop():
                     send_back_host = info[1]
 
                     print('EDF List of Processes: ', tasks, '\n')
-                    print('\nDeadlock Algorithm')
-                    list_seq = get_exec_seq(tasks)
+
+                    print('\n========= Running Deadlock Algorithm ===========')
+                    list_seq = get_exec_seq(edf())
                     if len(list_seq) > 0:  # do only when there is a task in safe sequence
                         wait_list = calc_wait_time(list_seq)
                         print('\nWaiting Time List: ', wait_list)
