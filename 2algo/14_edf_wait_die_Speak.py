@@ -9,13 +9,12 @@ import socket
 import struct
 import subprocess as sp
 from threading import Thread
-import paramiko
 import ast
 import time
 import os
 import datetime as dt
 import getpass as gp
-import data
+
 
 hosts = {}  # {hostname: ip}
 
@@ -55,6 +54,8 @@ received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
 thread_record = []
 port = 65000
 _port_ = 64000
+cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
+cloud_port = 63000
 
 
 def discovering_group():
@@ -158,17 +159,6 @@ def receive_connection():
             break
 
 
-def receive_tasks_cloud(_con, _addr):
-    # unicast socket
-    with _con:
-        print('Connected: ', _addr)
-        while True:
-            data = _con.recv(1024)
-            # print(_addr[0], ': ', data.decode())
-            received_task = ast.literal_eval(data.decode())
-            received_task_queue.append([received_task, _addr[0]])
-
-
 def receive_cloud_connection():
     # unicast socket
     host = ip_address()
@@ -183,6 +173,8 @@ def receive_cloud_connection():
             with conn:
                 while True:
                     data = conn.recv(1024)
+                    received_task = ast.literal_eval(data.decode())
+                    send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
     except KeyboardInterrupt:
         print('\nProgramme Forcefully Terminated')
 
@@ -230,7 +222,7 @@ def edf():
     print('r: ', register)
     if len(missed) > 0:
         print('missed deadline: ', missed)
-        cooperative_mec(missed, 0)
+        cooperative_mec(missed)
 
     return schedule
 
@@ -293,7 +285,7 @@ def wait_die(processes, avail, n_need, allocat):
 
     if len(offload) > 0:
         print('offloading tasks: ', offload)
-        cooperative_mec(offload, 0)
+        cooperative_mec(offload)
 
     print('Execution seq: ', exec_seq)
 
@@ -305,7 +297,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
 
     # Available instances of resources
-    avail = [5, 5, 5]
+    avail = [7, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -319,16 +311,16 @@ def calc_wait_time(list_seq):
     pre = 0
     time_dic = {}
     for i in list_seq:
-        j = '_'.join(i.split('_')[:-1])            # i = 't5_3_3', j = 't5_3'
+        j = i.split('_')[0]
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)            # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)      # waiting time = total waiting time ÷ 2 average waiting time might be too tight
     send_message(str(w_send))   # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
 def compare_local_mec(list_seq):
-    time_compare_dict = {i: t_time['_'.join(i.split('_')[:-1])][1] > list_seq[i] for i in list_seq}
+    time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
     print('local vs MEC comparison: ', time_compare_dict)
     execute_mec = []
     execute_locally = []
@@ -416,53 +408,30 @@ def mec_comparison():
     return min_wt
 
 
-def mec_task_unicast(task, host_):
-    try:
-        c = paramiko.SSHClient()
-
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {} {}" >> /home/mec/deadlock_project/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
-
-        stdin, stdout, stderr = c.exec_command(cmd)
-    except Exception as e:
-        print(e)
-
-
-def cooperative_mec(mec_list, n):
+def cooperative_mec(mec_list):
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
-            mec_task_unicast(i, cloud_ip)
+            send_cloud(i.split('_')[0])
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
-        elif n == 0:
-            j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
-
-                mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
-
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])      # adds a new average waiting time
-                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
-            else:
-                mec_task_unicast(i, cloud_ip)
-
-                print('\n=========SENDING {} TO CLOUD==========='.format(i))
         else:
-            j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            j = i.split('_')[0]
+            _max = np.array([7, 5, 5])
+            send = 'false'
+            if not (False in list(np.greater_equal(_max, _need[j]))):
+                send = 'true'
+            if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
+                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
 
-                mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
+                # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
+                mec_waiting_time[_host].append(
+                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                mec_task_unicast(i, cloud_ip)
+                send_cloud(j)
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
@@ -472,7 +441,7 @@ def execute_re_offloaded_task(offloaded_task):
     for i in exec_list:
         j = i.split('_')
         time.sleep(offloaded_task[1][j])
-        send_offloaded_task_mec('{} {}'.format(j[0][2:4], j))
+        send_offloaded_task_mec('{} {}'.format(j[0].split('.')[1], j))
 
 
 def execute(local):
@@ -483,10 +452,10 @@ def execute(local):
         j = '_'.join(i.split('_')[:-1])
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
-        if j[2:4] != node_id:
-            send_offloaded_task_mec('{} {}'.format(j[2:4], j))
+        if j.split('.')[1] != node_id:
+            send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
             send.append(j)
-        elif j[2:4] == node_id:
+        elif j.split('.')[1] == node_id:
             send_client({j: get_time()}, send_back_host)
     print('============== EXECUTION DONE ===============')
     return send
@@ -513,7 +482,7 @@ def call_execute_re_offload():
             time.sleep(reoffload_list[1][t])
             reoffload_list[0].remove(t)
             del reoffload_list[1][t]
-            send_offloaded_task_mec('{} {}'.format(t[2:4], t))
+            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t))
         elif len(reoffload_list[0]) > 1:
             o = reoffload_list.copy()
             execute_re_offloaded_task(o)
@@ -553,8 +522,28 @@ def send_client(t, h):    # t = tasks, h = host ip
         print('Programme Terminated')
 
 
-def mec_id():
-    client_ip = ip_address()
+def send_task_cloud(_task):
+    global cloud_port
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((cloud_ip, cloud_port))
+        s.sendall(str.encode(_task))
+    cloud_port = 63000
+
+
+def send_cloud(t):    # t = tasks =>
+    global cloud_port
+
+    try:
+        send_task_cloud(t)
+    except ConnectionRefusedError:
+        cloud_port += 10
+        send_cloud(t)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
+
+
+def mec_id(client_ip):
+
     id = client_ip.split('.')[-1]
     if len(id) == 1:
         return '00' + id
@@ -591,15 +580,12 @@ def start_loop():
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
-    node_id = mec_id()
-    receive_offload = Thread(target=receive_offloaded_task_mec)
-    listen_offload = Thread(target=call_execute_re_offload)
-    task_receive = Thread(target=receive_connection)
-    receive_offload.daemon = True
-    listen_offload.daemon = True
-    task_receive.daemon = True
-    receive_offload.start()
-    listen_offload.start()
+    node_id = mec_id(ip_address())
+    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, receive_connection, receive_cloud_connection]
+    for i in _threads_:
+        Thread(target=i).daemon = True
+        Thread(target=i).start()
+
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         while True:
@@ -623,12 +609,11 @@ def start_loop():
 
                         print('\nSending to cooperative platform')
                         if len(compare_result[0]) > 0:
-                            cooperative_mec(compare_result[0], 1)
+                            cooperative_mec(compare_result[0])
                         _send_back = execute(compare_result[1])
                         _loc = t_loc
                         if len(_send_back) > 0:  # do only when there is a task to send back
                             _loc = t_loc - len(_send_back)
-                    receive_executed_task()
                 else:
                     print('========= Waiting for tasks ==========')
                     os.system('clear')
