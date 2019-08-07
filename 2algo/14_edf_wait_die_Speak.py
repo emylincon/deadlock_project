@@ -544,13 +544,13 @@ def send_cloud(t):    # t = tasks =>
 
 def mec_id(client_ip):
 
-    id = client_ip.split('.')[-1]
-    if len(id) == 1:
-        return '00' + id
-    elif len(id) == 2:
-        return '0' + id
+    _id = client_ip.split('.')[-1]
+    if len(_id) == 1:
+        return '00' + _id
+    elif len(_id) == 2:
+        return '0' + _id
     else:
-        return id
+        return _id
 
 
 def run_me():
