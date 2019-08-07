@@ -431,7 +431,7 @@ def cooperative_mec(mec_list):
                     round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                send_cloud(j)
+                send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
