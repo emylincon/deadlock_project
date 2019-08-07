@@ -449,7 +449,7 @@ def execute(local):
 
     send = []
     for i in local:
-        j = '_'.join(i.split('_')[:-1])
+        j = i.split('_')[0]
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
