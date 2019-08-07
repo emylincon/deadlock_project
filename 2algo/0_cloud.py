@@ -1,18 +1,16 @@
 import numpy as np
-import paramiko
 import ast
 import time
 import os
-import operator
 import socket
 from threading import Thread
 
 # deadlock project
-_tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
+_tasks = {'t1': {'wcet': 1, 'period': 3, 'deadline': 3},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
-          't3': {'wcet': 2, 'period': 10, 'deadline': 8},
+          't3': {'wcet': 1, 'period': 5, 'deadline': 5},
           't4': {'wcet': 1, 'period': 10, 'deadline': 9},
-          't5': {'wcet': 3, 'period': 15, 'deadline': 12}
+          't5': {'wcet': 1, 'period': 5, 'deadline': 4}
           }
 
 # mat = {'p0': ['cpu', 'mem', 'storage']}
@@ -32,12 +30,16 @@ allocation = {
     't5': [0, 0, 2]
 }
 
-mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 received_task_queue = [[], {}]      # = [[task_list],{wait_time}]
 # offload_register = {}      # {task: host_ip}
 thread_record = []
+_port_ = 62000
+port = 63000
+cloud_register = {}   # ={node_id:mec_ip} keeps address of task offloaded to cloud
+cannot = []
 
-def receive_tasks_client(_con, _addr):
+
+def receive_tasks_client(_con, _addr):   # run as thread
     # unicast socket
     with _con:
         print('Connected: ', _addr)
@@ -47,6 +49,7 @@ def receive_tasks_client(_con, _addr):
             received_task = ast.literal_eval(data.decode())
             received_task_queue[0].append(received_task[0])
             received_task_queue[1][received_task[0]] = received_task[1]
+            cloud_register[received_task[0].split('.')[2]] = _addr[0]
 
 
 def receive_connection():
@@ -73,6 +76,7 @@ def receive_connection():
 
 # safe state or not
 def isSafe(processes, avail, need, allot):
+    global cannot
     # tasks to offload if exit
     offload = []
 
@@ -157,6 +161,7 @@ def isSafe(processes, avail, need, allot):
 
     if len(offload) > 0:
         print('|======== Cannot Execute tasks: ', offload, '========|')
+        cannot += offload
 
     return safeSeq
 
@@ -189,102 +194,33 @@ def get_safe_seq(pro):
     return isSafe(processes, avail, n_need, allot)
 
 
-def calc_wait_time(list_seq):
-    pre = 0
-    time_dic = {}
-    for i in list_seq:
-        j = '_'.join(i.split('_')[:-1])
-        time_dic[i] = round(t_time[j][0] + pre, 3)
-        pre += t_time[j][0]
-    return time_dic
-
-
-def compare_local_mec(list_seq):
-    time_compare_dict = {i: t_time['_'.join(i.split('_')[:-1])][1] > list_seq[i] for i in list_seq}
-    print('local vs MEC comparison: ', time_compare_dict)
-    miss_latency = []
-    execute_locally = []
-    for i in time_compare_dict:
-        if time_compare_dict[i]:
-            execute_locally.append(i)
-        else:
-            miss_latency.append(i)
-
-    return miss_latency, execute_locally
-
-
-def check_mec_offload():
-    global offload_register
-    global t_time
-
-    offload_register = {}  # {task: host_ip}
-    t_time = {}  # {t1: [execution, latency]}
-
-    try:
-        fr = open('/home/mec/deadlock_project/temp/task_share.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
-            offload_register[ta] = i[:-1].split()[0]
-            t_time[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
-        fr.close()
-        os.system('rm /home/mec/deadlock_project/temp/task_share.txt')
-        print('Tasks Offloaded to Cloud Server: {}'.format(t_time.keys()))
-    except Exception as e:
-        return 0
-    return 1
-
-
-def edf_schedule(tasks_dic):
-    t_d = {i: tasks_dic[i][1] for i in tasks_dic}     # {t1: [execution, latency]}
-
-    edf = [i[0] for i in sorted(t_d.items(), key=operator.itemgetter(1))]
-
-    return edf
-
-
 def execute(local):
     print('\nExecuting :', local)
-    send = []
     for i in local:
-        i = '_'.join(i.split('_')[:-1])
-        time.sleep((t_time[i][0])/2)           # cloud executes tasks in less time than MEC
+        time.sleep((t_time[i]) / 2)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
-        if len(i) > 2:
-            send.append(i)
+        send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')
-    return send
 
 
-def _execute(local):
-    print('\nExecuting :', local)
-    send = []
-    for i in local:
-        time.sleep((t_time[i][0]) / 2)  # cloud executes tasks in less time than MEC
-        print('####### Executed: ', i)
-        if len(i) > 2:
-            send.append(i)
-    print('============== EXECUTION DONE ===============')
-    return send
+def send_task_client(_task, _host):
+    global _port_
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((_host, _port_))
+        s.sendall(str.encode(_task))
+    _port_ = 62000
 
 
-def send_back_task(l_list):
-    _host_ip = 'Cloud_Server'
-    for i in l_list:
-        try:
-            c = paramiko.SSHClient()
+def send_client(t, h):    # t = tasks, h = host ip
+    global _port_
 
-            un = 'mec'
-            pw = 'password'
-            port = 22
-
-            c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            c.connect(offload_register[i], port, un, pw)
-            cmd = ('echo "{} {}" >> /home/mec/deadlock_project/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
-
-            stdin, stdout, stderr = c.exec_command(cmd)
-        except Exception as e:
-            print(e)
+    try:
+        send_task_client(t, h)
+    except ConnectionRefusedError:
+        _port_ += 10
+        send_client(t, h)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
 
 
 def ip_address():
@@ -294,36 +230,42 @@ def ip_address():
 
 
 def run_me():
+    global tasks
+    global t_time
+
     print('\n========== Deadlock Emulation Program: Cloud Server ===============')
     print('Cloud ip: ', ip_address())
+    receive = Thread(target=receive_connection)
+    receive.daemon = True
+    receive.start()
     m = input('Start (Y/N): ').lower()
     if m == 'y':
         print('\n============* Cloud Server Active *==============\n')
-        try:
-            while True:
-                if check_mec_offload() == 0:
-                    time.sleep(6)
-                elif len(t_time) <= 2:
-                    local_ = _execute(list(t_time.keys()))
-                    send_back_task(local_)
-                    time.sleep(3)
-                else:
-                    edf_list = edf_schedule(t_time)
-                    print('EDF List of Processes: ', edf_list, '\n')
-                    print('\nRunning Bankers Algorithm')
-                    list_seq = get_safe_seq(edf_list)
-                    wait_list = calc_wait_time(list_seq)
-                    print('\nWaiting Time List: ', wait_list)
-                    compare_result = compare_local_mec(wait_list)
-                    if len(compare_result[0]) > 0:
-                        for i in compare_result[0]:
-                            print(i, 'will miss execution latency deadline')
+        while True:
+            try:
+                if len(received_task_queue[0]) == 0:
+                    time.sleep(2)
+                elif len(received_task_queue[0]) <= 2:
+                    tasks, t_time = received_task_queue
+                    execute(received_task_queue[0])
+                    for t in tasks:
+                        received_task_queue[0].remove(t)
+                        del received_task_queue[1][t]
 
-                    local_ = execute(compare_result[1]+compare_result[0])
-                    send_back_task(local_)
-                    time.sleep(3)
-        except KeyboardInterrupt:
-            print('\nProgramme Terminated')
+                    time.sleep(2)
+                else:
+                    tasks, t_time = received_task_queue
+                    print('\nRunning Bankers Algorithm')
+                    list_seq = get_safe_seq(tasks)
+                    execute(list_seq)
+                    for t in tasks:
+                        received_task_queue[0].remove(t)
+                        del received_task_queue[1][t]
+                    time.sleep(2)
+            except KeyboardInterrupt:
+                print('\nProgramme Terminated')
+                os.system('echo "cannot = {}" >> cannot.py')
+                break
     else:
         print('\nProgramme Terminated')
 
