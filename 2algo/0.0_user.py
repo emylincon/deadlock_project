@@ -176,6 +176,17 @@ def receive_tasks():
             break
 
 
+def client_id(client_ip):
+
+    _id = client_ip.split('.')[-1]
+    if len(_id) == 1:
+        return '00' + _id
+    elif len(_id) == 2:
+        return '0' + _id
+    else:
+        return _id
+
+
 def send_task(_task, _host):
     global port
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -197,14 +208,15 @@ def client(t, h):    # t = tasks, h = host ip
 
 
 def name_task(task_list, node_id, seq_no):
-    # naming nomenclature of tasks = <task key [2]><node id [2]><seq no [3]>
+    # naming nomenclature of tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
     # returns task list and waiting_time with proper identification
-    return {i+str(node_id)+str(seq_no): task_list[0][i] for i in task_list[0]}, \
-           {k+str(node_id)+str(seq_no): task_list[1][k] for k in task_list[1]}
+    return {i + '.' + str(node_id) + '.' + client_id_ + '.' + str(seq_no): task_list[0][i] for i in task_list[0]}, \
+           {k + '.' + str(node_id) + '.' + client_id_ + '.' + str(seq_no): task_list[1][k] for k in task_list[1]}
 
 
 def main():
     global record
+    global client_id_
 
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
@@ -212,6 +224,7 @@ def main():
     thread_record.append(init)
     init.start()
     send_message('hello')
+    client_id_ = client_id(ip_address())
     while True:
         time.sleep(1)
         if len(hosts) > 0:
@@ -224,15 +237,15 @@ def main():
                 for i in range(500):
                     rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
                     _task_ = get_tasks()                 # tasks, waiting time
-                    _tasks_list = name_task(_task_, rand_host[-2:], i)   # id's tasks
+                    _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks
 
                     record.append([_tasks_list, rand_host])
                     for task in _tasks_list[0]:
-                        if i not in task_record:
+                        if i not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
                             task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
                         else:
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
-                    client(_task_, rand_host)
+                    client(_tasks_list, rand_host)
                     time.sleep(2)
             elif x == 'stop':
                 cmd = "echo 'record = {} \ntask_record = {}' >> record.py".format(record, task_record)
