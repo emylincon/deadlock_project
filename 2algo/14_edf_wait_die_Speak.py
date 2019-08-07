@@ -413,6 +413,7 @@ def cooperative_mec(mec_list):
         _host = mec_comparison()
         if _host == 0:
             send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
+            cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
@@ -432,6 +433,7 @@ def cooperative_mec(mec_list):
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
+                cloud_register[j.split('.')[2]] = send_back_host
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
