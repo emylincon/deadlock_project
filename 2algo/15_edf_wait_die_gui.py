@@ -584,50 +584,111 @@ def check_mec_offload():
 
 def execute(local):
     print('\nExecuting :', local)
+
     send = []
     for i in local:
-        j = '_'.join(i.split('_')[:-1])
+        j = i.split('_')[0]
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
-        if len(j) > 2:
-            send_back_task(j)
+        if j.split('.')[1] != node_id:
+            send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
             send.append(j)
+        elif j.split('.')[1] == node_id:
+            send_client({j: get_time()}, send_back_host)
     print('============== EXECUTION DONE ===============')
     return send
 
 
-def send_back_task(o_task):
-    _host_ip = ip_address()
+def receive_offloaded_task_mec():    # run as a thread
+    while True:
+        data, address = sock2.recvfrom(1024)
+        da = data.decode().split(' ')
+        if (address[0] != ip_address()) and da[0] == node_id:               # send back to client
+            send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
+        elif (address[0] != ip_address()) and da[0] == 'ex' and da[1] == node_id:
+            _received = ast.literal_eval(da[2])
+            reoffload_list[0].append(_received[0])
+            reoffload_list[1][_received[0]] = _received[1]
 
+
+def call_execute_re_offload():
+    global reoffload_list
+
+    while True:
+        if len(reoffload_list[0]) == 1:
+            t = reoffload_list[0][-1]
+            time.sleep(reoffload_list[1][t])
+            reoffload_list[0].remove(t)
+            del reoffload_list[1][t]
+            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t))
+        elif len(reoffload_list[0]) > 1:
+            o = reoffload_list.copy()
+            execute_re_offloaded_task(o)
+            for i in o[0]:
+                reoffload_list[0].remove(i)
+                del reoffload_list[1][i]
+
+        time.sleep(1)
+
+
+def send_offloaded_task_mec(msg):
+    _multicast_group = ('224.5.5.55', 20000)
     try:
-        c = paramiko.SSHClient()
+        sock2.sendto(str.encode(msg), _multicast_group)
 
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(offload_register[o_task], port, un, pw)
-        cmd = ('echo "{} {} {}" >> '
-               '/home/mec/deadlock_project/temp/executed.txt'.format(o_task, _host_ip, get_time()))
-        # task share, host ip task, execution_time
-
-        stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
         print(e)
 
 
-def receive_executed_task():
+def send_task_client(_task, _host):
+    global _port_
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((_host, _port_))
+        s.sendall(str.encode(_task))
+    _port_ = 64000
+
+
+def send_client(t, h):    # t = tasks, h = host ip
+    global _port_
+
     try:
-        fr = open('/home/mec/deadlock_project/temp/executed.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            i = i[:-1].split()
-            print('Received Executed task {} from {}'.format(i[0], i[1]))
-        fr.close()
-        os.system('rm /home/mec/deadlock_project/temp/executed.txt')
-    except Exception as e:
-        print('No Executed Tasks from MEC Received')
+        send_task_client(t, h)
+    except ConnectionRefusedError:
+        _port_ += 10
+        send_client(t, h)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
+
+
+def send_task_cloud(_task):
+    global cloud_port
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((cloud_ip, cloud_port))
+        s.sendall(str.encode(_task))
+    cloud_port = 63000
+
+
+def send_cloud(t):    # t = tasks =>
+    global cloud_port
+
+    try:
+        send_task_cloud(t)
+    except ConnectionRefusedError:
+        cloud_port += 10
+        send_cloud(t)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
+
+
+def mec_id(client_ip):
+
+    _id = client_ip.split('.')[-1]
+    if len(_id) == 1:
+        return '00' + _id
+    elif len(_id) == 2:
+        return '0' + _id
+    else:
+        return _id
 
 
 def run_me():
