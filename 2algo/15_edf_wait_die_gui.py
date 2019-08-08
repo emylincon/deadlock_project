@@ -388,14 +388,10 @@ def wait_die(processes, avail, n_need, allocat):
 
 
 def get_exec_seq(pro):
-    global P
-    global R
 
     # Number of processes
     P = len(pro)
 
-    # Number of resources
-    R = 3
     processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
