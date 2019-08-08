@@ -310,13 +310,13 @@ def edf():
                 print('Deadline missed: ', i)
                 missed.append(i[0])
 
-    print('s : ', schedule)
-    print('r: ', register)
+    #print('s : ', schedule)
+    #print('r: ', register)
     if len(missed) > 0:
-        print('missed deadline: ', missed)
-        cooperative_mec(missed, 0)
+        #print('missed deadline: ', missed)
+        cooperative_mec(missed)
 
-    return offloaded + schedule
+    return schedule
 
 
 # generate execution sequence
