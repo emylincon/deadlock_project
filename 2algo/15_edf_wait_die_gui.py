@@ -481,8 +481,8 @@ def receive_message():
             if address[0] != host_ip:
                 mec_rtt[address[0]] = []
 
-        elif (data.decode()[:6] != 'update') and (address[0] != host_ip):
-            w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
+        elif (data.decode()[:2] != 'wt') and (address[0] != host_ip):
+            w_time = calculate_mov_avg(address[0], float(data.decode().split()[1]) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
             if address[0] in mec_waiting_time:
                 mec_waiting_time[address[0]].append(w_time)
             else:
@@ -496,23 +496,6 @@ def mec_comparison():
     min_mec = {i: mec_waiting_time[i][-1] for i in mec_waiting_time}
     min_wt = min(min_mec, key=min_mec.get)
     return min_wt
-
-
-def mec_task_unicast(task, host_):
-    try:
-        c = paramiko.SSHClient()
-
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {} {}" >> /home/mec/deadlock_project/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
-
-        stdin, stdout, stderr = c.exec_command(cmd)
-    except Exception as e:
-        print(e)
 
 
 def cooperative_mec(mec_list):
