@@ -7,27 +7,14 @@ import socket
 import struct
 import subprocess as sp
 from threading import Thread
-import paramiko
 import ast
 import time
 import datetime as dt
 import os
 import getpass as gp
-import data
+
 
 hosts = {}  # {hostname: ip}
-multicast_group = '224.3.29.71'
-server_address = ('', 10000)
-
-# Create the socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# Bind to the server address
-sock.bind(server_address)
-# Tell the operating system to add the socket to the multicast group
-# on all interfaces.
-group = socket.inet_aton(multicast_group)
-mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
@@ -70,7 +57,7 @@ def ip_address():
 
 
 def get_time():
-    _time_ = str(dt.datetime.utcnow()).split()[1]
+    _time_ = dt.datetime.utcnow()
     return _time_
 
 
