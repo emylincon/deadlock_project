@@ -65,7 +65,7 @@ mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 offload_register = {}      # {task: host_ip}
 
 mec_rtt = {}               # {ip: [RTT]}
-
+thread_record = []   # keeps track of threads
 prev_t = 0            # variable for cpu util
 _cpu = []             # cpu plot list
 
@@ -643,50 +643,67 @@ def run_me():
 
 def start_loop():
     global _loc
+    global tasks
+    global t_time
+    global send_back_host
+    global node_id
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
-    while True:
-        x = gp.getpass('Press any key to Start...').lower()
-        if x != 'exit':
-            for i in range(500):
 
-                edf_list = get_edf()
-                print('RMS List of Processes: ', edf_list, '\n')
-                print('\nRunning Bankers Algorithm')
-                list_seq = get_exec_seq(edf_list)
-                if len(list_seq) > 0:              # do only when there is a task in safe sequence
-                    wait_list = calc_wait_time(list_seq)
-                    print('\nWaiting Time List: ', wait_list)
-                    compare_result = compare_local_mec(wait_list)
-                    print('\nExecute Locally: ', compare_result[1])
-                    t_loc = len(compare_result[1])         # total number of tasks to be executed locally
-                    print('\nExecute in MEC: ', compare_result[0])
+    node_id = mec_id(ip_address())
+    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, receive_connection, receive_cloud_connection]
+    for i in _threads_:
+        Thread(target=i).daemon = True
+        Thread(target=i).start()
 
-                    print('\nSending to cooperative platform')
-                    if len(compare_result[0]) > 0:
-                        cooperative_mec(compare_result[0], 1)
-                    _send_back = execute(compare_result[1])
-                    _loc = t_loc
-                    if len(_send_back) > 0:            # do only when there is a task to send back
-                        _loc = t_loc - len(_send_back)
-                receive_executed_task()
-                show_graphs()                           # shows graph plots
-                time.sleep(3)
-            print('\nEnter "Exit" to stop Programme!')
-        if x == 'exit':
-            print('\nProgramme Terminated')
-            # cmd = 'echo "task = {}" >> test.py'.format(test)
-            # os.system(cmd)
+    x = gp.getpass('Press any key to Start...').lower()
+    if x != 'exit':
+        while True:
+            try:
+                if len(received_task_queue) > 0:
+                    info = received_task_queue.pop(0)
+                    tasks, t_time = info[0]
+                    send_back_host = info[1]
 
-            cmd = 'echo "wt_16_6 = {} \nrtt_16_6 = {} \ncpu_16_6 = {} \noff_mec16_6 = {}' \
-                  '\noff_cloud16_6 = {} \nloc16_6 = {}" >> data.py'.format(mec_waiting_time,
-                                                                           mec_rtt,
-                                                                           _cpu,
-                                                                           _off_mec,
-                                                                           _off_cloud,
-                                                                           _loc)
-            os.system(cmd)
-            break
+                    print('EDF List of Processes: ', tasks, '\n')
+
+                    print('\n========= Running Deadlock Algorithm ===========')
+                    list_seq = get_exec_seq(edf())
+                    if len(list_seq) > 0:  # do only when there is a task in safe sequence
+                        wait_list = calc_wait_time(list_seq)
+                        print('\nWaiting Time List: ', wait_list)
+                        compare_result = compare_local_mec(wait_list)
+                        print('\nExecute Locally: ', compare_result[1])
+                        t_loc = len(compare_result[1])  # total number of tasks to be executed locally
+                        print('\nExecute in MEC: ', compare_result[0])
+
+                        print('\nSending to cooperative platform')
+                        if len(compare_result[0]) > 0:
+                            cooperative_mec(compare_result[0])
+                        _send_back = execute(compare_result[1])
+                        _loc = t_loc
+                        if len(_send_back) > 0:  # do only when there is a task to send back
+                            _loc = t_loc - len(_send_back)
+                        show_graphs()
+                else:
+                    print('========= Waiting for tasks ==========')
+                    send_message(str('0'))
+                    show_graphs()
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print('\nProgramme Terminated')
+                for i in thread_record:
+                    i.stop()
+
+                cmd = 'echo "wt_16_6 = {} \nrtt_16_6 = {} \ncpu_16_6 = {} \noff_mec16_6 = {}' \
+                      '\noff_cloud16_6 = {} \nloc16_6 = {}" >> data.py'.format(mec_waiting_time,
+                                                                               mec_rtt,
+                                                                               _cpu,
+                                                                               _off_mec,
+                                                                               _off_cloud,
+                                                                               _loc)
+                os.system(cmd)
+                break
 
 
 def initialization():
@@ -700,7 +717,11 @@ def initialization():
         cloud_ip = input('Cloud Server IP: ').strip()
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
+        h2 = Thread(target=receive_offloaded_task_mec)
+        h1.daemon = True
+        h2.daemon = True
         h1.start()
+        h2.start()
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
@@ -715,6 +736,8 @@ def initialization():
 
 def main():
     os.system('clear')
+    discovering_group()
+    offloading_group()
     run_me()
 
 
