@@ -42,12 +42,51 @@ allocation = {
 
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
-offload_register = {}      # {task: host_ip}
-
+offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
+reoffload_list = [[], {}]   # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
 discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
+received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
+thread_record = []
+_port_ = 64000
+cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
+cloud_port = 63000
+
+
+def discovering_group():
+    global sock1
+
+    multicast_group = '224.3.29.71'
+    server_address = ('', 10000)
+
+    # Create the socket
+    sock1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Bind to the server address
+    sock1.bind(server_address)
+    # Tell the operating system to add the socket to the multicast group
+    # on all interfaces.
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    sock1.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+
+def offloading_group():
+    global sock2
+
+    multicast_group = '224.5.5.55'
+    server_address = ('', 20000)
+
+    # Create the socket
+    sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Bind to the server address
+    sock2.bind(server_address)
+    # Tell the operating system to add the socket to the multicast group
+    # on all interfaces.
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    sock2.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 
 def ip_address():
@@ -84,35 +123,46 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
-def get_edf():
-    global tasks
-    global _pos
+def receive_connection():
+    # unicast socket
+    host = ip_address()
+    port = 65000        # Port to listen on (non-privileged ports are > 1023)
 
-    tasks = data.task[_pos]
-    _pos += 1
-    '''
-    tasks = {}
-    _t = r.randrange(2,4)
-    while len(tasks) < _t:
-        a = list(_tasks.keys())[gosh_dist(5)]
-        tasks[a] = _tasks[a]
-    '''
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, port))
+                s.listen()
+                conn, addr = s.accept()
 
-    print('Running RMS on Tasks: ', tasks, '\n')
-    # test.append(tasks)
-    # _time.append(_t)
-    waiting_time_init()
-    return edf()
+                thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
+                thread_record[-1].daemon = True
+                thread_record[-1].start()
+                port += 10
+
+        except KeyboardInterrupt:
+            print('\nProgramme Forcefully Terminated')
+            break
 
 
-def waiting_time_init():
-    global t_time
+def receive_cloud_connection():
+    # unicast socket
+    host = ip_address()
+    cloud_port = 62000        # Port to listen on (non-privileged ports are > 1023)
 
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
-              tasks}  # t_time = {'ti': [execution_time, latency], ..}
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((host, cloud_port))
+            s.listen()
+            conn, addr = s.accept()
 
-    t_time = {**t_time, **check_mec_offload()}
-    print('[Execution_time, Latency]: ', t_time)
+            with conn:
+                while True:
+                    data = conn.recv(1024)
+                    received_task = ast.literal_eval(data.decode())
+                    send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
+    except KeyboardInterrupt:
+        print('\nProgramme Forcefully Terminated')
 
 
 def edf():
@@ -154,13 +204,13 @@ def edf():
                 print('Deadline missed: ', i)
                 missed.append(i[0])
 
-    print('s (task, execution_time): ', schedule)
-    print('r: ', register)
+    # print('s (task, execution_time): ', schedule)
+    # print('r: ', register)
     if len(missed) > 0:
-        print('missed deadline: ', missed)
+        # print('missed deadline: ', missed)
         cooperative_mec(missed, 0)
 
-    return offloaded + schedule
+    return schedule
 
 
 # generate execution sequence
@@ -220,10 +270,10 @@ def wait_die(processes, avail, n_need, allocat):
                 # print('offload: ', i)
 
     if len(offload) > 0:
-        print('offloading tasks: ', offload)
-        cooperative_mec(offload, 0)
+        # print('offloading tasks: ', offload)
+        cooperative_mec(offload)
 
-    print('Execution seq: ', exec_seq)
+    # print('Execution seq: ', exec_seq)
 
     return exec_seq
 
