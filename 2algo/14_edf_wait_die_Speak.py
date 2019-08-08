@@ -619,6 +619,7 @@ def start_loop():
                 else:
                     print('========= Waiting for tasks ==========')
                     send_message(str('0'))
+                    time.sleep(1)
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
