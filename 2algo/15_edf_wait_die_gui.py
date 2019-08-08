@@ -239,38 +239,6 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
-def get_edf():
-    global tasks
-    global _pos
-
-    tasks = data.task[_pos]
-    _pos += 1
-    '''
-    tasks = {}
-    _t = r.randrange(2, 4)
-    while len(tasks) < _t:
-        a = list(_tasks.keys())[gosh_dist(5)]
-        tasks[a] = _tasks[a]
-    '''
-
-    print('Running RMS on Tasks: ', tasks, '\n')
-    # test.append(tasks)
-    # _time.append(_t)
-    waiting_time_init()
-
-    return edf()
-
-
-def waiting_time_init():
-    global t_time
-
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
-              tasks}  # t_time = {'ti': [cost, deadline], ..}
-
-    t_time = {**t_time, **check_mec_offload()}
-    print('[Execution_time, Latency]: ', t_time)
-
-
 def edf():
     t_lcm = lcm([tasks[i]['period'] for i in tasks])
 
