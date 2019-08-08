@@ -480,7 +480,7 @@ def calc_wait_time(list_seq):
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)            # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    send_message(str(w_send))   # Broadcasting waiting time to cooperative MECs
+    send_message('wt ' + str(w_send))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
