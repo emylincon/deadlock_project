@@ -123,6 +123,17 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
+def receive_tasks_client(_con, _addr):
+    # unicast socket
+    with _con:
+        print('Connected: ', _addr)
+        while True:
+            data = _con.recv(1024)
+            # print(_addr[0], ': ', data.decode())
+            received_task = ast.literal_eval(data.decode())
+            received_task_queue.append([received_task, _addr[0]])
+
+
 def receive_connection():
     # unicast socket
     host = ip_address()
@@ -369,8 +380,8 @@ def receive_message():
             hosts = ast.literal_eval(data.decode()[7:])
             # print('received: ', hosts)
 
-        elif (data.decode()[:6] != 'update') and (address[0] != host_ip):
-            w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
+        elif (data.decode()[:6] == 'wt') and (address[0] != host_ip):
+            w_time = calculate_mov_avg(address[0], float(data.decode().split()[1]) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
             if address[0] in mec_waiting_time:
                 mec_waiting_time[address[0]].append(w_time)
             else:
@@ -386,124 +397,148 @@ def mec_comparison():
     return min_wt
 
 
-def mec_task_unicast(task, host_):
-    try:
-        c = paramiko.SSHClient()
-
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {} {}" >> /home/mec/deadlock_project/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
-
-        stdin, stdout, stderr = c.exec_command(cmd)
-    except Exception as e:
-        print(e)
-
-
-def cooperative_mec(mec_list, n):
+def cooperative_mec(mec_list):
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
-            mec_task_unicast(i, cloud_ip)
+            send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
+            cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
-        elif n == 0:
-            j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
-
-                mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
-
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])      # adds a new average waiting time
-                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
-            else:
-                mec_task_unicast(i, cloud_ip)
-
-                print('\n=========SENDING {} TO CLOUD==========='.format(i))
         else:
-            j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            j = i.split('_')[0]
+            _max = np.array([7, 5, 5])
+            send = 'false'
+            if not (False in list(np.greater_equal(_max, _need[j]))):
+                send = 'true'
+            if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
+                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
 
-                mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
+                # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
+                mec_waiting_time[_host].append(
+                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                mec_task_unicast(i, cloud_ip)
+                send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
+                cloud_register[j.split('.')[2]] = send_back_host
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
 
-def check_mec_offload():
-    global offloaded
-
-    offloaded = []
-    t_mec = {}                # {t1: [execution, latency}
-    try:
-        fr = open('/home/mec/deadlock_project/temp/task_share.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
-            offloaded.append(ta)
-            offload_register[ta] = i[:-1].split()[0]
-            t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
-        fr.close()
-        os.system('rm /home/mec/deadlock_project/temp/task_share.txt')
-        print('Tasks Offloaded to MEC: {}'.format(offloaded))
-    except Exception as e:
-        print('no offloaded Task!')
-    return t_mec
+def execute_re_offloaded_task(offloaded_task):
+    exec_list = get_exec_seq(offloaded_task[0])
+    for i in exec_list:
+        j = i.split('_')
+        time.sleep(offloaded_task[1][j])
+        send_offloaded_task_mec('{} {}'.format(j[0].split('.')[1], j))
 
 
 def execute(local):
     print('\nExecuting :', local)
-    send = []
+
     for i in local:
-        j = '_'.join(i.split('_')[:-1])
+        j = i.split('_')[0]
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
-        if len(j) > 2:
-            send_back_task(j)
-            send.append(j)
+        if j.split('.')[1] != node_id:
+            send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
+        elif j.split('.')[1] == node_id:
+            send_client({j: get_time()}, send_back_host)
     print('============== EXECUTION DONE ===============')
-    return send
 
 
-def send_back_task(o_task):
-    _host_ip = ip_address()
+def receive_offloaded_task_mec():    # run as a thread
+    while True:
+        data, address = sock2.recvfrom(1024)
+        da = data.decode().split(' ')
+        if (address[0] != ip_address()) and da[0] == node_id:               # send back to client
+            send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
+        elif (address[0] != ip_address()) and da[0] == 'ex' and da[1] == node_id:
+            _received = ast.literal_eval(da[2])
+            reoffload_list[0].append(_received[0])
+            reoffload_list[1][_received[0]] = _received[1]
 
+
+def call_execute_re_offload():
+    global reoffload_list
+
+    while True:
+        if len(reoffload_list[0]) == 1:
+            t = reoffload_list[0][-1]
+            time.sleep(reoffload_list[1][t])
+            reoffload_list[0].remove(t)
+            del reoffload_list[1][t]
+            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t))
+        elif len(reoffload_list[0]) > 1:
+            o = reoffload_list.copy()
+            execute_re_offloaded_task(o)
+            for i in o[0]:
+                reoffload_list[0].remove(i)
+                del reoffload_list[1][i]
+
+        time.sleep(1)
+
+
+def send_offloaded_task_mec(msg):
+    _multicast_group = ('224.5.5.55', 20000)
     try:
-        c = paramiko.SSHClient()
+        sock2.sendto(str.encode(msg), _multicast_group)
 
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(offload_register[o_task], port, un, pw)
-        cmd = ('echo "{} {} {}" >> '
-               '/home/mec/deadlock_project/temp/executed.txt'.format(o_task, _host_ip, get_time()))
-        # task share, host ip task, execution_time
-
-        stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
         print(e)
 
 
-def receive_executed_task():
+def send_task_client(_task, _host):
+    global _port_
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((_host, _port_))
+        s.sendall(str.encode(_task))
+    _port_ = 64000
+
+
+def send_client(t, h):    # t = tasks, h = host ip
+    global _port_
+
     try:
-        fr = open('/home/mec/deadlock_project/temp/executed.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            i = i[:-1].split()
-            print('Received Executed task {} from {}'.format(i[0], i[1]))
-        fr.close()
-        os.system('rm /home/mec/deadlock_project/temp/executed.txt')
-    except Exception as e:
-        print('No Executed Tasks from MEC Received')
+        send_task_client(t, h)
+    except ConnectionRefusedError:
+        _port_ += 10
+        send_client(t, h)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
+
+
+def send_task_cloud(_task):
+    global cloud_port
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((cloud_ip, cloud_port))
+        s.sendall(str.encode(_task))
+    cloud_port = 63000
+
+
+def send_cloud(t):    # t = tasks =>
+    global cloud_port
+
+    try:
+        send_task_cloud(t)
+    except ConnectionRefusedError:
+        cloud_port += 10
+        send_cloud(t)
+    except KeyboardInterrupt:
+        print('Programme Terminated')
+
+
+def mec_id(client_ip):
+
+    _id = client_ip.split('.')[-1]
+    if len(_id) == 1:
+        return '00' + _id
+    elif len(_id) == 2:
+        return '0' + _id
+    else:
+        return _id
 
 
 def run_me():
@@ -523,44 +558,54 @@ def run_me():
 
 def start_loop():
     global _loc
+    global tasks
+    global t_time
+    global send_back_host
+    global node_id
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
-    while True:
-        x = gp.getpass('Press any key to Start...').lower()
-        if x != 'exit':
-            for i in range(500):
 
-                edf_list = get_edf()
-                print('RMS List of Processes: ', edf_list, '\n')
-                print('\nRunning Bankers Algorithm')
-                list_seq = get_exec_seq(edf_list)
-                if len(list_seq) > 0:              # do only when there is a task in safe sequence
-                    wait_list = calc_wait_time(list_seq)
-                    print('\nWaiting Time List: ', wait_list)
-                    compare_result = compare_local_mec(wait_list)
-                    print('\nExecute Locally: ', compare_result[1])
-                    t_loc = len(compare_result[1])         # total number of tasks to be executed locally
-                    print('\nExecute in MEC: ', compare_result[0])
+    node_id = mec_id(ip_address())
+    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, receive_connection, receive_cloud_connection]
+    for i in _threads_:
+        Thread(target=i).daemon = True
+        Thread(target=i).start()
 
-                    print('\nSending to cooperative platform')
-                    if len(compare_result[0]) > 0:
-                        cooperative_mec(compare_result[0], 1)
-                    _send_back = execute(compare_result[1])
-                    _loc = t_loc
-                    if len(_send_back) > 0:            # do only when there is a task to send back
-                        _loc = t_loc - len(_send_back)
-                receive_executed_task()
-                time.sleep(3)
-            print('\nEnter "Exit" to stop Programme!')
-        if x == 'exit':
-            print('\nProgramme Terminated')
-            '''
-            cmd = 'echo "task = {}" >> test.py'.format(test)
-            os.system(cmd)
-            cmd = 'echo "_time = {}" >> test.py'.format(_time)
-            os.system(cmd)
-            '''
-            break
+    x = gp.getpass('Press any key to Start...').lower()
+    if x != 'exit':
+        while True:
+            try:
+                if len(received_task_queue) > 0:
+                    info = received_task_queue.pop(0)
+                    tasks, t_time = info[0]
+                    send_back_host = info[1]
+
+                    print('EDF List of Processes: ', tasks, '\n')
+
+                    print('\n========= Running Deadlock Algorithm ===========')
+                    list_seq = get_exec_seq(edf())
+                    if len(list_seq) > 0:  # do only when there is a task in safe sequence
+                        wait_list = calc_wait_time(list_seq)
+                        print('\nWaiting Time List: ', wait_list)
+                        compare_result = compare_local_mec(wait_list)
+                        print('\nExecute Locally: ', compare_result[1])
+                        print('\nExecute in MEC: ', compare_result[0])
+
+                        print('\nSending to cooperative platform')
+                        if len(compare_result[0]) > 0:
+                            cooperative_mec(compare_result[0])
+                        execute(compare_result[1])
+
+                else:
+                    print('========= Waiting for tasks ==========')
+                    send_message(str('0'))
+                    time.sleep(1)
+
+            except KeyboardInterrupt:
+                print('\nProgramme Terminated')
+                for i in thread_record:
+                    i.stop()
+                    break
 
 
 def initialization():
@@ -574,7 +619,11 @@ def initialization():
         cloud_ip = input('Cloud Server IP: ').strip()
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
+        h2 = Thread(target=receive_offloaded_task_mec)
+        h1.daemon = True
+        h2.daemon = True
         h1.start()
+        h2.start()
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
@@ -589,6 +638,8 @@ def initialization():
 
 def main():
     os.system('clear')
+    discovering_group()
+    offloading_group()
     run_me()
 
 
