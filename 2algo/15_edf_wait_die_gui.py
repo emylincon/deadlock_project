@@ -515,71 +515,39 @@ def mec_task_unicast(task, host_):
         print(e)
 
 
-def cooperative_mec(mec_list, n):
+def cooperative_mec(mec_list):
     global _off_cloud
     global _off_mec
 
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
-            mec_task_unicast(i, cloud_ip)
-
-            print('\n=========SENDING {} TO CLOUD==========='.format(i))
+            send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
+            cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
             _off_cloud += 1
 
-        elif n == 0:
-            j = '_'.join(i.split('_')[:-1])
-            if (mec_waiting_time[_host][-1]) < t_time[j][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
-                mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
-
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])      # adds a new average waiting time
-                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
-                _off_mec += 1
-
-            else:
-                mec_task_unicast(i, cloud_ip)
-
-                print('\n=========SENDING {} TO CLOUD==========='.format(i))
-                _off_cloud += 1
         else:
-            j = '_'.join(i.split('_')[:-1])
-            if (mec_waiting_time[_host][-1]) < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
-
-                mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
-
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
-                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+            j = i.split('_')[0]
+            _max = np.array([7, 5, 5])
+            send = 'false'
+            if not (False in list(np.greater_equal(_max, _need[j]))):
+                send = 'true'
+            if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
+                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
                 _off_mec += 1
+                # SENDS TASK TO MEC FOR EXECUTION
 
+                mec_waiting_time[_host].append(
+                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
+                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                mec_task_unicast(i, cloud_ip)
-
-                print('\n=========SENDING {} TO CLOUD==========='.format(i))
+                send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
+                cloud_register[j.split('.')[2]] = send_back_host
                 _off_cloud += 1
 
-
-def check_mec_offload():
-    global offloaded
-    global _inward_mec
-
-    offloaded = []
-    t_mec = {}                # {t1: [execution, latency}
-    try:
-        fr = open('/home/mec/deadlock_project/temp/task_share.txt', 'r')
-        t = fr.readlines()
-        for i in t:
-            ta = i[:-1].split()[1][:2] + '_' + str(t.index(i))
-            offloaded.append(ta)
-            offload_register[ta] = i[:-1].split()[0]
-            t_mec[ta] = ast.literal_eval(''.join(i[:-1].split()[2:]))
-        fr.close()
-        os.system('rm /home/mec/deadlock_project/temp/task_share.txt')
-        print('Tasks Offloaded to MEC: {}'.format(offloaded))
-    except Exception as e:
-        print('no offloaded Task!')
-    _inward_mec += len(t_mec)
-    return t_mec
+                print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
 
 def execute_re_offloaded_task(offloaded_task):
@@ -608,6 +576,8 @@ def execute(local):
 
 
 def receive_offloaded_task_mec():    # run as a thread
+    global _inward_mec
+
     while True:
         data, address = sock2.recvfrom(1024)
         da = data.decode().split(' ')
@@ -617,6 +587,7 @@ def receive_offloaded_task_mec():    # run as a thread
             _received = ast.literal_eval(da[2])
             reoffload_list[0].append(_received[0])
             reoffload_list[1][_received[0]] = _received[1]
+            _inward_mec += 1
 
 
 def call_execute_re_offload():
