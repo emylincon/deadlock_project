@@ -279,18 +279,11 @@ def wait_die(processes, avail, n_need, allocat):
 
 
 def get_exec_seq(pro):
-    global P
-    global R
 
-    # Number of processes
-    P = len(pro)
-
-    # Number of resources
-    R = 3
-    processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
+    processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
 
     # Available instances of resources
-    avail = [5, 5, 5]
+    avail = [7, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -304,16 +297,16 @@ def calc_wait_time(list_seq):
     pre = 0
     time_dic = {}
     for i in list_seq:
-        j = '_'.join(i.split('_')[:-1])            # i = 't5_3_3', j = 't5_3'
+        j = i.split('_')[0]
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)            # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    send_message(str(w_send))   # Broadcasting waiting time to cooperative MECs
+    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)      # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    send_message('wt ' + str(w_send))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
 def compare_local_mec(list_seq):
-    time_compare_dict = {i: t_time['_'.join(i.split('_')[:-1])][1] > list_seq[i] for i in list_seq}
+    time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
     print('local vs MEC comparison: ', time_compare_dict)
     execute_mec = []
     execute_locally = []
