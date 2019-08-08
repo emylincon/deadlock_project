@@ -422,7 +422,7 @@ def calc_wait_time(list_seq):
 
 
 def compare_local_mec(list_seq):
-    time_compare_dict = {i: t_time['_'.join(i.split('_')[:-1])][1] > list_seq[i] for i in list_seq}
+    time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
     print('local vs MEC comparison: ', time_compare_dict)
     execute_mec = []
     execute_locally = []
