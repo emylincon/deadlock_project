@@ -239,6 +239,59 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
+def receive_tasks_client(_con, _addr):
+    # unicast socket
+    with _con:
+        print('Connected: ', _addr)
+        while True:
+            data = _con.recv(1024)
+            # print(_addr[0], ': ', data.decode())
+            received_task = ast.literal_eval(data.decode())
+            received_task_queue.append([received_task, _addr[0]])
+
+
+def receive_connection():
+    # unicast socket
+    host = ip_address()
+    port = 65000        # Port to listen on (non-privileged ports are > 1023)
+
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((host, port))
+                s.listen()
+                conn, addr = s.accept()
+
+                thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
+                thread_record[-1].daemon = True
+                thread_record[-1].start()
+                port += 10
+
+        except KeyboardInterrupt:
+            print('\nProgramme Forcefully Terminated')
+            break
+
+
+def receive_cloud_connection():
+    # unicast socket
+    host = ip_address()
+    cloud_port = 62000        # Port to listen on (non-privileged ports are > 1023)
+
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((host, cloud_port))
+            s.listen()
+            conn, addr = s.accept()
+
+            with conn:
+                while True:
+                    data = conn.recv(1024)
+                    received_task = ast.literal_eval(data.decode())
+                    send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
+    except KeyboardInterrupt:
+        print('\nProgramme Forcefully Terminated')
+
+
 def edf():
     t_lcm = lcm([tasks[i]['period'] for i in tasks])
 
