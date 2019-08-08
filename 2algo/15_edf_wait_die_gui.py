@@ -582,6 +582,14 @@ def check_mec_offload():
     return t_mec
 
 
+def execute_re_offloaded_task(offloaded_task):
+    exec_list = get_exec_seq(offloaded_task[0])
+    for i in exec_list:
+        j = i.split('_')
+        time.sleep(offloaded_task[1][j])
+        send_offloaded_task_mec('{} {}'.format(j[0].split('.')[1], j))
+
+
 def execute(local):
     print('\nExecuting :', local)
 
