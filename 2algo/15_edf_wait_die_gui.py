@@ -68,13 +68,15 @@ received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
 _port_ = 64000
 cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
+memory = []
 
 fig = plt.figure()
-ax1 = fig.add_subplot(221)
-ax2 = fig.add_subplot(222)
-ax3 = fig.add_subplot(223)
-ax4 = fig.add_subplot(224)
-ax5 = fig.add_subplot(338)
+ax1 = fig.add_subplot(231)
+ax2 = fig.add_subplot(232)
+ax3 = fig.add_subplot(233)
+ax4 = fig.add_subplot(234)
+ax5 = fig.add_subplot(235)
+ax6 = fig.add_subplot(236)
 
 
 def discovering_group():
@@ -153,6 +155,21 @@ def plot_deadlock():
     plt.subplot(ax5)
 
 
+def plot_memory():
+    global memory
+
+    memory.append(algo.memory_percent())
+
+    ax6.grid(True)
+    ax6.plot(list(range(len(_mov_avg(memory)))), _mov_avg(memory), linewidth=2, label='Memory')
+    ax6.set_title('Moving Memory Utilization')
+    ax6.set_ylabel('Moving Memory')
+    ax6.set_xlabel('Time (seconds)')
+    ax6.fill_between(list(range(len(_mov_avg(memory)))), _mov_avg(memory), 0, alpha=0.5)
+    ax6.legend()
+    plt.subplot(ax6)
+
+
 def plot_wait_time():
     ax2.grid(True)
 
@@ -226,6 +243,7 @@ def plot_graphs():
     plot_rtts()
     plot_cpu()
     plot_deadlock()
+    plot_memory()
     fig.suptitle('MEC Performance During Deadlock Experiment')
 
 
@@ -803,7 +821,10 @@ def initialization():
 
 
 def main():
+    global algo
+
     os.system('clear')
+    algo = psutil.Process()
     discovering_group()
     offloading_group()
     run_me()
