@@ -449,18 +449,16 @@ def execute_re_offloaded_task(offloaded_task):
 def execute(local):
     print('\nExecuting :', local)
 
-    send = []
     for i in local:
         j = i.split('_')[0]
         time.sleep(t_time[j][0])
         print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
-            send.append(j)
+
         elif j.split('.')[1] == node_id:
             send_client({j: get_time()}, send_back_host)
     print('============== EXECUTION DONE ===============')
-    return send
 
 
 def receive_offloaded_task_mec():    # run as a thread
@@ -612,10 +610,8 @@ def start_loop():
                         print('\nSending to cooperative platform')
                         if len(compare_result[0]) > 0:
                             cooperative_mec(compare_result[0])
-                        _send_back = execute(compare_result[1])
-                        _loc = t_loc
-                        if len(_send_back) > 0:  # do only when there is a task to send back
-                            _loc = t_loc - len(_send_back)
+                        execute(compare_result[1])
+
                 else:
                     print('========= Waiting for tasks ==========')
                     send_message(str('wt 0.0'))
