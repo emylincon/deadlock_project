@@ -618,7 +618,8 @@ def start_loop():
                             _loc = t_loc - len(_send_back)
                 else:
                     print('========= Waiting for tasks ==========')
-                    os.system('clear')
+                    send_message(str('0'))
+
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
                 for i in thread_record:
