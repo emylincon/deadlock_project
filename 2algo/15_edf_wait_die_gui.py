@@ -112,19 +112,19 @@ def offloading_group():
 
 
 def _mov_avg(a1):
-    ma1=[] # moving average list
-    avg1=0 # moving average pointwise
-    count=0
+    ma1 = []   # moving average list
+    avg1 = 0   # moving average pointwise
+    count = 0
     for i in range(len(a1)):
-        count+=1
-        avg1=((count-1)*avg1+a1[i])/count
-        ma1.append(avg1) #cumulative average formula
+        count += 1
+        avg1 = ((count-1)*avg1+a1[i])/count
+        ma1.append(avg1)    # cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
 
 
 def plot_offloaded_remote():
-    keys = ['Offload In', 'Cloud', 'Local', 'Offload Out' ]
+    keys = ['Offload In', 'Cloud', 'Local', 'Offload Out']
     val = [_off_mec, _off_cloud, _loc, _inward_mec]
     cols = ['r', 'g', 'b', 'm']
     explode = []
@@ -359,10 +359,10 @@ def edf():
                 print('Deadline missed: ', i)
                 missed.append(i[0])
 
-    #print('s : ', schedule)
-    #print('r: ', register)
+    # print('s : ', schedule)
+    # print('r: ', register)
     if len(missed) > 0:
-        #print('missed deadline: ', missed)
+        # print('missed deadline: ', missed)
         cooperative_mec(missed)
 
     return schedule
@@ -439,9 +439,9 @@ def wait_die(processes, avail, n_need, allocat):
 def get_exec_seq(pro):
 
     # Number of processes
-    P = len(pro)
+    p = len(pro)
 
-    processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
+    processes = ['{}_{}'.format(pro[i], i) for i in range(p)]
 
     # Available instances of resources
     avail = [7, 5, 5]
@@ -593,7 +593,7 @@ def execute(local):
     for i in local:
         j = i.split('_')[0]
         time.sleep(t_time[j][0])
-        print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
+        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
             send.append(j)
