@@ -7,7 +7,6 @@ import socket
 import struct
 import subprocess as sp
 from threading import Thread
-import paramiko
 import ast
 import time
 import datetime as dt
@@ -16,21 +15,9 @@ import getpass as gp
 import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
-import data
+
 
 hosts = {}  # {hostname: ip}
-multicast_group = '224.3.29.71'
-server_address = ('', 10000)
-
-# Create the socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# Bind to the server address
-sock.bind(server_address)
-# Tell the operating system to add the socket to the multicast group
-# on all interfaces.
-group = socket.inet_aton(multicast_group)
-mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
@@ -62,7 +49,8 @@ color_code = ['orange', 'brown', 'purple', 'pink', 'blue']
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>']
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
-offload_register = {}      # {task: host_ip}
+offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
+reoffload_list = [[], {}]
 
 mec_rtt = {}               # {ip: [RTT]}
 thread_record = []   # keeps track of threads
@@ -75,12 +63,52 @@ _loc = 0              # used to keep a count of tasks executed locally
 _inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
 deadlock = [0]          # keeps count of how many deadlock is resolved
 _pos = 0
+
+received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
+_port_ = 64000
+cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
+cloud_port = 63000
+
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
 ax2 = fig.add_subplot(222)
 ax3 = fig.add_subplot(223)
 ax4 = fig.add_subplot(224)
 ax5 = fig.add_subplot(338)
+
+
+def discovering_group():
+    global sock1
+
+    multicast_group = '224.3.29.71'
+    server_address = ('', 10000)
+
+    # Create the socket
+    sock1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Bind to the server address
+    sock1.bind(server_address)
+    # Tell the operating system to add the socket to the multicast group
+    # on all interfaces.
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    sock1.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+
+def offloading_group():
+    global sock2
+
+    multicast_group = '224.5.5.55'
+    server_address = ('', 20000)
+
+    # Create the socket
+    sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Bind to the server address
+    sock2.bind(server_address)
+    # Tell the operating system to add the socket to the multicast group
+    # on all interfaces.
+    group = socket.inet_aton(multicast_group)
+    mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+    sock2.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 
 def _mov_avg(a1):
@@ -400,7 +428,7 @@ def wait_die(processes, avail, n_need, allocat):
 
     if len(offload) > 0:
         print('offloading tasks: ', offload)
-        cooperative_mec(offload, 0)
+        cooperative_mec(offload)
         deadlock += 1
 
     print('Execution seq: ', exec_seq)
@@ -474,10 +502,10 @@ def send_message(mg):
         # Send data to the multicast group
         if mg == 'hello':
             smg = mg + ' ' + message()
-            sock.sendto(str.encode(smg), _multicast_group)
+            sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
         else:
-            sock.sendto(str.encode(mg), _multicast_group)
+            sock1.sendto(str.encode(mg), _multicast_group)
 
     except Exception as e:
         print(e)
@@ -491,7 +519,7 @@ def message():
 
 def receive_message():
     while True:
-        data, address = sock.recvfrom(1024)
+        data, address = sock1.recvfrom(1024)
 
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
