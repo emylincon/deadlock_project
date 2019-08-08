@@ -626,7 +626,6 @@ def start_loop():
                 for i in thread_record:
                     i.stop()
                     break
-            print('\nEnter "Exit" to stop Programme!')
 
 
 def speaking_node():
