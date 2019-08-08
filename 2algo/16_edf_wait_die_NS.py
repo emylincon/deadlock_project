@@ -320,7 +320,6 @@ def compare_local_mec(list_seq):
 
 
 def calculate_mov_avg(ma1, a1):
-
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
         avg1 = mec_waiting_time[ma1][-1]
@@ -341,11 +340,11 @@ def send_message(mg):
         # Send data to the multicast group
         if mg == 'hello':
             smg = mg + ' ' + message()
-            sock.sendto(str.encode(smg), _multicast_group)
+            sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
 
         else:
-            sock.sendto(str.encode(mg), _multicast_group)
+            sock1.sendto(str.encode(mg), _multicast_group)
 
     except Exception as e:
         print(e)
@@ -361,7 +360,7 @@ def receive_message():
     global hosts
 
     while True:
-        data, address = sock.recvfrom(1024)
+        data, address = sock1.recvfrom(1024)
 
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
