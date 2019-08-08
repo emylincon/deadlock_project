@@ -413,7 +413,7 @@ def calc_wait_time(list_seq):
     pre = 0
     time_dic = {}
     for i in list_seq:
-        j = '_'.join(i.split('_')[:-1])            # i = 't5_3_3', j = 't5_3'
+        j = i.split('_')[0]           # i = 't5_3_3', j = 't5_3'
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)            # waiting time = total waiting time ÷ 2 average waiting time might be too tight
