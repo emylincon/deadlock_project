@@ -264,7 +264,7 @@ def get_rtt(host):
 
 
 def get_time():
-    _time_ = str(dt.datetime.utcnow()).split()[1]
+    _time_ = dt.datetime.utcnow()
     return _time_
 
 
