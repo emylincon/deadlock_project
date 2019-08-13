@@ -8,6 +8,7 @@ from threading import Thread
 import random as r
 import time
 import datetime as dt
+import paho.mqtt.client as mqtt
 
 
 port = 65000        # The port used by the server
@@ -92,31 +93,41 @@ def waiting_time_init():
     return t_time
 
 
-def send_message(mg):
-    _multicast_group = ('224.3.29.71', 10000)
-    try:
-
-        # Send data to the multicast group
-        if mg == 'hello':
-            smg = 'user'
-            sock.sendto(str.encode(smg), _multicast_group)
-            print('\nHello message sent')
-
-    except Exception as e:
-        print(e)
+# Callback Function on Connection with MQTT Server
+def on_connect(connect_client, userdata, flags, rc):
+    print("Connected with Code :" +str(rc))
+    # Subscribe Topic from here
+    connect_client.subscribe(topic)
 
 
-def receive_message():
+# Callback Function on Receiving the Subscribed Topic/Message
+def on_message(message_client, userdata, msg):
     global hosts
+    # print the message received from the subscribed topic
+    details = str(msg.payload, 'utf-8')
+    ho = ast.literal_eval(details)
+    hosts = list(ho.keys())
+    _client.loop_stop()
 
-    while True:
-        data, address = sock.recvfrom(1024)
 
-        if data.decode()[:6] == 'update':
-            ho = ast.literal_eval(data.decode()[7:])
-            hosts = list(ho.keys())
-            # print('received: ', hosts)
-            break
+def get_mec_details():
+    global topic
+    global _client
+
+    username = 'mec'
+    password = 'password'
+    broker_ip = input("Broker's IP: ").strip()
+    broker_port_no = 1883
+    topic = 'mec'
+
+    _client = mqtt.Client()
+    _client.on_connect = on_connect
+    _client.on_message = on_message
+
+    _client.username_pw_set(username, password)
+    _client.connect(broker_ip, broker_port_no, 60)
+
+    _client.loop_start()
 
 
 def ip_address():
@@ -220,10 +231,7 @@ def main():
 
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
-    init = Thread(target=receive_message)
-    thread_record.append(init)
-    init.start()
-    send_message('hello')
+    get_mec_details()
     client_id_ = client_id(ip_address())
     while True:
         time.sleep(1)
