@@ -14,6 +14,7 @@ import time
 import os
 import datetime as dt
 import getpass as gp
+import paho.mqtt.client as mqtt
 
 
 hosts = {}  # {hostname: ip}
@@ -358,6 +359,31 @@ def calculate_mov_avg(ma1, a1):
     return avg1
 
 
+def on_connect(connect_client, userdata, flags, rc):
+    print("Subscribed to Topic :" +str(rc))
+    # Subscribe Topic from here
+    connect_client.subscribe(topic)
+
+
+def mqtt_initialization():
+    global topic
+    global _client
+
+    username = 'mec'
+    password = 'password'
+    broker_ip = '127.0.0.1'
+    broker_port_no = 1883
+    topic = 'mec'
+
+    _client = mqtt.Client()
+    _client.on_connect = on_connect
+
+    _client.username_pw_set(username, password)
+    _client.connect(broker_ip, broker_port_no, 60)
+
+    _client.loop_forever()
+
+
 def send_message(mg):
     _multicast_group = ('224.3.29.71', 10000)
     try:
@@ -373,6 +399,11 @@ def send_message(mg):
             smg = mg + ' ' + str(ho)
             sock1.sendto(str.encode(smg), _multicast_group)
             # print('\n===**====**==update message sent===**======**=========')
+        elif mg == 'client':
+            ho = hosts.copy()
+            ho[message()] = host_ip
+            smg = str(ho)
+            _client.publish(topic, smg, retain=True)
         else:
             sock1.sendto(str.encode(mg), _multicast_group)
 
@@ -578,6 +609,7 @@ def run_me():
     thread_record.append(speak)
     speak.daemon = True
     speak.start()
+    send_message('client')   # send mec details to clients
     start_loop()
 
 
@@ -656,10 +688,13 @@ def initialization():
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
         h2 = Thread(target=receive_offloaded_task_mec)
+        h3 = Thread(target=mqtt_initialization)
         h1.daemon = True
+        h2.daemon = True
         h2.daemon = True
         h1.start()
         h2.start()
+        h3.start()
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
