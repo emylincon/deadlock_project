@@ -754,6 +754,7 @@ def start_loop():
 
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
+        print('========= Waiting for tasks ==========')
         while True:
             try:
                 if len(received_task_queue) > 0:
@@ -782,7 +783,6 @@ def start_loop():
                             _loc = t_loc - len(_send_back)
                         show_graphs()
                 else:
-                    print('========= Waiting for tasks ==========')
                     send_message(str('0'))
                     show_graphs()
                     time.sleep(1)
