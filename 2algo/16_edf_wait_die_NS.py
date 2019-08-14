@@ -583,6 +583,7 @@ def start_loop():
 
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
+        print('========= Waiting for tasks ==========')
         while True:
             try:
                 if len(received_task_queue) > 0:
@@ -607,7 +608,6 @@ def start_loop():
                         execute(compare_result[1])
 
                 else:
-                    print('========= Waiting for tasks ==========')
                     send_message(str('0'))
                     time.sleep(1)
 
@@ -615,7 +615,7 @@ def start_loop():
                 print('\nProgramme Terminated')
                 for i in thread_record:
                     i.stop()
-                    break
+                break
 
 
 def initialization():
