@@ -202,7 +202,7 @@ def send_task(_task, _host):
     global port
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((_host, port))
-        s.sendall(str.encode(_task))
+        s.sendall(str.encode(str(_task)))
     port = 65000
 
 
