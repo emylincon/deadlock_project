@@ -18,6 +18,7 @@ apt install python3-matplotlib -y
 apt install python3-paramiko -y
 apt install python3-pyfiglet -y
 apt install python3-numpy -y
+pip3 install paho-mqtt
 
 echo -e "installing openssh...\n"
 apt install openssh-client -y
