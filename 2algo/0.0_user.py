@@ -243,7 +243,7 @@ def main():
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
             if x == 'y':
                 for i in range(500):
-                    rand_host = hosts[gosh_dist(5)]      # randomly selecting a host to send task to
+                    rand_host = hosts[gosh_dist(len(hosts))]      # randomly selecting a host to send task to
                     _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks
 
