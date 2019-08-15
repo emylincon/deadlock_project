@@ -386,7 +386,6 @@ def receive_message():
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
 
-
         elif (data.decode()[:6] == 'update') and (discovering == 0):
             hosts = ast.literal_eval(data.decode()[7:])
             # print('received: ', hosts)
