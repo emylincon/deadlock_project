@@ -590,7 +590,7 @@ def cooperative_mec(mec_list):
             j = i.split('_')[0]
             _max = np.array([7, 5, 5])
             send = 'false'
-            if not (False in list(np.greater_equal(_max, _need[j]))):
+            if not (False in list(np.greater_equal(_max, _need[j[:2]]))):
                 send = 'true'
             if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
                 send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
