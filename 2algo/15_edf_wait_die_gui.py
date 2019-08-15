@@ -551,6 +551,7 @@ def receive_message():
 
         if data.decode()[:5] == 'hello':
             hosts[data.decode()[6:]] = address[0]
+            print('received: ', hosts)
             if address[0] != host_ip:
                 mec_rtt[address[0]] = []
 
