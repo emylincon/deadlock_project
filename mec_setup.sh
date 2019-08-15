@@ -144,7 +144,7 @@ echo '============= All done.. Ready to use! ==============='
 # find  / -type d -name "openvswitch"
 
 # enabling x11 forwarding on alpine linux
-apk add authx
+apk add xauth
 # edit /etc/ssh/sshd_config and uncomment the following lines
 # X11Forwarding yes
 # X11UseLocalhost no
