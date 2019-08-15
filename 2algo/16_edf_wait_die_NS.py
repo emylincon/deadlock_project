@@ -648,6 +648,7 @@ def initialization():
 
 def main():
     os.system('clear')
+    print('mec ip: ', ip_address())
     discovering_group()
     offloading_group()
     run_me()

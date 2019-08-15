@@ -834,6 +834,7 @@ def main():
     global algo
 
     os.system('clear')
+    print('mec ip: ', ip_address())
     algo = psutil.Process()
     discovering_group()
     offloading_group()
