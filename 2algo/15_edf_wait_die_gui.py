@@ -529,7 +529,7 @@ def send_message(mg):
 
         # Send data to the multicast group
         if mg == 'hello':
-            smg = mg + ' ' + message()
+            smg = mg + ' ' + str([message(), ip_address()])
             sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
         else:
@@ -550,7 +550,8 @@ def receive_message():
         data, address = sock1.recvfrom(1024)
 
         if data.decode()[:5] == 'hello':
-            hosts[data.decode()[6:]] = address[0]
+            _data = ast.literal_eval(data.decode()[6:])
+            hosts[_data[0]] = _data[1]
             # print('received: ', hosts)
             if address[0] != host_ip:
                 mec_rtt[address[0]] = []
