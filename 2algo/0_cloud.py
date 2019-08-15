@@ -48,11 +48,11 @@ def receive_tasks_client(_con, _addr):   # run as thread
                 data = _con.recv(1024)
                 # print(_addr[0], ': ', data.decode())
                 d = str(data.decode())
-                print('d: ', d)
-                received_task = ast.literal_eval(d)
-                received_task_queue[0].append(received_task[0])
-                received_task_queue[1][received_task[0]] = received_task[1]
-                cloud_register[received_task[0].split('.')[2]] = _addr[0]
+                if d != '' or d != ' ':
+                    received_task = ast.literal_eval(d)
+                    received_task_queue[0].append(received_task[0])
+                    received_task_queue[1][received_task[0]] = received_task[1]
+                    cloud_register[received_task[0].split('.')[2]] = _addr[0]
             except Exception as e:
                 print('Error Encountered')
 
