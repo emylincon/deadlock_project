@@ -106,7 +106,7 @@ def on_message(message_client, userdata, msg):
     # print the message received from the subscribed topic
     details = str(msg.payload, 'utf-8')
     ho = ast.literal_eval(details)
-    hosts = list(ho.keys())
+    hosts = list(ho.values())
     _client.loop_stop()
 
 
