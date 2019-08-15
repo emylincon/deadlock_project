@@ -695,6 +695,7 @@ def initialization():
         h1.start()
         h2.start()
         h3.start()
+        time.sleep(1.5)
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
