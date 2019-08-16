@@ -254,6 +254,7 @@ def main():
                         else:
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
                     client(_tasks_list, rand_host)
+                    print("Sent {} to {}".format(_tasks_list, rand_host))
                     time.sleep(2)
             elif x == 'stop':
                 cmd = "echo 'record = {} \ntask_record = {}' >> record.py".format(record, task_record)
