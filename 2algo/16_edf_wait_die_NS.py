@@ -147,6 +147,8 @@ def receive_tasks_client(_con, _addr):
                     received_task_queue.append([received_task, _addr[0]])
             except Exception as e:
                 print('Error encountered')
+                print('d: ', d, 'l: ', len(d))
+                print(e)
 
 
 def receive_connection():

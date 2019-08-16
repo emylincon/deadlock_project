@@ -308,8 +308,12 @@ def receive_tasks_client(_con, _addr):
                 if d != '' or d != ' ':
                     received_task = ast.literal_eval(d)
                     received_task_queue.append([received_task, _addr[0]])
+
             except Exception as e:
                 print('Error encountered')
+                print('d: ', d, 'l: ', len(d))
+                print(e)
+
 
 
 def receive_connection():
@@ -792,7 +796,7 @@ def start_loop():
                         show_graphs()
                 else:
                     send_message(str('0'))
-                    show_graphs()
+                    # show_graphs()
                     time.sleep(1)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
