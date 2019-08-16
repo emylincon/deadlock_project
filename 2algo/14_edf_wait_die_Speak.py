@@ -146,7 +146,7 @@ def receive_tasks_client(_con, _addr):
                 data = _con.recv(1024)
                 # print(_addr[0], ': ', data.decode())
                 d = str(data.decode())
-                if d != '' or d != ' ':
+                if len(d) != 0:
                     received_task = ast.literal_eval(d)
                     received_task_queue.append([received_task, _addr[0]])
             except Exception as e:
