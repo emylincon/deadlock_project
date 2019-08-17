@@ -147,8 +147,11 @@ def receive_data(_con, _addr):
                 # print(_addr[0], ': ', data.decode())
                 if len(data) > 0:
                     received_task = ast.literal_eval(data.decode())
+                    print('task_record: {}'.format(task_record))
+                    print('r: {}'.format(received_task))
                     for i in received_task:
                         tk = i.split('_')[0]
+                        print('tk: {}'.format(tk))
                         k = task_record[tk.split('.')[-1]][tk]
                         if len(k) < 3:
                             a = received_task[i]
