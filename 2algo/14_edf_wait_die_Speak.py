@@ -339,7 +339,7 @@ def calc_wait_time(list_seq):
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)      # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    send_message('wt ' + str(w_send))   # Broadcasting waiting time to cooperative MECs
+    send_message('wt {} '.format(ip_address()) + str(w_send))   # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
@@ -435,7 +435,7 @@ def receive_message():
 
     while True:
         data, address = sock1.recvfrom(1024)
-
+        _d = data.decode()
         if data.decode()[:5] == 'hello':
             _data = ast.literal_eval(data.decode()[6:])
             hosts[_data[0]] = _data[1]
@@ -445,12 +445,18 @@ def receive_message():
             hosts = ast.literal_eval(data.decode()[7:])
             # print('received: ', hosts)
 
-        elif (data.decode()[:2] == 'wt') and (address[0] != host_ip):
-            w_time = calculate_mov_avg(address[0], float(data.decode().split()[1]) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
-            if address[0] in mec_waiting_time:
-                mec_waiting_time[address[0]].append(w_time)
+        elif (_d[:2] == 'wt') and (_d.split()[2] != host_ip):
+
+            w_time = calculate_mov_avg(_d.split()[1], float(_d.split()[2]) + get_rtt(
+                address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
+
+            if _d.split()[1] in mec_waiting_time:
+
+                mec_waiting_time[_d.split()[1]].append(w_time)
+
             else:
-                mec_waiting_time[address[0]] = [w_time]
+
+                mec_waiting_time[_d.split()[1]] = [w_time]
         elif data.decode().strip() == 'user':
             send_message('update')
 

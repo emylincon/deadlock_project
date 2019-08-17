@@ -152,7 +152,7 @@ def receive_data(_con, _addr):
                     for i in received_task:
                         tk = i.split('_')[0]
                         print('tk: {}'.format(tk))
-                        k = task_record[tk.split('.')[-1]][tk]
+                        k = task_record[int(tk.split('.')[-1])][tk]
                         if len(k) < 3:
                             a = received_task[i]
                             k.append(dt.datetime(int(a[0]), int(a[1]),
