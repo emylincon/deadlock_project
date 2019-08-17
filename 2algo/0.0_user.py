@@ -144,22 +144,23 @@ def receive_data(_con, _addr):
         while True:
             try:
                 data = _con.recv(1024)
-                print(_addr[0], ': ', data.decode())
-                received_task = ast.literal_eval(data.decode())
-                for i in received_task:
-                    tk = i.split('_')
-                    k = task_record[tk[0][4:]][tk]
-                    if len(k) < 3:
-                        k.append(received_task[i])
-                        if k[2] - k[1] < k[0]:
-                            tasks_executed_on_time += 1
-                        else:
-                            tasks_not_executed_on_time += 1
-                    elif len(k) == 3:
-                        if received_task[i] - k[1] < k[0]:
-                            tasks_executed_on_time += 1
-                        else:
-                            tasks_not_executed_on_time += 1
+                # print(_addr[0], ': ', data.decode())
+                if len(data) > 0:
+                    received_task = ast.literal_eval(data.decode())
+                    for i in received_task:
+                        tk = i.split('_')
+                        k = task_record[tk[0][4:]][tk]
+                        if len(k) < 3:
+                            k.append(received_task[i])
+                            if k[2] - k[1] < k[0]:
+                                tasks_executed_on_time += 1
+                            else:
+                                tasks_not_executed_on_time += 1
+                        elif len(k) == 3:
+                            if received_task[i] - k[1] < k[0]:
+                                tasks_executed_on_time += 1
+                            else:
+                                tasks_not_executed_on_time += 1
 
             except KeyboardInterrupt:
                 print('Receive Tasks Terminated')
