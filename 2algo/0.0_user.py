@@ -235,6 +235,7 @@ def main():
     get_mec_details()
     client_id_ = client_id(ip_address())
     thread_record.append(Thread(target=receive_tasks))
+    thread_record[-1].daemon = True
     thread_record[-1].start()
     while True:
         time.sleep(1)

@@ -187,8 +187,9 @@ def receive_cloud_connection():
             with conn:
                 while True:
                     data = conn.recv(1024)
-                    received_task = ast.literal_eval(data.decode())
-                    send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
+                    if len(data.decode()) > 0:
+                        received_task = ast.literal_eval(data.decode())
+                        send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
     except KeyboardInterrupt:
         print('\nProgramme Forcefully Terminated')
 
