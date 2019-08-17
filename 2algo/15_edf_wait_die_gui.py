@@ -692,7 +692,7 @@ def send_task_client(_task, _host):
     global _port_
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((_host, _port_))
-        s.sendall(str.encode(_task))
+        s.sendall(str.encode(str(_task)))
     _port_ = 64000
 
 
@@ -712,7 +712,7 @@ def send_task_cloud(_task):
     global cloud_port
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((cloud_ip, cloud_port))
-        s.sendall(str.encode(_task))
+        s.sendall(str.encode(str(_task)))
     cloud_port = 63000
 
 
