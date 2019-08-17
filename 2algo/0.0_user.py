@@ -148,16 +148,25 @@ def receive_data(_con, _addr):
                 if len(data) > 0:
                     received_task = ast.literal_eval(data.decode())
                     for i in received_task:
-                        tk = i.split('_')
-                        k = task_record[tk[0][4:]][tk]
+                        tk = i.split('_')[0]
+                        k = task_record[tk.split('.')[-1]][tk]
                         if len(k) < 3:
-                            k.append(received_task[i])
+                            a = received_task[i]
+                            k.append(dt.datetime(int(a[0]), int(a[1]),
+                                                 int(a[2]), int(a[3]),
+                                                 int(a[4]), int(a[5]),
+                                                 int(a[6])))
                             if k[2] - k[1] < k[0]:
                                 tasks_executed_on_time += 1
                             else:
                                 tasks_not_executed_on_time += 1
                         elif len(k) == 3:
-                            if received_task[i] - k[1] < k[0]:
+                            a = received_task[i]
+                            t = dt.datetime(int(a[0]), int(a[1]),
+                                            int(a[2]), int(a[3]),
+                                            int(a[4]), int(a[5]),
+                                            int(a[6]))
+                            if t - k[1] < k[0]:
                                 tasks_executed_on_time += 1
                             else:
                                 tasks_not_executed_on_time += 1
