@@ -513,7 +513,7 @@ def cooperative_mec(mec_list):
 def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:
-        j = i.split('_')
+        j = i.split('_')[0]
         time.sleep(offloaded_task[1][j])
         send_offloaded_task_mec('{} {}'.format(j[0].split('.')[1], j))
 
