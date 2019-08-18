@@ -15,6 +15,7 @@ import getpass as gp
 import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
+from netifaces import interfaces, ifaddresses, AF_INET
 
 
 hosts = {}  # {hostname: ip}
@@ -266,6 +267,15 @@ def ip_address():
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         return s.getsockname()[0]
+
+
+def host_ip_set():
+    global ip_set
+
+    ip_set = set()
+    for ifaceName in interfaces():
+        addresses = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])]
+        ip_set.add(', '.join(addresses))
 
 
 def get_rtt(host):

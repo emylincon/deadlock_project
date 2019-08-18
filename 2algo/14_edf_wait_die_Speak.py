@@ -15,6 +15,7 @@ import os
 import datetime as dt
 import getpass as gp
 import paho.mqtt.client as mqtt
+from netifaces import interfaces, ifaddresses, AF_INET
 
 
 hosts = {}  # {hostname: ip}
@@ -107,6 +108,15 @@ def ip_address():
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         return s.getsockname()[0]
+
+
+def host_ip_set():
+    global ip_set
+
+    ip_set = set()
+    for ifaceName in interfaces():
+        addresses = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])]
+        ip_set.add(', '.join(addresses))
 
 
 def get_time():
@@ -526,13 +536,15 @@ def execute(local):
 def receive_offloaded_task_mec():    # run as a thread
     while True:
         data, address = sock2.recvfrom(1024)
-        da = data.decode().split(' ')
-        if (address[0] != ip_address()) and da[0] == node_id:               # send back to client
-            send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
-        elif (address[0] != ip_address()) and da[0] == 'ex' and da[1] == node_id:
-            _received = ast.literal_eval(da[2])
-            reoffload_list[0].append(_received[0])
-            reoffload_list[1][_received[0]] = _received[1]
+        if len(data.decode()) > 0:
+            da = data.decode().split(' ')
+            if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
+                send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
+            elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
+                print('da: ', da)
+                _received = ast.literal_eval(da[2])
+                reoffload_list[0].append(_received[0])
+                reoffload_list[1][_received[0]] = _received[1]
 
 
 def call_execute_re_offload():
@@ -733,6 +745,7 @@ def main():
     print('mec ip: ', ip_address())
     discovering_group()
     offloading_group()
+    host_ip_set()
     run_me()
 
 
