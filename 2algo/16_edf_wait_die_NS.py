@@ -686,6 +686,7 @@ def main():
     print('mec ip: ', ip_address())
     discovering_group()
     offloading_group()
+    host_ip_set()
     run_me()
 
 
