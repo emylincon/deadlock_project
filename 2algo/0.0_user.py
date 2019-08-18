@@ -147,11 +147,11 @@ def receive_data(_con, _addr):
                 # print(_addr[0], ': ', data.decode())
                 if len(data) > 0:
                     received_task = ast.literal_eval(data.decode())
-                    print('task_record: {}'.format(task_record))
-                    print('r: {}'.format(received_task))
+                    # print('task_record: {}'.format(task_record))
+                    # print('r: {}'.format(received_task))
                     for i in received_task:
                         tk = i.split('_')[0]
-                        print('tk: {}'.format(tk))
+                        # print('tk: {}'.format(tk))
                         k = task_record[int(tk.split('.')[-1])][tk]
                         if len(k) < 3:
                             a = received_task[i]
@@ -272,8 +272,8 @@ def main():
                         else:
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
                     client(_tasks_list, rand_host)
-                    print("Sent {} to {}".format(_tasks_list, rand_host))
-                    time.sleep(2)
+                    print("Sent {} to {}\n\n".format(_tasks_list, rand_host))
+                    time.sleep(3)
             elif x == 'stop':
                 cmd = "echo 'record = {} \ntask_record = {}' >> record.py".format(record, task_record)
                 os.system(cmd)
