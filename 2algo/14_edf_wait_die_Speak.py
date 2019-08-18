@@ -541,8 +541,7 @@ def receive_offloaded_task_mec():    # run as a thread
             if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
                 send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
             elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
-                print('da: ', da)
-                _received = ast.literal_eval(da[2])
+                _received = ast.literal_eval(da[2] + da[3])
                 reoffload_list[0].append(_received[0])
                 reoffload_list[1][_received[0]] = _received[1]
 
