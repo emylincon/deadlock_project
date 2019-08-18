@@ -62,7 +62,7 @@ _off_mec = 0          # used to keep a count of tasks offloaded from local mec t
 _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
 _inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
-deadlock = [0]          # keeps count of how many deadlock is resolved
+deadlock = [1]          # keeps count of how many deadlock is resolved
 _pos = 0
 
 received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
@@ -146,7 +146,7 @@ def plot_offloaded_remote():
 
 def plot_deadlock():
     cols = ['r']
-    text = str(deadlock[-1]) + " Deadlock resolved"
+    text = str(deadlock[-1] - 1) + " Deadlock resolved"
     wedges, texts, autotexts = ax5.pie(deadlock, shadow=True, autopct=text,
                                        textprops=dict(rotation_mode='anchor', color="w", ha='left'), colors=cols)
 
