@@ -122,7 +122,8 @@ def get_rtt(host):
 
 
 def gcd(a, b):
-    if b == 0: return a
+    if b == 0:
+        return a
     return gcd(b, a % b)
 
 
@@ -242,7 +243,7 @@ def edf():
     # print('r: ', register)
     if len(missed) > 0:
         # print('missed deadline: ', missed)
-        cooperative_mec(missed, 0)
+        cooperative_mec(missed)
 
     return schedule
 
@@ -335,7 +336,7 @@ def calc_wait_time(list_seq):
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)      # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    send_message('wt {} '.format(ip_address()) + str(w_send))  # Broadcasting waiting time to cooperative MECs
+    send_message('wt {} {}'.format(ip_address(), str(w_send)))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
@@ -396,26 +397,30 @@ def receive_message():
     while True:
         data, address = sock1.recvfrom(1024)
         _d = data.decode()
-        if data.decode()[:5] == 'hello':
-            _data = ast.literal_eval(data.decode()[6:])
+        if _d[:5] == 'hello':
+            _data = ast.literal_eval(_d[6:])
             hosts[_data[0]] = _data[1]
 
-        elif (data.decode()[:6] == 'update') and (discovering == 0):
-            hosts = ast.literal_eval(data.decode()[7:])
+        elif (_d[:6] == 'update') and (discovering == 0):
+            hosts = ast.literal_eval(_d[7:])
             # print('received: ', hosts)
 
-        elif (_d[:2] == 'wt') and (_d.split()[2] != host_ip):
+        elif _d[:2] == 'wt':
 
-            w_time = calculate_mov_avg(_d.split()[1], float(_d.split()[2]) + get_rtt(
-                address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
+            split_data = _d.split()
 
-            if _d.split()[1] in mec_waiting_time:
+            if split_data[1] != host_ip:
 
-                mec_waiting_time[_d.split()[1]].append(w_time)
+                w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(
+                    address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
 
-            else:
+                if split_data[1] in mec_waiting_time:
 
-                mec_waiting_time[_d.split()[1]] = [w_time]
+                    mec_waiting_time[split_data[1]].append(w_time)
+
+                else:
+
+                    mec_waiting_time[split_data[1]] = [w_time]
 
 
 def mec_comparison():
@@ -471,7 +476,7 @@ def execute(local):
     for i in local:
         j = i.split('_')[0]
         time.sleep(t_time[j][0])
-        print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
+        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
         elif j.split('.')[1] == node_id:
