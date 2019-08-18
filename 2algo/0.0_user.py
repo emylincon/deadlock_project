@@ -159,7 +159,7 @@ def receive_data(_con, _addr):
                                                  int(a[2]), int(a[3]),
                                                  int(a[4]), int(a[5]),
                                                  int(a[6])))
-                            p = str(k[2] - k[1]).split(':')[-1]
+                            p = float(str(k[2] - k[1]).split(':')[-1])
                             if p < k[0]:
                                 tasks_executed_on_time += 1
                             else:
@@ -170,7 +170,7 @@ def receive_data(_con, _addr):
                                             int(a[2]), int(a[3]),
                                             int(a[4]), int(a[5]),
                                             int(a[6]))
-                            p = str(t - k[1]).split(':')[-1]
+                            p = float(str(t - k[1]).split(':')[-1])
                             if p < k[0]:
                                 tasks_executed_on_time += 1
                             else:
