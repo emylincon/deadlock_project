@@ -209,7 +209,8 @@ def receive_cloud_connection():
                     data = conn.recv(1024)
                     if len(data.decode()) > 0:
                         received_task = ast.literal_eval(data.decode())
-                        send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
+                        # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
+                        _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
     except KeyboardInterrupt:
         print('\nProgramme Forcefully Terminated')
 
@@ -529,7 +530,8 @@ def execute(local):
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
 
         elif j.split('.')[1] == node_id:
-            send_client({j: get_time()}, send_back_host)
+            # send_client({j: get_time()}, send_back_host)
+            _client.publish(j.split('.')[2], str({j: get_time()}))
     print('============== EXECUTION DONE ===============')
 
 
@@ -539,7 +541,8 @@ def receive_offloaded_task_mec():    # run as a thread
         if len(data.decode()) > 0:
             da = data.decode().split(' ')
             if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
-                send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
+                # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
+                _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
             elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
                 _received = ast.literal_eval(da[2] + da[3])
                 reoffload_list[0].append(_received[0])
