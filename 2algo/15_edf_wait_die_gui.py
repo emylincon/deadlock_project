@@ -162,11 +162,11 @@ def plot_memory():
     memory.append(algo.memory_percent())
 
     ax6.grid(True)
-    ax6.plot(list(range(len(_mov_avg(memory)))), _mov_avg(memory), linewidth=2, label='Memory')
+    ax6.plot(list(range(len(_mov_avg(memory)))), _mov_avg(memory), linewidth=2, label='Memory', color='m')
     ax6.set_title('Moving Memory Utilization')
     ax6.set_ylabel('Moving Memory')
     ax6.set_xlabel('Time (seconds)')
-    ax6.fill_between(list(range(len(_mov_avg(memory)))), _mov_avg(memory), 0, alpha=0.5)
+    ax6.fill_between(list(range(len(_mov_avg(memory)))), _mov_avg(memory), 0, alpha=0.5, color='m')
     ax6.legend()
     plt.subplot(ax6)
 
