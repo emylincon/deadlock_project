@@ -113,6 +113,7 @@ def on_message(message_client, userdata, msg):
 def get_mec_details():
     global topic
     global _client
+    global broker_ip
 
     username = 'mec'
     password = 'password'
@@ -128,6 +129,67 @@ def get_mec_details():
     _client.connect(broker_ip, broker_port_no, 60)
 
     _client.loop_start()
+
+
+def on_connect_task(connect_client, userdata, flags, rc):
+    # print("Connected with Code :" +str(rc))
+    # Subscribe Topic from here
+    connect_client.subscribe(task_topic)
+
+
+# Callback Function on Receiving the Subscribed Topic/Message
+def on_receive_task(message_client, userdata, msg):
+    global tasks_executed_on_time
+    global tasks_not_executed_on_time
+    # print the message received from the subscribed topic
+    data = str(msg.payload, 'utf-8')
+    received_task = ast.literal_eval(data)
+
+    for i in received_task:
+        tk = i.split('_')[0]
+        # print('tk: {}'.format(tk))
+        k = task_record[int(tk.split('.')[-1])][tk]
+        if len(k) < 3:
+            a = received_task[i]
+            k.append(dt.datetime(int(a[0]), int(a[1]),
+                                 int(a[2]), int(a[3]),
+                                 int(a[4]), int(a[5]),
+                                 int(a[6])))
+            p = float(str(k[2] - k[1]).split(':')[-1])
+            if p < k[0]:
+                tasks_executed_on_time += 1
+            else:
+                tasks_not_executed_on_time += 1
+        elif len(k) == 3:
+            a = received_task[i]
+            t = dt.datetime(int(a[0]), int(a[1]),
+                            int(a[2]), int(a[3]),
+                            int(a[4]), int(a[5]),
+                            int(a[6]))
+            p = float(str(t - k[1]).split(':')[-1])
+            if p < k[0]:
+                tasks_executed_on_time += 1
+            else:
+                tasks_not_executed_on_time += 1
+
+
+def receive_mec_start():
+    global task_topic
+    global _client
+
+    username = 'mec'
+    password = 'password'
+    broker_port_no = 1883
+    task_topic = client_id(ip_address())
+
+    task_client = mqtt.Client()
+    task_client.on_connect = on_connect_task
+    task_client.on_message = on_receive_task
+
+    task_client.username_pw_set(username, password)
+    task_client.connect(broker_ip, broker_port_no, 60)
+
+    task_client.loop_forever()
 
 
 def ip_address():
@@ -248,9 +310,14 @@ def main():
     print("================== Welcome to Client Platform ===================")
     get_mec_details()
     client_id_ = client_id(ip_address())
+    '''
     thread_record.append(Thread(target=receive_tasks))
     thread_record[-1].daemon = True
     thread_record[-1].start()
+    '''
+    redeem_task = Thread(target=receive_mec_start)
+    redeem_task.daemon = True
+    redeem_task.start()
     while True:
         time.sleep(1)
         if len(hosts) > 0:
