@@ -126,7 +126,8 @@ def get_rtt(host):
 
 
 def gcd(a, b):
-    if b == 0: return a
+    if b == 0:
+        return a
     return gcd(b, a % b)
 
 
@@ -513,7 +514,7 @@ def execute(local):
     for i in local:
         j = i.split('_')[0]
         time.sleep(t_time[j][0])
-        print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
+        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
 
@@ -634,7 +635,6 @@ def run_me():
 
 
 def start_loop():
-    global _loc
     global tasks
     global t_time
     global send_back_host
@@ -667,7 +667,7 @@ def start_loop():
                         print('\nWaiting Time List: ', wait_list)
                         compare_result = compare_local_mec(wait_list)
                         print('\nExecute Locally: ', compare_result[1])
-                        t_loc = len(compare_result[1])  # total number of tasks to be executed locally
+                        # t_loc = len(compare_result[1])  # total number of tasks to be executed locally
                         print('\nExecute in MEC: ', compare_result[0])
 
                         print('\nSending to cooperative platform')
@@ -676,7 +676,7 @@ def start_loop():
                         execute(compare_result[1])
 
                 else:
-                    send_message(str('wt 0.0'))
+                    send_message(str('wt {} 0.0'.format(ip_address())))
                     time.sleep(1)
 
             except KeyboardInterrupt:
@@ -738,4 +738,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

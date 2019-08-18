@@ -592,7 +592,6 @@ def run_me():
 
 
 def start_loop():
-    global _loc
     global tasks
     global t_time
     global send_back_host
@@ -633,7 +632,7 @@ def start_loop():
                         execute(compare_result[1])
 
                 else:
-                    send_message(str('0'))
+                    send_message(str('wt {} 0.0'.format(ip_address())))
                     time.sleep(1)
 
             except KeyboardInterrupt:

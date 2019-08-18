@@ -285,7 +285,8 @@ def get_time():
 
 
 def gcd(a, b):
-    if b == 0: return a
+    if b == 0:
+        return a
     return gcd(b, a % b)
 
 
@@ -811,7 +812,7 @@ def start_loop():
                             _loc = t_loc - len(_send_back)
                         show_graphs()
                 else:
-                    send_message(str('0'))
+                    send_message(str('wt {} 0.0'.format(ip_address())))
                     # show_graphs()
                     time.sleep(1)
             except KeyboardInterrupt:
