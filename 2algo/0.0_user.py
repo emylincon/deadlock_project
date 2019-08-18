@@ -159,6 +159,7 @@ def receive_data(_con, _addr):
                                                  int(a[2]), int(a[3]),
                                                  int(a[4]), int(a[5]),
                                                  int(a[6])))
+                            print('value: {}'.format(k[2] - k[1]))
                             if k[2] - k[1] < k[0]:
                                 tasks_executed_on_time += 1
                             else:
@@ -169,6 +170,7 @@ def receive_data(_con, _addr):
                                             int(a[2]), int(a[3]),
                                             int(a[4]), int(a[5]),
                                             int(a[6]))
+                            print('value: {}'.format(t - k[1]))
                             if t - k[1] < k[0]:
                                 tasks_executed_on_time += 1
                             else:
