@@ -635,7 +635,7 @@ def run_me():
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
-            del hosts[message()]
+            del hosts['speaker']
             discovering = 1
             break
         time.sleep(2)
