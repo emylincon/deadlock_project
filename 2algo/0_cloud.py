@@ -238,7 +238,8 @@ def get_safe_seq(pro):
 def execute(local):
     print('\nExecuting :', local)
     for i in local:
-        time.sleep((t_time[i]) / 2)  # cloud executes tasks in less time than MEC
+        j = i.split('_')[0]
+        time.sleep((t_time[j]) / 2)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
         # _client.publish()
         send_client(i, cloud_register[i.split('.')[1]])
