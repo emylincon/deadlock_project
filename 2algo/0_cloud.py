@@ -240,7 +240,7 @@ def execute(local):
     for i in local:
         time.sleep((t_time[i]) / 2)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
-        _client.publish()
+        # _client.publish()
         send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')
 
