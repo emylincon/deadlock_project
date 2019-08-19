@@ -138,9 +138,9 @@ def plot_offloaded_remote():
         else:
             explode.append(0)
 
-    ax1.pie(val, labels=keys, wedgeprops=dict(width=0.5), startangle=-40, shadow=True, explode=explode, colors=cols)
-    ax1.set_title('Remote vs Local Frequency')
-    plt.subplot(ax1)
+    ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), startangle=-40, shadow=True, explode=explode, colors=cols)
+    ax2.set_title('Remote vs Local Frequency')
+    plt.subplot(ax2)
 
 # color=color_code[list(hosts.values()).index(i)]
 
@@ -164,7 +164,7 @@ def plot_memory():
 
     ax6.grid(True)
     ax6.plot(list(range(len(_mov_avg(memory)))), _mov_avg(memory), linewidth=2, label='Memory', color='m')
-    ax6.set_title('Moving Memory Utilization')
+    # ax6.set_title('Moving Memory Utilization')
     ax6.set_ylabel('Moving Memory')
     ax6.set_xlabel('Time (seconds)')
     ax6.fill_between(list(range(len(_mov_avg(memory)))), _mov_avg(memory), 0, alpha=0.5, color='m')
@@ -173,7 +173,7 @@ def plot_memory():
 
 
 def plot_wait_time():
-    ax2.grid(True)
+    ax1.grid(True)
 
     for i in mec_waiting_time:
         mv = _mov_avg(mec_waiting_time[i])
@@ -181,16 +181,16 @@ def plot_wait_time():
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
-        ax2.plot(ptx,
+        ax1.plot(ptx,
                  pt,
                  style[list(hosts.values()).index(i)],
                  linewidth=2,
                  label=i)
-    ax2.set_title('Waiting Time Queue')
-    ax2.set_ylabel('Moving Wait + RTT')
+    ax1.set_title('Waiting Time Queue')
+    ax1.set_ylabel('Moving Wait + RTT')
     # ax2.set_xlabel('Time (seconds)')
-    ax2.legend()
-    plt.subplot(ax2)
+    ax1.legend()
+    plt.subplot(ax1)
 
 
 def get_mec_rtts():
@@ -213,8 +213,8 @@ def plot_rtts():
                  linewidth=2,
                  label=i)
     ax3.set_title('RTT Utilization over Time')
-    ax3.set_ylabel('Moving RTT')
-    ax3.set_xlabel('Time (seconds)')
+    # ax3.set_ylabel('Moving RTT')
+    # ax3.set_xlabel('Time (seconds)')
     ax3.legend()
     plt.subplot(ax3)
 
@@ -231,7 +231,7 @@ def plot_cpu():
     # plot graph
     ax4.grid(True)
     ax4.plot(list(range(len(_mov_avg(_cpu)))), _mov_avg(_cpu), linewidth=2, label='CPU')
-    ax4.set_title('Moving CPU Utilization')
+    # ax4.set_title('Moving CPU Utilization')
     ax4.set_ylabel('Moving CPU')
     ax4.set_xlabel('Time (seconds)')
     ax4.fill_between(list(range(len(_mov_avg(_cpu)))), _mov_avg(_cpu), 0, alpha=0.5)
