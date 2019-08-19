@@ -40,46 +40,6 @@ cloud_register = {}   # ={node_id:mec_ip} keeps address of task offloaded to clo
 cannot = []
 
 
-def receive_tasks_client(_con, _addr):   # run as thread
-    # unicast socket
-    with _con:
-        print('Connected: ', _addr)
-        while True:
-            try:
-                data = _con.recv(1024)
-                # print(_addr[0], ': ', data.decode())
-                d = str(data.decode())
-                if len(d) > 0:
-                    received_task = ast.literal_eval(d)
-                    received_task_queue[0].append(received_task[0])
-                    received_task_queue[1][received_task[0]] = received_task[1]
-                    cloud_register[received_task[0].split('.')[1]] = _addr[0]
-            except Exception as e:
-                print('Error Encountered')
-
-
-def receive_connection():
-    # unicast socket
-    host = ip_address()
-    port = 63000        # Port to listen on (non-privileged ports are > 1023)
-
-    while True:
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((host, port))
-                s.listen()
-                conn, addr = s.accept()
-
-                thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
-                thread_record[-1].daemon = True
-                thread_record[-1].start()
-                port += 10
-
-        except KeyboardInterrupt:
-            print('\nProgramme Forcefully Terminated')
-            break
-
-
 def on_connect(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
@@ -113,6 +73,7 @@ def connect_to_broker():
 
     _client.username_pw_set(username, password)
     _client.connect(broker_ip, broker_port_no, 60)
+    _client.loop_forever()
 
 
 # safe state or not
@@ -241,29 +202,9 @@ def execute(local):
         j = i.split('_')[0]
         time.sleep((t_time[j]) / 2)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
-        # _client.publish()
-        send_client(i, cloud_register[i.split('.')[1]])
+        _client.publish(j.split('.')[1], 'c {}'.format(j))
+        # send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')
-
-
-def send_task_client(_task, _host):
-    global _port_
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((_host, _port_))
-        s.sendall(str.encode(str(_task)))
-    _port_ = 62000
-
-
-def send_client(t, h):    # t = tasks, h = host ip
-    global _port_
-
-    try:
-        send_task_client(t, h)
-    except ConnectionRefusedError:
-        _port_ += 10
-        send_client(t, h)
-    except KeyboardInterrupt:
-        print('Programme Terminated')
 
 
 def ip_address():
@@ -278,7 +219,7 @@ def run_me():
 
     print('\n========== Deadlock Emulation Program: Cloud Server ===============')
     print('Cloud ip: ', ip_address())
-    receive = Thread(target=receive_connection)
+    receive = Thread(target=connect_to_broker)
     receive.daemon = True
     receive.start()
     m = input('Start (Y/N): ').lower()
