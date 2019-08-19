@@ -491,7 +491,7 @@ def execute_re_offloaded_task(offloaded_task):
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j])
         print('j task: ', j)
-        send_offloaded_task_mec('{} {}'.format(j[0].split('.')[1], j))
+        send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
 
 
 def execute(local):
