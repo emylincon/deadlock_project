@@ -4,6 +4,7 @@ import time
 import os
 import socket
 from threading import Thread
+import paho.mqtt.client as mqtt
 
 # deadlock project
 _tasks = {'t1': {'wcet': 1, 'period': 3, 'deadline': 3},
@@ -52,7 +53,7 @@ def receive_tasks_client(_con, _addr):   # run as thread
                     received_task = ast.literal_eval(d)
                     received_task_queue[0].append(received_task[0])
                     received_task_queue[1][received_task[0]] = received_task[1]
-                    cloud_register[received_task[0].split('.')[2]] = _addr[0]
+                    cloud_register[received_task[0].split('.')[1]] = _addr[0]
             except Exception as e:
                 print('Error Encountered')
 
@@ -77,6 +78,41 @@ def receive_connection():
         except KeyboardInterrupt:
             print('\nProgramme Forcefully Terminated')
             break
+
+
+def on_connect(connect_client, userdata, flags, rc):
+    # print("Connected with Code :" +str(rc))
+    # Subscribe Topic from here
+    connect_client.subscribe(topic)
+
+
+# Callback Function on Receiving the Subscribed Topic/Message
+def on_message(message_client, userdata, msg):
+    # print the message received from the subscribed topic
+    data = str(msg.payload, 'utf-8')
+    received_task = ast.literal_eval(data)
+    received_task_queue[0].append(received_task[0])
+    received_task_queue[1][received_task[0]] = received_task[1]
+    # cloud_register[received_task[0].split('.')[2]] = _addr[0]
+
+
+def connect_to_broker():
+    global _client
+    global broker_ip
+    global topic
+
+    username = 'mec'
+    password = 'password'
+    broker_ip = input('Broker Ip: ').strip()
+    broker_port_no = 1883
+    topic = ip_address()
+
+    _client = mqtt.Client()
+    _client.on_connect = on_connect
+    _client.on_message = on_message
+
+    _client.username_pw_set(username, password)
+    _client.connect(broker_ip, broker_port_no, 60)
 
 
 # safe state or not
@@ -204,6 +240,7 @@ def execute(local):
     for i in local:
         time.sleep((t_time[i]) / 2)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
+        _client.publish()
         send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')
 
