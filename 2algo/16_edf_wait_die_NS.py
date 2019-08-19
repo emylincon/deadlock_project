@@ -156,7 +156,7 @@ def connect_to_broker():
 
     username = 'mec'
     password = 'password'
-    broker_ip = input("Broker's IP: ").strip()
+    broker_ip = hosts['speaker']
     broker_port_no = 1883
 
     _client = mqtt.Client()
@@ -179,7 +179,6 @@ def receive_tasks_client(_con, _addr):
                     received_task_queue.append([received_task, _addr[0]])
             except Exception as e:
                 print('Error encountered')
-                print('d: ', d, 'l: ', len(d))
                 print(e)
 
 
@@ -442,11 +441,8 @@ def receive_message():
                     address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
 
                 if split_data[1] in mec_waiting_time:
-
                     mec_waiting_time[split_data[1]].append(w_time)
-
                 else:
-
                     mec_waiting_time[split_data[1]] = [w_time]
 
 
@@ -618,6 +614,8 @@ def run_me():
             discovering = 1
             break
         time.sleep(2)
+
+    connect_to_broker()
     start_loop()
 
 
@@ -706,7 +704,6 @@ def main():
     discovering_group()
     offloading_group()
     host_ip_set()
-    connect_to_broker()
     run_me()
 
 

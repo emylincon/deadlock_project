@@ -167,7 +167,6 @@ def receive_tasks_client(_con, _addr):
                     received_task_queue.append([received_task, _addr[0]])
             except Exception as e:
                 print('Error encountered')
-                print('d: ', d, 'l: ', len(d))
                 print(e)
 
 
@@ -415,7 +414,7 @@ def send_message(mg):
 
         # Send data to the multicast group
         if mg == 'hello':
-            smg = mg + ' ' + str([message(), ip_address()])
+            smg = mg + ' ' + str(['speaker', ip_address()])
             sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
         elif mg == 'update':

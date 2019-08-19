@@ -319,7 +319,7 @@ def connect_to_broker():
 
     username = 'mec'
     password = 'password'
-    broker_ip = input("Broker's IP: ").strip()
+    broker_ip = hosts['speaker']
     broker_port_no = 1883
 
     _client = mqtt.Client()
@@ -343,7 +343,6 @@ def receive_tasks_client(_con, _addr):
 
             except Exception as e:
                 print('Error encountered')
-                print('d: ', d, 'l: ', len(d))
                 print(e)
 
 
@@ -793,6 +792,7 @@ def run_me():
             discovering = 1
             break
         time.sleep(2)
+    connect_to_broker()
     start_loop()
 
 
@@ -898,7 +898,6 @@ def main():
     discovering_group()
     offloading_group()
     host_ip_set()
-    connect_to_broker()
     run_me()
 
 
