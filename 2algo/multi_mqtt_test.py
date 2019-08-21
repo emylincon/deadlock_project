@@ -1,11 +1,19 @@
 import paho.mqtt.client as mqtt
 import os
+import socket
+
+
+def ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
 
 os.system('clear')
 print('-----------------------------------')
 print('Welcome to MQTT Subscriber client')
 print('-----------------------------------')
-
+print('Broker Ip: {}'.format(ip_address()))
 username = 'mec'
 password = 'password'
 broker_ip = 'localhost'
