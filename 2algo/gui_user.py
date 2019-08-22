@@ -9,6 +9,8 @@ import random as r
 import time
 import datetime as dt
 import paho.mqtt.client as mqtt
+import matplotlib.pyplot as plt
+from drawnow import *
 
 
 port = 65000        # The port used by the server
@@ -61,6 +63,27 @@ task_record = {}    # records tasks start time and finish time {seq_no:{task:[du
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
+fig = plt.figure()
+ax1 = fig.add_subplot(1)
+
+
+def plot_performance():
+    global H
+    global M
+    global MH
+    global re_use
+
+    name = ['Timely', 'Untimely']
+    ypos = ([0, 1, 2, 3])
+    values = [tasks_executed_on_time, tasks_not_executed_on_time]
+    ax1.set_xticks(ypos)
+    ax1.set_xticklabels(name)
+    ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
+    ax1.set_title('Task execution Time record')
+    ax1.annotate('Seq: {}\nTotal Tasks: {}'.format(seq, tasks_not_executed_on_time+tasks_executed_on_time),
+                 xy=(2, 1), xytext=(3, 1.5))
+    plt.subplot(ax1)
+    fig.suptitle('MEC Performance During Deadlock Experiment')
 
 
 def get_time():
@@ -305,6 +328,7 @@ def name_task(task_list, node_id, seq_no):
 def main():
     global record
     global client_id_
+    global seq
 
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
@@ -328,6 +352,7 @@ def main():
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
             if x == 'y':
                 for i in range(500):
+                    i = seq
                     rand_host = hosts[gosh_dist(len(hosts))]      # randomly selecting a host to send task to
                     _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks
@@ -341,6 +366,7 @@ def main():
                     # client(_tasks_list, rand_host)
                     _client.publish(client_id(rand_host), str(_tasks_list))
                     print("Sent {} to {}\n\n".format(_tasks_list, rand_host))
+                    drawnow(plot_performance)
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
