@@ -61,6 +61,7 @@ port = 65000
 _port_ = 64000
 cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
+stop = 0
 
 
 def discovering_group():
@@ -402,6 +403,8 @@ def receive_message():
     global hosts
 
     while True:
+        if stop == 1:
+            break
         data, address = sock1.recvfrom(1024)
         _d = data.decode()
         if _d[:5] == 'hello':
@@ -496,6 +499,8 @@ def execute(local):
 
 def receive_offloaded_task_mec():    # run as a thread
     while True:
+        if stop == 1:
+            break
         data, address = sock2.recvfrom(1024)
         if len(data.decode()) > 0:
             da = data.decode().split(' ')
@@ -512,6 +517,8 @@ def call_execute_re_offload():
     global reoffload_list
 
     while True:
+        if stop == 1:
+            break
         if len(reoffload_list[0]) == 1:
             t = reoffload_list[0][-1]
             time.sleep(reoffload_list[1][t])
@@ -570,8 +577,8 @@ def run_me():
 def start_loop():
     global tasks
     global t_time
-    global send_back_host
     global node_id
+    global stop
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
@@ -588,8 +595,7 @@ def start_loop():
             try:
                 if len(received_task_queue) > 0:
                     info = received_task_queue.pop(0)
-                    tasks, t_time = info[0]
-                    send_back_host = info[1]
+                    tasks, t_time = info
 
                     print('EDF List of Processes: ', tasks, '\n')
 
@@ -614,9 +620,8 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                for i in thread_record:
-                    i.stop()
-                    break
+                stop += 1
+                break
 
 
 def speaking_node():
