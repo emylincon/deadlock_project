@@ -343,15 +343,14 @@ def main():
                     print("Sent {} to {}\n\n".format(_tasks_list, rand_host))
                     time.sleep(3)
             elif x == 'stop':
+                print('\nProgramme terminated')
                 cmd = "echo 'record = {} \ntask_record = {}' >> record.py".format(record, task_record)
                 os.system(cmd)
-                for i in thread_record:
-                    i.stop()
+                _client.loop_stop()
                 break
         except KeyboardInterrupt:
-            print('Programme terminated')
-            for i in thread_record:
-                i.stop()
+            print('\nProgramme terminated')
+            _client.loop_stop()
             break
 
 
