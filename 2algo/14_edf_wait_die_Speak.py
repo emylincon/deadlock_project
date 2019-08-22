@@ -9,6 +9,7 @@ import socket
 import struct
 import subprocess as sp
 from threading import Thread
+import threading
 import ast
 import time
 import os
@@ -18,6 +19,7 @@ import paho.mqtt.client as mqtt
 from netifaces import interfaces, ifaddresses, AF_INET
 
 
+t_lock = threading.Lock()
 hosts = {}  # {hostname: ip}
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
@@ -52,7 +54,8 @@ discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
-received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
+# received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
+received_task_queue = []   # [(task_list,wait_time), ....]
 thread_record = []
 port = 65000
 _port_ = 64000
@@ -153,65 +156,44 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
-def receive_tasks_client(_con, _addr):
-    # unicast socket
-    with _con:
-        # print('Connected: ', _addr)
-        while True:
-            try:
-                data = _con.recv(1024)
-                # print(_addr[0], ': ', data.decode())
-                d = str(data.decode())
-                if len(d) != 0:
-                    received_task = ast.literal_eval(d)
-                    received_task_queue.append([received_task, _addr[0]])
-            except Exception as e:
-                print('Error encountered')
-                print(e)
+def on_connect(connect_client, userdata, flags, rc):
+    # print("Connected with Code :" +str(rc))
+    # Subscribe Topic from here
+    connect_client.subscribe(node_id)
 
 
-def receive_connection():
-    # unicast socket
-    host = ip_address()
-    port = 65000        # Port to listen on (non-privileged ports are > 1023)
+# Callback Function on Receiving the Subscribed Topic/Message
+def on_message(message_client, userdata, msg):
+    data = str(msg.payload, 'utf-8')
+    if data[0] == 'c':       # receive from cloud
+        data = data[2:]
+        received_task = ast.literal_eval(data)
+        # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
+        _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
 
-    while True:
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((host, port))
-                s.listen()
-                conn, addr = s.accept()
-
-                thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
-                thread_record[-1].daemon = True
-                thread_record[-1].start()
-                port += 10
-
-        except KeyboardInterrupt:
-            print('\nProgramme Forcefully Terminated')
-            break
+    elif data[0] == '[':     # receive from client
+        received_task = ast.literal_eval(data)
+        received_task_queue.append(received_task)
 
 
-def receive_cloud_connection():
-    # unicast socket
-    host = ip_address()
-    cloud_port = 62000        # Port to listen on (non-privileged ports are > 1023)
+def connect_to_broker():
+    global _client
+    global broker_ip
+    global topic
 
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((host, cloud_port))
-            s.listen()
-            conn, addr = s.accept()
+    username = 'mec'
+    password = 'password'
+    broker_ip = hosts['speaker']
+    broker_port_no = 1883
+    topic = 'mec'     # topic used to exchange mec details to clients
 
-            with conn:
-                while True:
-                    data = conn.recv(1024)
-                    if len(data.decode()) > 0:
-                        received_task = ast.literal_eval(data.decode())
-                        # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
-                        _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
-    except KeyboardInterrupt:
-        print('\nProgramme Forcefully Terminated')
+    _client = mqtt.Client()
+    _client.on_connect = on_connect
+    _client.on_message = on_message
+
+    _client.username_pw_set(username, password)
+    _client.connect(broker_ip, broker_port_no, 60)
+    _client.loop_forever()
 
 
 def edf():
@@ -350,7 +332,7 @@ def calc_wait_time(list_seq):
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)      # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    send_message('wt {} {}'.format(ip_address(), str(w_send)))   # Broadcasting waiting time to cooperative MECs
+    send_message('wt {} {}'.format(ip_address(), str(w_send)))   # multi-casting waiting time to cooperative MECs
     return time_dic
 
 
@@ -381,31 +363,6 @@ def calculate_mov_avg(ma1, a1):
     # ma1.append(avg1) #cumulative average formula
     # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return avg1
-
-
-def on_connect(connect_client, userdata, flags, rc):
-    print("Subscribed to Topic :" +str(rc))
-    # Subscribe Topic from here
-    connect_client.subscribe(topic)
-
-
-def mqtt_initialization():
-    global topic
-    global _client
-
-    username = 'mec'
-    password = 'password'
-    broker_ip = '127.0.0.1'
-    broker_port_no = 1883
-    topic = 'mec'
-
-    _client = mqtt.Client()
-    _client.on_connect = on_connect
-
-    _client.username_pw_set(username, password)
-    _client.connect(broker_ip, broker_port_no, 60)
-
-    _client.loop_forever()
 
 
 def send_message(mg):
@@ -484,8 +441,9 @@ def cooperative_mec(mec_list):
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
-            send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
-            cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
+            # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
+            _client.publish('cloud', str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
+            # cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
@@ -504,8 +462,10 @@ def cooperative_mec(mec_list):
                     round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
-                cloud_register[j.split('.')[2]] = send_back_host
+                _client.publish('cloud', str([j, t_time[j][0]]))
+                # send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
+
+                # cloud_register[j.split('.')[2]] = send_back_host
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
@@ -577,46 +537,6 @@ def send_offloaded_task_mec(msg):
         print(e)
 
 
-def send_task_client(_task, _host):
-    global _port_
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((_host, _port_))
-        s.sendall(str.encode(str(_task)))
-    _port_ = 64000
-
-
-def send_client(t, h):    # t = tasks, h = host ip
-    global _port_
-
-    try:
-        send_task_client(t, h)
-    except ConnectionRefusedError:
-        _port_ += 10
-        send_client(t, h)
-    except KeyboardInterrupt:
-        print('Programme Terminated')
-
-
-def send_task_cloud(_task):
-    global cloud_port
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((cloud_ip, cloud_port))
-        s.sendall(str.encode(str(_task)))
-    cloud_port = 63000
-
-
-def send_cloud(t):    # t = tasks =>
-    global cloud_port
-
-    try:
-        send_task_cloud(t)
-    except ConnectionRefusedError:
-        cloud_port += 10
-        send_cloud(t)
-    except KeyboardInterrupt:
-        print('Programme Terminated')
-
-
 def mec_id(client_ip):
 
     _id = client_ip.split('.')[-1]
@@ -656,7 +576,7 @@ def start_loop():
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
     node_id = mec_id(ip_address())
-    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, receive_connection, receive_cloud_connection]
+    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload]
     for i in _threads_:
         Thread(target=i).daemon = True
         Thread(target=i).start()
@@ -721,7 +641,7 @@ def initialization():
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
         h2 = Thread(target=receive_offloaded_task_mec)
-        h3 = Thread(target=mqtt_initialization)
+        h3 = Thread(target=connect_to_broker)
         h1.daemon = True
         h2.daemon = True
         h2.daemon = True
