@@ -425,7 +425,7 @@ def cooperative_mec(mec_list):
         _host = mec_comparison()
         if _host == 0:
             # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
-            _client.publish('cloud', str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
+            _client.publish(cloud_ip, str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
             # cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
@@ -445,7 +445,7 @@ def cooperative_mec(mec_list):
                     round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                _client.publish('cloud', str([j, t_time[j][0]]))
+                _client.publish(cloud_ip, str([j, t_time[j][0]]))
                 # send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
 
                 # cloud_register[j.split('.')[2]] = send_back_host
