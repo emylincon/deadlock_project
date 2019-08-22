@@ -71,6 +71,7 @@ _port_ = 64000
 cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
 memory = []
+stop = 0
 
 fig = plt.figure()
 ax1 = fig.add_subplot(231)
@@ -313,6 +314,26 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
+def on_connect(connect_client, userdata, flags, rc):
+    # print("Connected with Code :" +str(rc))
+    # Subscribe Topic from here
+    connect_client.subscribe(node_id)
+
+
+# Callback Function on Receiving the Subscribed Topic/Message
+def on_message(message_client, userdata, msg):
+    data = str(msg.payload, 'utf-8')
+    if data[0] == 'c':
+        data = data[2:]
+        received_task = ast.literal_eval(data)
+        # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
+        _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
+
+    elif data[0] == '[':     # receive from client
+        received_task = ast.literal_eval(data)
+        received_task_queue.append(received_task)
+
+
 def connect_to_broker():
     global _client
     global broker_ip
@@ -323,71 +344,12 @@ def connect_to_broker():
     broker_port_no = 1883
 
     _client = mqtt.Client()
+    _client.on_connect = on_connect
+    _client.on_message = on_message
 
     _client.username_pw_set(username, password)
     _client.connect(broker_ip, broker_port_no, 60)
-
-
-def receive_tasks_client(_con, _addr):
-    # unicast socket
-    with _con:
-        # print('Connected: ', _addr)
-        while True:
-            try:
-                data = _con.recv(1024)
-                # print(_addr[0], ': ', data.decode())
-                d = str(data.decode())
-                if len(d) != 0:
-                    received_task = ast.literal_eval(d)
-                    received_task_queue.append([received_task, _addr[0]])
-
-            except Exception as e:
-                print('Error encountered')
-                print(e)
-
-
-def receive_connection():
-    # unicast socket
-    host = ip_address()
-    port = 65000        # Port to listen on (non-privileged ports are > 1023)
-
-    while True:
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((host, port))
-                s.listen()
-                conn, addr = s.accept()
-
-                thread_record.append(Thread(target=receive_tasks_client, args=(conn, addr)))
-                thread_record[-1].daemon = True
-                thread_record[-1].start()
-                port += 10
-
-        except KeyboardInterrupt:
-            print('\nProgramme Forcefully Terminated')
-            break
-
-
-def receive_cloud_connection():
-    # unicast socket
-    host = ip_address()
-    cloud_port = 62000        # Port to listen on (non-privileged ports are > 1023)
-
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((host, cloud_port))
-            s.listen()
-            conn, addr = s.accept()
-
-            with conn:
-                while True:
-                    data = conn.recv(1024)
-                    if len(data.decode()) > 0:
-                        received_task = ast.literal_eval(data.decode())
-                        # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
-                        _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
-    except KeyboardInterrupt:
-        print('\nProgramme Forcefully Terminated')
+    _client.loop_forever()
 
 
 def edf():
@@ -591,6 +553,8 @@ def receive_message():
     global hosts
 
     while True:
+        if stop == 1:
+            break
         data, address = sock1.recvfrom(1024)
         _d = data.decode()
         if _d[:5] == 'hello':
@@ -629,9 +593,9 @@ def cooperative_mec(mec_list):
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
-            send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
-            cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
-            _off_cloud += 1
+            # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
+            _client.publish('cloud', str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
+            # cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
@@ -643,16 +607,17 @@ def cooperative_mec(mec_list):
                 send = 'true'
             if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
                 send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
-                _off_mec += 1
+
                 # SENDS TASK TO MEC FOR EXECUTION
 
                 mec_waiting_time[_host].append(
                     round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
-                cloud_register[j.split('.')[2]] = send_back_host
-                _off_cloud += 1
+                _client.publish('cloud', str([j, t_time[j][0]]))
+                # send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
+
+                # cloud_register[j.split('.')[2]] = send_back_host
 
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
@@ -688,6 +653,8 @@ def receive_offloaded_task_mec():    # run as a thread
     global _inward_mec
 
     while True:
+        if stop == 1:
+            break
         data, address = sock2.recvfrom(1024)
         if len(data.decode()) > 0:
             da = data.decode().split(' ')
@@ -705,6 +672,8 @@ def call_execute_re_offload():
     global reoffload_list
 
     while True:
+        if stop == 1:
+            break
         if len(reoffload_list[0]) == 1:
             t = reoffload_list[0][-1]
             time.sleep(reoffload_list[1][t])
@@ -728,46 +697,6 @@ def send_offloaded_task_mec(msg):
 
     except Exception as e:
         print(e)
-
-
-def send_task_client(_task, _host):
-    global _port_
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((_host, _port_))
-        s.sendall(str.encode(str(_task)))
-    _port_ = 64000
-
-
-def send_client(t, h):    # t = tasks, h = host ip
-    global _port_
-
-    try:
-        send_task_client(t, h)
-    except ConnectionRefusedError:
-        _port_ += 10
-        send_client(t, h)
-    except KeyboardInterrupt:
-        print('Programme Terminated')
-
-
-def send_task_cloud(_task):
-    global cloud_port
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((cloud_ip, cloud_port))
-        s.sendall(str.encode(str(_task)))
-    cloud_port = 63000
-
-
-def send_cloud(t):    # t = tasks =>
-    global cloud_port
-
-    try:
-        send_task_cloud(t)
-    except ConnectionRefusedError:
-        cloud_port += 10
-        send_cloud(t)
-    except KeyboardInterrupt:
-        print('Programme Terminated')
 
 
 def mec_id(client_ip):
@@ -801,13 +730,13 @@ def start_loop():
     global _loc
     global tasks
     global t_time
-    global send_back_host
+    global stop
     global node_id
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
     node_id = mec_id(ip_address())
-    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, receive_connection, receive_cloud_connection]
+    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload]
     for i in _threads_:
         Thread(target=i).daemon = True
         Thread(target=i).start()
@@ -819,8 +748,7 @@ def start_loop():
             try:
                 if len(received_task_queue) > 0:
                     info = received_task_queue.pop(0)
-                    tasks, t_time = info[0]
-                    send_back_host = info[1]
+                    tasks, t_time = info
 
                     print('EDF List of Processes: ', tasks, '\n')
 
@@ -848,8 +776,8 @@ def start_loop():
                     time.sleep(1)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                for i in thread_record:
-                    i.stop()
+                stop += 1
+                _client.loop_stop()
 
                 cmd = 'echo "wt_16_6 = {} \nrtt_16_6 = {} \ncpu_16_6 = {} \noff_mec16_6 = {}' \
                       '\noff_cloud16_6 = {} \nloc16_6 = {}" >> data.py'.format(mec_waiting_time,

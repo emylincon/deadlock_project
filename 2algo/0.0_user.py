@@ -338,7 +338,8 @@ def main():
                             task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
                         else:
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
-                    client(_tasks_list, rand_host)
+                    # client(_tasks_list, rand_host)
+                    _client.publish(client_id(rand_host), str(_tasks_list))
                     print("Sent {} to {}\n\n".format(_tasks_list, rand_host))
                     time.sleep(3)
             elif x == 'stop':
