@@ -248,7 +248,8 @@ def run_me():
                     time.sleep(2)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                os.system('echo "cannot = {}" >> cannot.py')
+                os.system('echo "cannot = {}" >> cannot.py'.format(cannot))
+                _client.loop_stop()
                 break
     else:
         print('\nProgramme Terminated')
