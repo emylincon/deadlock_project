@@ -621,6 +621,7 @@ def start_loop():
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
                 stop += 1
+                _client.loop_stop()
                 break
 
 
