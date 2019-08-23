@@ -177,6 +177,9 @@ def on_message(message_client, userdata, msg):
         received_task = ast.literal_eval(data)
         received_task_queue.append(received_task)
 
+    elif data[0] == 'm':
+        print('send: ', data[2:])
+
 
 def connect_to_broker():
     global _client
@@ -587,6 +590,7 @@ def start_loop():
     for i in _threads_:
         Thread(target=i).daemon = True
         Thread(target=i).start()
+    time.sleep(2)
     send_message('client')  # send mec details to clients
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
