@@ -570,7 +570,6 @@ def run_me():
     thread_record.append(speak)
     speak.daemon = True
     speak.start()
-    send_message('client')   # send mec details to clients
     start_loop()
 
 
@@ -587,7 +586,7 @@ def start_loop():
     for i in _threads_:
         Thread(target=i).daemon = True
         Thread(target=i).start()
-
+    send_message('client')  # send mec details to clients
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
