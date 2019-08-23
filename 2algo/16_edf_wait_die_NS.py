@@ -561,7 +561,7 @@ def start_loop():
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
     node_id = mec_id(ip_address())
-    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload]
+    _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, connect_to_broker]
     for i in _threads_:
         Thread(target=i).daemon = True
         Thread(target=i).start()
@@ -614,13 +614,10 @@ def initialization():
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
         h2 = Thread(target=receive_offloaded_task_mec)
-        h3 = Thread(target=connect_to_broker)
         h1.daemon = True
-        h2.daemon = True
         h2.daemon = True
         h1.start()
         h2.start()
-        h3.start()
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
