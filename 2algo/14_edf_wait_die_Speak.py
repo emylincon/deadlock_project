@@ -173,15 +173,16 @@ def on_message(message_client, userdata, msg):
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
 
-    elif data[0] == '(':     # receive from client
-        received_task = ast.literal_eval(data)
+    elif data[0] == 't':     # receive from client
+        received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
 
+    else:
+        print('data: ', data)
     '''
-    elif data[0] == 'm':
+    elif data[0] == 't':
         print('send: ', data[2:])
     '''
-
 
 def connect_to_broker():
     global _client
