@@ -130,6 +130,7 @@ def on_message(message_client, userdata, msg):
     details = str(msg.payload, 'utf-8')
     ho = ast.literal_eval(details)
     hosts = list(ho.values())
+    print('hosts: ', hosts)
     _client.loop_stop()
 
 
