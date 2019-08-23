@@ -641,6 +641,9 @@ def initialization():
     global cloud_ip
 
     host_ip = ip_address()
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    print('Broker IP: ', s.getsockname()[0])
     try:
         mec_no = int(input('Number of MECs: ').strip())
         cloud_ip = input('Cloud Server IP: ').strip()
