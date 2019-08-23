@@ -366,7 +366,7 @@ def main():
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
                     # client(_tasks_list, rand_host)
                     _client.publish(client_id(rand_host), "t {}".format(_tasks_list))
-                    print("Sent {} to {}\n\n".format(_tasks_list, rand_host))
+                    print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
                     drawnow(plot_performance)
                     time.sleep(3)
             elif x == 'stop':
