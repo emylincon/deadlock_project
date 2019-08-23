@@ -184,7 +184,7 @@ def connect_to_broker():
 
     username = 'mec'
     password = 'password'
-    broker_ip = hosts['speaker']
+    broker_ip = 'localhost'
     broker_port_no = 1883
     topic = 'mec'     # topic used to exchange mec details to clients
 

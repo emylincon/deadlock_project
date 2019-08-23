@@ -548,7 +548,6 @@ def run_me():
             break
         time.sleep(2)
 
-    connect_to_broker()
     start_loop()
 
 

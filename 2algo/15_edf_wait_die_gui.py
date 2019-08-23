@@ -722,7 +722,6 @@ def run_me():
             discovering = 1
             break
         time.sleep(2)
-    connect_to_broker()
     start_loop()
 
 
