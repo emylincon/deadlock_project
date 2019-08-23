@@ -104,7 +104,7 @@ def on_connect(connect_client, userdata, flags, rc):
 def on_message(message_client, userdata, msg):
     global hosts
     # print the message received from the subscribed topic
-    details = str(msg.payload, 'utf-8')
+    details = str(msg.payload, 'utf-8')[2:]
     ho = ast.literal_eval(details)
     hosts = list(ho.values())
     print('hosts: ', hosts)

@@ -161,6 +161,7 @@ def on_connect(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
     connect_client.subscribe(node_id)
+    connect_client.subscribe('mec')
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -384,7 +385,7 @@ def send_message(mg):
         elif mg == 'client':
             ho = hosts.copy()
             ho[message()] = host_ip
-            smg = str(ho)
+            smg = 'm {}'.format(ho)
             _client.publish(topic, smg, retain=True)
         else:
             sock1.sendto(str.encode(mg), _multicast_group)
