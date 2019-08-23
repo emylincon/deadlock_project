@@ -64,7 +64,7 @@ task_record = {}    # records tasks start time and finish time {seq_no:{task:[du
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
 fig = plt.figure()
-ax1 = fig.add_subplot(1)
+ax1 = fig.add_subplot(111)
 
 
 def plot_performance():
