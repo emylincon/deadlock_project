@@ -74,7 +74,7 @@ def plot_performance():
     global re_use
 
     name = ['Timely', 'Untimely']
-    ypos = ([0, 1, 2, 3])
+    ypos = ([0, 1])
     values = [tasks_executed_on_time, tasks_not_executed_on_time]
     ax1.set_xticks(ypos)
     ax1.set_xticklabels(name)
