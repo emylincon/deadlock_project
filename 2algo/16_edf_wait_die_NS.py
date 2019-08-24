@@ -6,6 +6,7 @@ import ping_code as pc
 import socket
 import struct
 import subprocess as sp
+import threading
 from threading import Thread
 import ast
 import time
@@ -56,6 +57,7 @@ _port_ = 64000
 cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
 stop = 0
+shared_resource_lock = threading.Lock()
 
 
 def discovering_group():
@@ -492,8 +494,10 @@ def receive_offloaded_task_mec():    # run as a thread
                 _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
             elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
                 _received = ast.literal_eval(da[2] + da[3])
+                shared_resource_lock.acquire()
                 reoffload_list[0].append(_received[0])
                 reoffload_list[1][_received[0]] = _received[1]
+                shared_resource_lock.release()
 
 
 def call_execute_re_offload():
@@ -505,15 +509,19 @@ def call_execute_re_offload():
         if len(reoffload_list[0]) == 1:
             t = reoffload_list[0][-1]
             time.sleep(reoffload_list[1][t])
+            shared_resource_lock.acquire()
             reoffload_list[0].remove(t)
             del reoffload_list[1][t]
+            shared_resource_lock.release()
             send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t))
         elif len(reoffload_list[0]) > 1:
             o = reoffload_list.copy()
             execute_re_offloaded_task(o)
             for i in o[0]:
+                shared_resource_lock.acquire()
                 reoffload_list[0].remove(i)
                 del reoffload_list[1][i]
+                shared_resource_lock.release()
 
         time.sleep(1)
 

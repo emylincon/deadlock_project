@@ -104,6 +104,7 @@ def on_connect(connect_client, userdata, flags, rc):
 def on_message(message_client, userdata, msg):
     global hosts
     # print the message received from the subscribed topic
+
     details = str(msg.payload, 'utf-8')[2:]
     ho = ast.literal_eval(details)
     hosts = list(ho.values())
@@ -144,39 +145,42 @@ def on_receive_task(message_client, userdata, msg):
     global tasks_not_executed_on_time
     # print the message received from the subscribed topic
     data = str(msg.payload, 'utf-8')
-    received_task = ast.literal_eval(data)
+    if msg.topic == client_id_:
+        received_task = ast.literal_eval(data)
 
-    for i in received_task:
-        tk = i.split('_')[0]
-        # print('tk: {}'.format(tk))
-        k = task_record[int(tk.split('.')[-1])][tk]
-        if len(k) < 3:
-            a = received_task[i]
-            k.append(dt.datetime(int(a[0]), int(a[1]),
-                                 int(a[2]), int(a[3]),
-                                 int(a[4]), int(a[5]),
-                                 int(a[6])))
-            p = float(str(k[2] - k[1]).split(':')[-1])
-            if p < k[0]:
-                tasks_executed_on_time += 1
-            else:
-                tasks_not_executed_on_time += 1
-        elif len(k) == 3:
-            a = received_task[i]
-            t = dt.datetime(int(a[0]), int(a[1]),
-                            int(a[2]), int(a[3]),
-                            int(a[4]), int(a[5]),
-                            int(a[6]))
-            p = float(str(t - k[1]).split(':')[-1])
-            if p < k[0]:
-                tasks_executed_on_time += 1
-            else:
-                tasks_not_executed_on_time += 1
+        for i in received_task:
+            tk = i.split('_')[0]
+            # print('tk: {}'.format(tk))
+            k = task_record[int(tk.split('.')[-1])][tk]
+            if len(k) < 3:
+                a = received_task[i]
+                k.append(dt.datetime(int(a[0]), int(a[1]),
+                                     int(a[2]), int(a[3]),
+                                     int(a[4]), int(a[5]),
+                                     int(a[6])))
+                p = float(str(k[2] - k[1]).split(':')[-1])
+                if p < k[0]:
+                    tasks_executed_on_time += 1
+                else:
+                    tasks_not_executed_on_time += 1
+            elif len(k) == 3:
+                a = received_task[i]
+                t = dt.datetime(int(a[0]), int(a[1]),
+                                int(a[2]), int(a[3]),
+                                int(a[4]), int(a[5]),
+                                int(a[6]))
+                p = float(str(t - k[1]).split(':')[-1])
+                if p < k[0]:
+                    tasks_executed_on_time += 1
+                else:
+                    tasks_not_executed_on_time += 1
+    else:
+        print('Topic = {}: Msg =  {}'.format(msg.topic, data))
 
 
 def receive_mec_start():
     global task_topic
-    global _client
+    global task_client
 
     username = 'mec'
     password = 'password'
@@ -341,7 +345,8 @@ def main():
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
                     # client(_tasks_list, rand_host)
                     _client.publish(client_id(rand_host), str(_tasks_list))
-                    print("Sent {} to {}\n\n".format(_tasks_list, rand_host))
+                    # print("Sent {} to {}\n\n".format(_tasks_list, rand_host))
+                    print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
