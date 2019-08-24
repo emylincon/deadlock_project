@@ -199,7 +199,7 @@ def on_receive_task(message_client, userdata, msg):
 
 def receive_mec_start():
     global task_topic
-    global _client
+    global task_client
 
     username = 'mec'
     password = 'password'
@@ -365,7 +365,7 @@ def main():
                         else:
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
                     # client(_tasks_list, rand_host)
-                    _client.publish(client_id(rand_host), "t {}".format(_tasks_list))
+                    task_client.publish(client_id(rand_host), "t {}".format(_tasks_list))
                     print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
                     drawnow(plot_performance)
                     time.sleep(3)
@@ -373,11 +373,11 @@ def main():
                 print('\nProgramme terminated')
                 cmd = "echo 'record = {} \ntask_record = {}' >> record.py".format(record, task_record)
                 os.system(cmd)
-                _client.loop_stop()
+                task_client.loop_stop()
                 break
         except KeyboardInterrupt:
             print('\nProgramme terminated')
-            _client.loop_stop()
+            task_client.loop_stop()
             break
 
 
