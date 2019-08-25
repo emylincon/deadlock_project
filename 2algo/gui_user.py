@@ -75,13 +75,18 @@ def plot_performance():
 
     name = ['Timely', 'Untimely']
     ypos = ([0, 1])
-    values = [tasks_executed_on_time, tasks_not_executed_on_time]
+    total = tasks_executed_on_time + tasks_not_executed_on_time
+    values = [round((tasks_executed_on_time/total)*100, 2), round((tasks_not_executed_on_time/total)*100, 2)]
     ax1.set_xticks(ypos)
     ax1.set_xticklabels(name)
     ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
     ax1.set_title('Task execution Time record')
-    ax1.annotate('Seq: {}\nTotal Tasks: {}'.format(seq, tasks_not_executed_on_time+tasks_executed_on_time),
-                 xy=(2, 1), xytext=(3, 1.5))
+    dis = 'Seq: {}\nTotal Tasks: {}'.format(seq, total)
+    # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
+
+    ax1.text(110, 5, dis, bbox=dict(boxstyle="round",
+                                    ec=(1., 0.5, 0.5),
+                                    fc=(1., 0.8, 0.8),))
     plt.subplot(ax1)
     fig.suptitle('MEC Performance During Deadlock Experiment')
 
