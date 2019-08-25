@@ -177,10 +177,10 @@ def on_message(message_client, userdata, msg):
     elif data[0] == 't':     # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
-
+    '''
     else:
         print('data: ', data)
-    '''
+    
     elif data[0] == 't':
         print('send: ', data[2:])
     '''
@@ -245,8 +245,8 @@ def edf():
                 print('Deadline missed: ', i)
                 missed.append(i[0])
 
-    print('s (task, execution_time): ', schedule)
-    print('r: ', register)
+    # print('s (task, execution_time): ', schedule)
+    # print('r: ', register)
     if len(missed) > 0:
         print('missed deadline: ', missed)
         cooperative_mec(missed)
@@ -601,7 +601,7 @@ def start_loop():
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
     node_id = mec_id(ip_address())
-    print('node id: ', node_id)
+    # print('node id: ', node_id)
     _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, connect_to_broker]
     for i in _threads_:
         Thread(target=i).daemon = True
