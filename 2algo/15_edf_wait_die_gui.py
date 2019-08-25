@@ -131,13 +131,21 @@ def _mov_avg(a1):
     return ma1
 
 
+def percent(value, total):
+    if value > 0:
+        return round((value/total)*100, 2)
+    else:
+        return 0
+
+
 def plot_offloaded_remote():
     keys = ['O-Out', 'Cloud', 'Local', 'O-In']
     total = _off_mec + _off_cloud + _loc + _inward_mec
-    val = [round((_off_mec/total)*100, 2),
-           round((_off_cloud/total)*100, 2),
-           round((_loc/total)*100, 2),
-           round((_inward_mec/total)*100, 2)]
+
+    val = [percent(_off_mec, total),
+           percent(_off_cloud, total),
+           percent(_loc, total),
+           percent(_inward_mec, total)]
     cols = ['r', 'g', 'b', 'm']
     ypos = ([0, 1, 2, 3])
     '''

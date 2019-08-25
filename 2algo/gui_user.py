@@ -76,7 +76,17 @@ def plot_performance():
     name = ['Timely', 'Untimely']
     ypos = ([0, 1])
     total = tasks_executed_on_time + tasks_not_executed_on_time
-    values = [round((tasks_executed_on_time/total)*100, 2), round((tasks_not_executed_on_time/total)*100, 2)]
+    if tasks_executed_on_time > 0:
+        timely = round((tasks_executed_on_time/total)*100, 2)
+    else:
+        timely = 0
+
+    if tasks_not_executed_on_time > 0:
+        untimely = round((tasks_not_executed_on_time/total)*100, 2)
+    else:
+        untimely = 0
+
+    values = [timely, untimely]
     ax1.set_xticks(ypos)
     ax1.set_xticklabels(name)
     ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
