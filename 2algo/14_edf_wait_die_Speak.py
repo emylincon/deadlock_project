@@ -8,7 +8,6 @@ import ping_code as pc
 import socket
 import struct
 import subprocess as sp
-import threading
 from threading import Thread
 import threading
 import ast
@@ -20,7 +19,6 @@ import paho.mqtt.client as mqtt
 from netifaces import interfaces, ifaddresses, AF_INET
 
 
-t_lock = threading.Lock()
 hosts = {}  # {hostname: ip}
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
