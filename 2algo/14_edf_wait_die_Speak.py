@@ -63,6 +63,7 @@ _port_ = 64000
 cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
 stop = 0
+t_track = 1
 shared_resource_lock = threading.Lock()
 
 
@@ -185,6 +186,7 @@ def on_message(message_client, userdata, msg):
     elif data[0] == 't':
         print('send: ', data[2:])
     '''
+
 
 def connect_to_broker():
     global _client
@@ -487,7 +489,7 @@ def execute_re_offloaded_task(offloaded_task):
     for i in exec_list:
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j])
-        send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
+        send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
 
 def execute(local):
@@ -507,6 +509,8 @@ def execute(local):
 
 
 def receive_offloaded_task_mec():    # run as a thread
+    global t_track
+
     while True:
         if stop == 1:
             break
@@ -519,9 +523,11 @@ def receive_offloaded_task_mec():    # run as a thread
             elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
                 _received = ast.literal_eval(da[2] + da[3])
                 shared_resource_lock.acquire()
-                reoffload_list[0].append(_received[0])
-                reoffload_list[1][_received[0]] = _received[1]
+                task = _received[0] + '*{}'.format(t_track)
+                reoffload_list[0].append(task)
+                reoffload_list[1][task] = _received[1]
                 shared_resource_lock.release()
+                t_track += 1
 
 
 def call_execute_re_offload():
@@ -537,7 +543,7 @@ def call_execute_re_offload():
             reoffload_list[0].remove(t)
             del reoffload_list[1][t]
             shared_resource_lock.release()
-            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t))
+            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
         elif len(reoffload_list[0]) > 1:
             o = reoffload_list.copy()
             execute_re_offloaded_task(o)
@@ -548,7 +554,6 @@ def call_execute_re_offload():
                 shared_resource_lock.release()
 
         time.sleep(1)
-
 
 
 def send_offloaded_task_mec(msg):

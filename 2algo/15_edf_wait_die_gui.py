@@ -73,6 +73,7 @@ cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded t
 cloud_port = 63000
 memory = []
 stop = 0
+t_track = 1
 shared_resource_lock = threading.Lock()
 
 fig = plt.figure()
@@ -633,7 +634,7 @@ def execute_re_offloaded_task(offloaded_task):
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j])
         print('j task: ', j)
-        send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
+        send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
 
 def execute(local):
@@ -656,6 +657,7 @@ def execute(local):
 
 def receive_offloaded_task_mec():    # run as a thread
     global _inward_mec
+    global t_track
 
     while True:
         if stop == 1:
@@ -663,15 +665,17 @@ def receive_offloaded_task_mec():    # run as a thread
         data, address = sock2.recvfrom(1024)
         if len(data.decode()) > 0:
             da = data.decode().split(' ')
-            if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
+            if (address[0] not in ip_set) and da[0] == node_id:  # send back to client
                 # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
                 _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
             elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
                 _received = ast.literal_eval(da[2] + da[3])
                 shared_resource_lock.acquire()
-                reoffload_list[0].append(_received[0])
-                reoffload_list[1][_received[0]] = _received[1]
+                task = _received[0] + '*{}'.format(t_track)
+                reoffload_list[0].append(task)
+                reoffload_list[1][task] = _received[1]
                 shared_resource_lock.release()
+                t_track += 1
                 _inward_mec += 1
 
 
@@ -688,7 +692,7 @@ def call_execute_re_offload():
             reoffload_list[0].remove(t)
             del reoffload_list[1][t]
             shared_resource_lock.release()
-            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t))
+            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
         elif len(reoffload_list[0]) > 1:
             o = reoffload_list.copy()
             execute_re_offloaded_task(o)
