@@ -94,9 +94,8 @@ def plot_performance():
     dis = 'Seq: {}\nTotal Tasks: {}'.format(seq, total)
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
 
-    ax1.text(110, 5, dis, bbox=dict(boxstyle="round",
-                                    ec=(1., 0.5, 0.5),
-                                    fc=(1., 0.8, 0.8),))
+    ax1.text(1, 65, dis, size=10, rotation=0,
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8),))
     plt.subplot(ax1)
     fig.suptitle('MEC Performance During Deadlock Experiment')
 
