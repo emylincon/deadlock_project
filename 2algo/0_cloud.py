@@ -3,6 +3,7 @@ import ast
 import time
 import os
 import socket
+import threading
 from threading import Thread
 import paho.mqtt.client as mqtt
 
@@ -38,6 +39,8 @@ _port_ = 62000
 port = 63000
 cloud_register = {}   # ={node_id:mec_ip} keeps address of task offloaded to cloud
 cannot = []
+t_track = 1
+shared_resource_lock = threading.Lock()
 
 
 def on_connect(connect_client, userdata, flags, rc):
@@ -48,11 +51,16 @@ def on_connect(connect_client, userdata, flags, rc):
 
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
+    global t_track
     # print the message received from the subscribed topic
     data = str(msg.payload, 'utf-8')
     received_task = ast.literal_eval(data)
-    received_task_queue[0].append(received_task[0])
-    received_task_queue[1][received_task[0]] = received_task[1]
+    shared_resource_lock.acquire()
+    task = received_task[0] + '*{}'.format(t_track)
+    received_task_queue[0].append(task)
+    received_task_queue[1][task] = received_task[1]
+    shared_resource_lock.release()
+    t_track += 1
     # cloud_register[received_task[0].split('.')[2]] = _addr[0]
 
 
@@ -202,7 +210,7 @@ def execute(local):
         j = i.split('_')[0]
         time.sleep((t_time[j]) / 5)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
-        _client.publish(j.split('.')[1], 'c {}'.format(j))
+        _client.publish(j.split('.')[1], 'c {}'.format(i.split('*')[0]))
         # send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')
 
@@ -230,21 +238,29 @@ def run_me():
                 if len(received_task_queue[0]) == 0:
                     time.sleep(2)
                 elif len(received_task_queue[0]) <= 2:
+                    shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
+                    shared_resource_lock.release()
                     execute(received_task_queue[0])
                     for t in tasks:
+                        shared_resource_lock.acquire()
                         received_task_queue[0].remove(t)
                         del received_task_queue[1][t]
+                        shared_resource_lock.release()
 
                     time.sleep(2)
                 else:
+                    shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
+                    shared_resource_lock.release()
                     print('\nRunning Bankers Algorithm')
                     list_seq = get_safe_seq(tasks)
                     execute(list_seq)
                     for t in tasks:
+                        shared_resource_lock.acquire()
                         received_task_queue[0].remove(t)
                         del received_task_queue[1][t]
+                        shared_resource_lock.release()
                     time.sleep(2)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
