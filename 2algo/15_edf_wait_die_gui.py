@@ -133,8 +133,14 @@ def _mov_avg(a1):
 
 def plot_offloaded_remote():
     keys = ['O-Out', 'Cloud', 'Local', 'O-In']
-    val = [_off_mec, _off_cloud, _loc, _inward_mec]
+    total = _off_mec + _off_cloud + _loc + _inward_mec
+    val = [round((_off_mec/total)*100, 2),
+           round((_off_cloud/total)*100, 2),
+           round((_loc/total)*100, 2),
+           round((_inward_mec/total)*100, 2)]
     cols = ['r', 'g', 'b', 'm']
+    ypos = ([0, 1, 2, 3])
+    '''
     explode = []
     for i in val:
         if i == max(val):
@@ -142,7 +148,12 @@ def plot_offloaded_remote():
         else:
             explode.append(0)
 
-    ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), startangle=-40, shadow=True, explode=explode, colors=cols)
+    ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), 
+    startangle=-40, shadow=True, explode=explode, colors=cols)
+    '''
+    ax2.set_xticks(ypos)
+    ax2.set_xticklabels(keys)
+    ax2.bar(ypos, val, align='center', colors=cols, alpha=0.5)
     ax2.set_title('Remote vs Local Frequency')
     plt.subplot(ax2)
 
