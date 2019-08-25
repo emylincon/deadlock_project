@@ -486,7 +486,7 @@ def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:
         j = i.split('_')[0]
-        time.sleep(offloaded_task[1][j])
+        time.sleep(offloaded_task[1][j]/2)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
 
@@ -495,7 +495,7 @@ def execute(local):
 
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0])
+        time.sleep(t_time[j][0]/2)
         print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
@@ -536,7 +536,7 @@ def call_execute_re_offload():
             break
         if len(reoffload_list[0]) == 1:
             t = reoffload_list[0][-1]
-            time.sleep(reoffload_list[1][t])
+            time.sleep(reoffload_list[1][t]/2)
             shared_resource_lock.acquire()
             reoffload_list[0].remove(t)
             del reoffload_list[1][t]
