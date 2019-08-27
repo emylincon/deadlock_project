@@ -167,7 +167,7 @@ def plot_offloaded_remote():
     ax2.set_xticks(ypos)
     ax2.set_xticklabels(keys)
     ax2.bar(ypos, values, align='center', color=cols, alpha=0.3)
-    ax2.set_title('Remote vs Local Frequency')
+    ax2.set_title('Local/Remote Execution Report')
     plt.subplot(ax2)
 
 # color=color_code[list(hosts.values()).index(i)]
