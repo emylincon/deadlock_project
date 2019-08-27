@@ -74,8 +74,14 @@ def auto_value(no):
         return no - 3
     elif no < 50:
         return no - 6
+    elif no < 150:
+        return no - 30
+    elif no < 800:
+        return no - 70
+    elif no < 2000:
+        return no - 200
     else:
-        return no - 10
+        return no - 400
 
 
 def plot_performance():
