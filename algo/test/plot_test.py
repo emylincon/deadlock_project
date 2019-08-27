@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from drawnow import *
+import matplotlib.patches as patches
 
 deadlock = [1]
 fig = plt.figure()
@@ -100,6 +101,61 @@ def plot_offloaded_remote():
     plt.subplot(ax1)
     plt.show()
 
+
+def plot_rectangle():
+    # build a rectangle in axes coords
+    left, width = .25, .5
+    bottom, height = .25, .5
+    right = left + width
+    top = bottom + height
+    # ax1.add_container([0, 0, 1, 1])
+    # axes coordinates are 0,0 is bottom left and 1,1 is upper right
+    p = patches.Rectangle(
+        (left, bottom), width, height,
+        fill=False, transform=ax1.transAxes, clip_on=False
+    )
+
+    #ax1.add_patch(p)
+    '''
+    ax1.text(0.5 * (left + right), 0.5 * (bottom + top), '0 Deadlock resolved',
+             horizontalalignment='center',
+             verticalalignment='center',
+             fontsize=10, color='red',
+             transform=ax1.transAxes)
+    '''
+    ax1.text(0.5, 0.5, '0 Deadlock resolved', rotation=0,
+             ha="center", va="center", bbox=dict(boxstyle="round",))
+    ax1.set_axis_off()
+    plt.subplot(ax1)
+    plt.show()
+
+
+def p_test():
+    # build a rectangle in axes coords
+    left, width = .25, .5
+    bottom, height = .25, .5
+    right = left + width
+    top = bottom + height
+
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+
+    # axes coordinates are 0,0 is bottom left and 1,1 is upper right
+    p = patches.Rectangle(
+        (left, bottom), width, height,
+        fill=False, transform=ax.transAxes, clip_on=False
+    )
+
+    ax.add_patch(p)
+    ax.text(0.5 * (left + right), 0.5 * (bottom + top), 'middle',
+            horizontalalignment='center',
+            verticalalignment='center',
+            fontsize=20, color='red',
+            transform=ax.transAxes)
+    ax.set_axis_off()
+    plt.show()
 #drawnow(plot_test)
 #drawnow(test)
-drawnow(plot_offloaded_remote)
+#drawnow(plot_offloaded_remote)
+drawnow(plot_rectangle)
+#drawnow(p_test)
