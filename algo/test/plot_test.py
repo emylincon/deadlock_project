@@ -92,6 +92,9 @@ def plot_offloaded_remote():
     ax1.set_xticks(ypos)
     ax1.set_xticklabels(keys)
     ax1.bar(ypos, val, align='center', color=cols, alpha=0.3)
+    ax1.text(-0.1, 10, '99%', bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8), ))
     ax1.set_title('Remote vs Local Frequency')
     plt.subplot(ax1)
     plt.show()
