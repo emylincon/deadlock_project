@@ -86,7 +86,7 @@ def plot_performance():
     else:
         untimely = 0
 
-    values = [timely, untimely]
+    values = [tasks_executed_on_time, tasks_not_executed_on_time]
     ax1.set_xticks(ypos)
     ax1.set_xticklabels(name)
     ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
@@ -94,8 +94,12 @@ def plot_performance():
     dis = 'Seq: {}\nTotal Tasks: {}'.format(seq, total)
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
 
-    ax1.text(1, 65, dis, size=10, rotation=0,
-             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8),))
+    ax1.text(1, tasks_executed_on_time, dis, size=10, rotation=0,
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.7, 0.7), fc=(1., 0.8, 0.8),))
+    ax1.text(0, tasks_executed_on_time, '{}%'.format(timely), size=10, rotation=0,
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
+    ax1.text(1, tasks_not_executed_on_time, '{}%'.format(untimely), size=10, rotation=0,
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     plt.subplot(ax1)
     fig.suptitle('MEC Performance During Deadlock Experiment')
 
