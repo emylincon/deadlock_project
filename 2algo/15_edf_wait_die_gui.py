@@ -182,7 +182,7 @@ def plot_deadlock():
 
     plt.setp(autotexts, size=9, weight="bold")
     '''
-    ax5.text(0.5, 0.5, text, rotation=0, size=30,
+    ax5.text(0.5, 0.5, text, rotation=0, size=10,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.)))
     # ax5.set_title("Deadlock Resolved Counter")
     ax5.set_axis_off()
