@@ -464,7 +464,7 @@ def execute_re_offloaded_task(offloaded_task):
     for i in exec_list:      # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j]/2)
-        print('j task: ', j)
+        # print('j task: ', j)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
 
