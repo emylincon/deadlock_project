@@ -123,8 +123,8 @@ def plot_rectangle():
              fontsize=10, color='red',
              transform=ax1.transAxes)
     '''
-    ax1.text(0.5, 0.5, '0 Deadlock resolved', rotation=0,
-             ha="center", va="center", bbox=dict(boxstyle="round",))
+    ax1.text(0.5, 0.5, '0 Deadlock resolved', rotation=0, size=15,
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.),))
     ax1.set_axis_off()
     plt.subplot(ax1)
     plt.show()

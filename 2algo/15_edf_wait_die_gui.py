@@ -175,15 +175,15 @@ def plot_offloaded_remote():
 
 def plot_deadlock():
     cols = ['r']
-    text = str(deadlock[-1] - 1) + " Deadlock resolved"
+    text = str(deadlock[-1] - 1) + " Deadlock Resolved"
     '''
     wedges, texts, autotexts = ax5.pie(deadlock, shadow=True, autopct=text,
                                        textprops=dict(rotation_mode='anchor', color="w", ha='left'), colors=cols)
 
     plt.setp(autotexts, size=9, weight="bold")
     '''
-    ax5.text(0.5, 0.5, text, rotation=0,
-             ha="center", va="center", bbox=dict(boxstyle="round", ))
+    ax5.text(0.5, 0.5, text, rotation=0, size=30,
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.)))
     # ax5.set_title("Deadlock Resolved Counter")
     ax5.set_axis_off()
     plt.subplot(ax5)
