@@ -67,6 +67,17 @@ fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
 
+def auto_value(no):
+    if no < 5:
+        return no
+    elif no < 10:
+        return no - 3
+    elif no < 50:
+        return no - 6
+    else:
+        return no - 10
+
+
 def plot_performance():
     global H
     global M
@@ -94,11 +105,11 @@ def plot_performance():
     dis = 'Seq: {}\nTotal Tasks: {}'.format(seq, total)
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
 
-    ax1.text(1, tasks_executed_on_time, dis, size=10, rotation=0,
+    ax1.text(1, auto_value(tasks_executed_on_time), dis, size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.7, 0.7), fc=(1., 0.8, 0.8),))
-    ax1.text(-0.1, tasks_executed_on_time, '{}%'.format(timely), size=10, rotation=0,
+    ax1.text(-0.1, tasks_executed_on_time, '{}, {}%'.format(tasks_executed_on_time, timely), size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
-    ax1.text(0.99, tasks_not_executed_on_time, '{}%'.format(untimely), size=10, rotation=0,
+    ax1.text(0.99, tasks_not_executed_on_time, '{}, {}%'.format(tasks_not_executed_on_time, untimely), size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     plt.subplot(ax1)
     fig.suptitle('MEC Performance During Deadlock Experiment')
