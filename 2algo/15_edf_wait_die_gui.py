@@ -159,14 +159,14 @@ def plot_offloaded_remote():
     ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), 
     startangle=-40, shadow=True, explode=explode, colors=cols)
     '''
-    k = [_off_mec, _off_cloud, _loc, _inward_mec]
-    for i in k:
-        j = k.index(i)
-        ax2.text(j-0.1, val[j], '{}, {}%'.format(i, val[j]), rotation=0,
+    values = [_off_mec, _off_cloud, _loc, _inward_mec]
+    for i in values:
+        j = values.index(i)
+        ax2.text(j-0.1, values[j], '{}%'.format(val[j]), rotation=0,
                  ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax2.set_xticks(ypos)
     ax2.set_xticklabels(keys)
-    ax2.bar(ypos, val, align='center', color=cols, alpha=0.3)
+    ax2.bar(ypos, values, align='center', color=cols, alpha=0.3)
     ax2.set_title('Remote vs Local Frequency')
     plt.subplot(ax2)
 
@@ -625,6 +625,7 @@ def cooperative_mec(mec_list):
         if _host == 0:
             # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
             _client.publish(cloud_ip, str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
+            _off_cloud += 1
             # cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
@@ -637,6 +638,7 @@ def cooperative_mec(mec_list):
                 send = 'true'
             if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
                 send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
+                _off_mec += 1
 
                 # SENDS TASK TO MEC FOR EXECUTION
 
@@ -645,6 +647,7 @@ def cooperative_mec(mec_list):
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 _client.publish(cloud_ip, str([j, t_time[j][0]]))
+                _off_cloud += 1
                 # send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
 
                 # cloud_register[j.split('.')[2]] = send_back_host
@@ -664,19 +667,19 @@ def execute_re_offloaded_task(offloaded_task):
 def execute(local):
     print('\nExecuting :', local)
 
-    send = []
+    # send = []
     for i in local:
         j = i.split('_')[0]
         time.sleep(t_time[j][0]/2)
         print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
-            send.append(j)
+            # send.append(j)
         elif j.split('.')[1] == node_id:
             # send_client({j: get_time()}, send_back_host)
             _client.publish(j.split('.')[2], str({j: get_time()}))
     print('============== EXECUTION DONE ===============')
-    return send
+    # return send
 
 
 def receive_offloaded_task_mec():    # run as a thread
@@ -798,16 +801,13 @@ def start_loop():
                         print('\nWaiting Time List: ', wait_list)
                         compare_result = compare_local_mec(wait_list)
                         print('\nExecute Locally: ', compare_result[1])
-                        t_loc = len(compare_result[1])  # total number of tasks to be executed locally
+                        _loc += len(compare_result[1])  # total number of tasks to be executed locally
                         print('\nExecute in MEC: ', compare_result[0])
 
-                        print('\nSending to cooperative platform')
                         if len(compare_result[0]) > 0:
+                            print('\nSending to cooperative platform')
                             cooperative_mec(compare_result[0])
-                        _send_back = execute(compare_result[1])
-                        _loc = t_loc
-                        if len(_send_back) > 0:  # do only when there is a task to send back
-                            _loc = t_loc - len(_send_back)
+                        execute(compare_result[1])
                         show_graphs()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))

@@ -68,6 +68,7 @@ def test():
 
     plt.show()
 
+
 def plot_offloaded_remote():
     keys = ['O-Out', 'Cloud', 'Local', 'O-In']
     # total = _off_mec + _off_cloud + _loc + _inward_mec
