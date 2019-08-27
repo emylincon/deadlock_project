@@ -31,7 +31,7 @@ def plot_test():
     ax1.set_xticklabels(name)
     ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
     dis = 'Seq: {}\nTotal Tasks: {}'.format(timely, untimely)
-    ax1.text(1, 70, dis, bbox=dict(boxstyle="round",
+    ax1.text(1.1, 70, dis, bbox=dict(boxstyle="round",
                                    ec=(1., 0.5, 0.5),
                                    fc=(1., 0.8, 0.8), ))
 
@@ -154,8 +154,8 @@ def p_test():
             transform=ax.transAxes)
     ax.set_axis_off()
     plt.show()
-#drawnow(plot_test)
+drawnow(plot_test)
 #drawnow(test)
 #drawnow(plot_offloaded_remote)
-drawnow(plot_rectangle)
+#drawnow(plot_rectangle)
 #drawnow(p_test)
