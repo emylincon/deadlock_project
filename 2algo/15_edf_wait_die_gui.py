@@ -159,6 +159,11 @@ def plot_offloaded_remote():
     ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), 
     startangle=-40, shadow=True, explode=explode, colors=cols)
     '''
+    k = [_off_mec, _off_cloud, _loc, _inward_mec]
+    for i in k:
+        j = k.index(i)
+        ax2.text(j-0.1, val[j], '{}, {}%'.format(i, val[j]), rotation=0,
+                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax2.set_xticks(ypos)
     ax2.set_xticklabels(keys)
     ax2.bar(ypos, val, align='center', color=cols, alpha=0.3)
