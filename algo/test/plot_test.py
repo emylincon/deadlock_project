@@ -123,8 +123,10 @@ def plot_rectangle():
              fontsize=10, color='red',
              transform=ax1.transAxes)
     '''
-    ax1.text(0.5, 0.5, '0 Deadlock resolved', rotation=0, size=15,
+    ax1.text(0.5, 0.6, '0 Deadlock resolved', rotation=0, size=15,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.),))
+    ax1.text(0.5, 0.45, '100 Tasks Received', rotation=0, size=15,
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.98, 0.96, 0.59), ))
     ax1.set_axis_off()
     plt.subplot(ax1)
     plt.show()
@@ -154,8 +156,8 @@ def p_test():
             transform=ax.transAxes)
     ax.set_axis_off()
     plt.show()
-drawnow(plot_test)
+#drawnow(plot_test)
 #drawnow(test)
 #drawnow(plot_offloaded_remote)
-#drawnow(plot_rectangle)
+drawnow(plot_rectangle)
 #drawnow(p_test)
