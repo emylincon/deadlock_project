@@ -156,10 +156,11 @@ def on_connect(connect_client, userdata, flags, rc):
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
     global hosts
+    global host_dict
     # print the message received from the subscribed topic
     details = str(msg.payload, 'utf-8')[2:]
-    ho = ast.literal_eval(details)
-    hosts = list(ho.values())
+    host_dict = ast.literal_eval(details)
+    hosts = list(host_dict.values())
     # print('hosts: ', hosts)
     _client.loop_stop()
 
@@ -401,7 +402,11 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                cmd = 'echo "record = {} \ntask_record = {}" >> record.py'.format(record, task_record)
+                cmd = 'echo "record = {} \ntask_record = {} \nhost_names = {}" >> record.py'.format(
+                    record,
+                    task_record,
+                    list(host_dict.keys()))
+
                 os.system(cmd)
                 task_client.loop_stop()
                 break
