@@ -818,7 +818,7 @@ def start_loop():
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
                     # show_graphs()
-                    time.sleep(1)
+                    time.sleep(.5)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
                 stop += 1

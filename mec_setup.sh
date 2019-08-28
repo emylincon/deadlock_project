@@ -8,7 +8,6 @@ apk upgrade
 apk add busybox-static apk-tools-static
 apk add make
 apk add sudo
-cd
 apk add git
 apk add wget
 apk add nano
@@ -23,22 +22,50 @@ apk add harfbuzz
 apk add linux-headers
 clear
 
+## updating an installing ssh
+ git clone https://github.com/alpinelinux/alpine-conf.git
+ cd alpine-conf/
+ make
+ cp libalpine.sh /lib/
+ sh setup-apkrepos
+ r
+ apk update
+ sed -i -e 's/v3\.3/v3.6/g' /etc/apk/repositories
+ apk.static update
+ apk.static upgrade --no-self-upgrade --available --simulate
+ apk update
+ apk upgrade
+ apk.static upgrade --no-self-upgrade --available --simulate
+ apk upgrade
+ apk add --upgrade busybox
+ apk add openssh
+ apk add openrc
+ apk update
+ apk upgrade
+ rc-update add sshd
+ rc-status
+ apk add acf-openssh
+ rc-status
+ /etc/init.d/sshd status
+ touch /run/openrc/softlevel
+ /etc/init.d/sshd status
+ /etc/init.d/sshd start
 
-echo "upgrading to alpine 3.10"
-sleep 2
-git clone https://github.com/alpinelinux/alpine-conf.git
-cd alpine-conf
-make
-cp libalpine.sh /lib/
-sh setup-apkrepos
-r
-apk update
-sed -i -e 's/v3\.3/v3.6/g' /etc/apk/repositories
-apk update
-apk upgrade
-apk.static update
-apk.static upgrade --no-self-upgrade --available --simulate
-clear
+#echo "upgrading to alpine 3.10"
+#sleep 2
+#git clone https://github.com/alpinelinux/alpine-conf.git
+#cd alpine-conf
+#make
+#cp libalpine.sh /lib/
+#sh setup-apkrepos
+#r
+#apk update
+#sed -i -e 's/v3\.3/v3.6/g' /etc/apk/repositories
+#apk update
+#apk upgrade
+#apk.static update
+#apk.static upgrade --no-self-upgrade --available --simulate
+#clear
 
 echo "installing python3"
 sleep 2
@@ -90,55 +117,29 @@ pip3 install matplotlib
 pip3 install drawnow
 clear
 
-echo "installing openssh "
-sleep 2
-apk upgrade
-apk add --upgrade busybox
-apk add openssh-client
-apk add openssh
-apk add acf-openssh
-apk add --no-cache openrc
-rc-update add sshd
-apk add --update openssh
-rm  -rf /tmp/* /var/cache/apk/*
-rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
-touch /run/openrc/softlevel
-/etc/init.d/sshd start
+
+#echo "installing openssh "
+#sleep 2
+#apk upgrade
+#apk add --upgrade busybox
+#apk add openssh-client
+#apk add openssh
+#apk add acf-openssh
+#apk add --no-cache openrc
+#rc-update add sshd
+#apk add --update openssh
+#rm  -rf /tmp/* /var/cache/apk/*
+#rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
+#touch /run/openrc/softlevel
+#/etc/init.d/sshd start
 
 
-/etc/init.d/ssh start
-clear
+#/etc/init.d/ssh start
+#clear
 echo '============= All done.. Ready to use! ==============='
 
 
-## updating an installing ssh
- git clone https://github.com/alpinelinux/alpine-conf.git
- cd alpine-conf/
- make
- cp libalpine.sh /lib/
- sh setup-apkrepos
- r
- apk update
- sed -i -e 's/v3\.3/v3.6/g' /etc/apk/repositories
- apk.static update
- apk.static upgrade --no-self-upgrade --available --simulate
- apk update
- apk upgrade
- apk.static upgrade --no-self-upgrade --available --simulate
- apk upgrade
- apk add --upgrade busybox
- apk add openssh
- apk add openrc
- apk update
- apk upgrade
- rc-update add sshd
- rc-status
- apk add acf-openssh
- rc-status
- /etc/init.d/sshd status
- touch /run/openrc/softlevel
- /etc/init.d/sshd status
- /etc/init.d/sshd start
+
 
 
 # find  / -type d -name "openvswitch"
