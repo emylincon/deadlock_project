@@ -8,7 +8,7 @@ import random as r
 import time
 import datetime as dt
 import paho.mqtt.client as mqtt
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from drawnow import *
 import record as rc
 
@@ -142,11 +142,11 @@ def on_connect(connect_client, userdata, flags, rc):
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
     global hosts
-    global host_dict
+    global ho
     # print the message received from the subscribed topic
     details = str(msg.payload, 'utf-8')[2:]
-    host_dict = ast.literal_eval(details)
-    hosts = list(host_dict.values())
+    ho = ast.literal_eval(details)                             # {hostname: ip}
+    hosts = list(ho.values())
     # print('hosts: ', hosts)
     _client.loop_stop()
 
@@ -221,7 +221,7 @@ def receive_mec_start():
     username = 'mec'
     password = 'password'
     broker_port_no = 1883
-    task_topic = client_id(ip_address())
+    task_topic = client_id_
 
     task_client = mqtt.Client()
     task_client.on_connect = on_connect_task
@@ -310,7 +310,7 @@ def main():
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
     get_mec_details()
-    client_id_ = client_id(ip_address())
+    client_id_ = list(rc.record[0][0][0].keys())[0].split('.')[2]
     '''
     thread_record.append(Thread(target=receive_tasks))
     thread_record[-1].daemon = True
@@ -328,18 +328,18 @@ def main():
         try:
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
             if x == 'y':
-                for i in range(500):
-                    seq = i
-                    rand_host = hosts[gosh_dist(len(hosts))]      # randomly selecting a host to send task to
-                    _task_ = get_tasks()                 # tasks, waiting time
-                    _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks => ({tasks}, {waiting time})
+                for i in rc.record:
+                    seq = rc.record.index(i)
+                    rand_host = ho[i[1]]      # randomly selecting a host to send task to
+                    # _task_ = get_tasks()                 # tasks, waiting time
+                    _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
 
-                    record.append([_tasks_list, rand_host])
+                    # record.append([_tasks_list, rand_host])
                     for task in _tasks_list[0]:
-                        if i not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
-                            task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
+                        if seq not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
+                            task_record[seq] = {task: [_tasks_list[1][task][1], get_time()]}
                         else:
-                            task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
+                            task_record[seq][task] = [_tasks_list[1][task][1], get_time()]
                     # client(_tasks_list, rand_host)
                     task_client.publish(client_id(rand_host), "t {}".format(_tasks_list))
                     print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
@@ -347,10 +347,12 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                cmd = 'echo "record = {} \ntask_record = {} \nhost_names = {}" >> record.py'.format(
-                    record,
-                    task_record,
-                    list(host_dict.keys()))
+                cmd = 'echo "task_record16 = {} \nhost_names16 = {}' \
+                      '\ntimely16 = {} \nuntimely16 = {}" >> record.py'.format(
+                                                                           task_record,
+                                                                           ho,
+                                                                           tasks_executed_on_time,
+                                                                           tasks_not_executed_on_time)
 
                 os.system(cmd)
                 task_client.loop_stop()
@@ -363,4 +365,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

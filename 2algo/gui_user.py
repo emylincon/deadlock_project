@@ -159,8 +159,9 @@ def on_message(message_client, userdata, msg):
     global host_dict
     # print the message received from the subscribed topic
     details = str(msg.payload, 'utf-8')[2:]
-    host_dict = ast.literal_eval(details)
-    hosts = list(host_dict.values())
+    ho = ast.literal_eval(details)                             # {hostname: ip}
+    hosts = list(ho.values())
+    host_dict = dict(zip(list(ho.values()), list(ho.keys())))  # {ip: hostname}
     # print('hosts: ', hosts)
     _client.loop_stop()
 
@@ -389,7 +390,7 @@ def main():
                     _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks => ({tasks}, {waiting time})
 
-                    record.append([_tasks_list, rand_host])
+                    record.append([_tasks_list, host_dict[rand_host]])
                     for task in _tasks_list[0]:
                         if i not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
                             task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
@@ -405,7 +406,7 @@ def main():
                 cmd = 'echo "record = {} \ntask_record = {} \nhost_names = {}" >> record.py'.format(
                     record,
                     task_record,
-                    list(host_dict.keys()))
+                    host_dict)
 
                 os.system(cmd)
                 task_client.loop_stop()
