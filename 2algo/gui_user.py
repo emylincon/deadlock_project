@@ -387,7 +387,7 @@ def main():
                     seq = i
                     rand_host = hosts[gosh_dist(len(hosts))]      # randomly selecting a host to send task to
                     _task_ = get_tasks()                 # tasks, waiting time
-                    _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks
+                    _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks => ({tasks}, {waiting time})
 
                     record.append([_tasks_list, rand_host])
                     for task in _tasks_list[0]:
