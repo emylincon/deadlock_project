@@ -66,7 +66,7 @@ tasks_not_executed_on_time = 0
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
-#done
+
 def auto_value(no):
     if no < 5:
         return no
@@ -85,11 +85,6 @@ def auto_value(no):
 
 
 def plot_performance():
-    global H
-    global M
-    global MH
-    global re_use
-
     name = ['Timely', 'Untimely']
     ypos = ([0, 1])
     total = tasks_executed_on_time + tasks_not_executed_on_time
@@ -115,7 +110,8 @@ def plot_performance():
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.7, 0.7), fc=(1., 0.8, 0.8),))
     ax1.text(-0.1, tasks_executed_on_time, '{}, {}%'.format(tasks_executed_on_time, timely), size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
-    ax1.text(0.99, tasks_not_executed_on_time, '{}, {}%'.format(tasks_not_executed_on_time, untimely), size=10, rotation=0,
+    ax1.text(0.99, tasks_not_executed_on_time, '{}, {}%'.format(tasks_not_executed_on_time, untimely),
+             size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     plt.subplot(ax1)
     fig.suptitle('MEC Performance During Deadlock Experiment')
@@ -132,7 +128,6 @@ def gosh_dist(_range):
 
 def get_tasks():
     global tasks
-    global _pos
 
     tasks = {}
     _t = r.randrange(2, 4)
@@ -406,7 +401,7 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                cmd = "echo 'record = {} \ntask_record = {}' >> record.py".format(record, task_record)
+                cmd = 'echo "record = {} \ntask_record = {}" >> record.py'.format(record, task_record)
                 os.system(cmd)
                 task_client.loop_stop()
                 break
