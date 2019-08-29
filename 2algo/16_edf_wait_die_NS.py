@@ -12,6 +12,7 @@ import ast
 import time
 import datetime as dt
 import os
+import psutil
 import getpass as gp
 from netifaces import interfaces, ifaddresses, AF_INET
 import paho.mqtt.client as mqtt
@@ -43,7 +44,16 @@ allocation = {
     't5': [0, 0, 2]
 }
 
+_cpu = []             # cpu plot list
+prev_t = 0            # variable for cpu util
+_off_mec = 0          # used to keep a count of tasks offloaded from local mec to another mec
+_off_cloud = 0        # used to keep a count of tasks offloaded to cloud
+_loc = 0              # used to keep a count of tasks executed locally
+_inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
+deadlock = [1]          # keeps count of how many deadlock is resolved
+memory = []
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
+mec_rtt = {}               # {ip: [RTT]}
 
 offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
 reoffload_list = [[], {}]   # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
@@ -109,6 +119,33 @@ def ip_address():
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         return s.getsockname()[0]
+
+
+def _memory():
+    global memory
+
+    memory.append(algo.memory_percent())
+
+
+def m_cpu():
+    global prev_t
+
+    # get cpu
+    next_t = psutil.cpu_percent(percpu=False)
+    delta = abs(prev_t - next_t)
+    prev_t = next_t
+    _cpu.append(delta)
+
+
+def get_mec_rtts():
+    for i in mec_rtt:
+        mec_rtt[i].append(get_rtt(i))
+
+
+def generate_results():
+    _memory()
+    m_cpu()
+    get_mec_rtts()
 
 
 def host_ip_set():
@@ -245,6 +282,8 @@ def edf():
 
 # generate execution sequence
 def wait_die(processes, avail, n_need, allocat):
+    global deadlock
+
     offload = []
 
     # To store execution sequence
@@ -302,6 +341,7 @@ def wait_die(processes, avail, n_need, allocat):
     if len(offload) > 0:
         # print('offloading tasks: ', offload)
         cooperative_mec(offload)
+        deadlock[0] += 1
 
     # print('Execution seq: ', exec_seq)
 
@@ -330,7 +370,8 @@ def calc_wait_time(list_seq):
         j = i.split('_')[0]
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)      # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)
     send_message('wt {} {}'.format(ip_address(), str(w_send)))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
@@ -398,6 +439,9 @@ def receive_message():                 # used for multi-cast message exchange am
             _data = ast.literal_eval(_d[6:])
             hosts[_data[0]] = _data[1]
 
+            if _data[1] != host_ip:
+                mec_rtt[_data[1]] = []
+
         elif (_d[:6] == 'update') and (discovering == 0):
             hosts = ast.literal_eval(_d[7:])
             # print('received: ', hosts)
@@ -427,11 +471,15 @@ def mec_comparison():
 
 
 def cooperative_mec(mec_list):
+    global _off_cloud
+    global _off_mec
+
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
             # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
             _client.publish(cloud_ip, str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
+            _off_cloud += 1
             # cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
             print('\n=========SENDING {} TO CLOUD==========='.format(i))
@@ -442,9 +490,10 @@ def cooperative_mec(mec_list):
             send = 'false'
             if not (False in list(np.greater_equal(_max, _need[j[:2]]))):
                 send = 'true'
-            if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
+            # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
+            if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':
                 send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
-
+                _off_mec += 1
                 # SENDS TASK TO MEC FOR EXECUTION
 
                 mec_waiting_time[_host].append(
@@ -452,6 +501,7 @@ def cooperative_mec(mec_list):
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 _client.publish(cloud_ip, str([j, t_time[j][0]]))
+                _off_cloud += 1
                 # send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
 
                 # cloud_register[j.split('.')[2]] = send_back_host
@@ -484,6 +534,7 @@ def execute(local):
 
 
 def receive_offloaded_task_mec():    # run as a thread
+    global _inward_mec
     global t_track
 
     while True:
@@ -503,6 +554,7 @@ def receive_offloaded_task_mec():    # run as a thread
                 reoffload_list[1][task] = _received[1]
                 shared_resource_lock.release()
                 t_track += 1
+                _inward_mec += 1
 
 
 def call_execute_re_offload():
@@ -568,6 +620,7 @@ def run_me():
 
 
 def start_loop():
+    global _loc
     global tasks
     global t_time
     global node_id
@@ -600,13 +653,14 @@ def start_loop():
                         print('\nWaiting Time List: ', wait_list)
                         compare_result = compare_local_mec(wait_list)
                         print('\nExecute Locally: ', compare_result[1])
+                        _loc += len(compare_result[1])  # total number of tasks to be executed locally
                         print('\nExecute in MEC: ', compare_result[0])
 
                         print('\nSending to cooperative platform')
                         if len(compare_result[0]) > 0:
                             cooperative_mec(compare_result[0])
                         execute(compare_result[1])
-
+                        generate_results()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
                     time.sleep(1)
@@ -647,8 +701,11 @@ def initialization():
 
 
 def main():
+    global algo
+
     os.system('clear')
     print('mec ip: ', ip_address())
+    algo = psutil.Process()
     discovering_group()
     offloading_group()
     host_ip_set()
