@@ -669,6 +669,12 @@ def start_loop():
                 print('\nProgramme Terminated')
                 stop += 1
                 _client.loop_stop()
+                cmd = 'echo "wt_16_6 = {} \nrtt_16_6 = {} \ncpu_16_6 = {} \noff_mec16_6 = {}' \
+                      '\noff_cloud16_6 = {} \nloc16_6 = {} \ndeadlock16_6 = {}' \
+                      '\nmemory16_6 = {} " >> data.py'.format(mec_waiting_time, mec_rtt, _cpu, _off_mec, _off_cloud,
+                                                              _loc,
+                                                              deadlock, memory)
+                os.system(cmd)
                 break
 
 
