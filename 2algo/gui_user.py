@@ -403,7 +403,7 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                cmd = 'echo "record = {} \ntask_record = {} \nhost_names = {}" >> record.py'.format(
+                cmd = 'echo "record4 = {} \ntask_record4 = {} \nhost_names4 = {}" >> record.py'.format(
                     record,
                     task_record,
                     host_dict)
