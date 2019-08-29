@@ -174,7 +174,7 @@ def plot_offloaded_remote():
 
 
 def plot_deadlock():
-    cols = ['r']
+    # cols = ['r']
     text = str(deadlock[-1] - 1) + " Deadlock Resolved"
     '''
     wedges, texts, autotexts = ax5.pie(deadlock, shadow=True, autopct=text,
@@ -497,7 +497,7 @@ def wait_die(processes, avail, n_need, allocat):
     if len(offload) > 0:
         print('offloading tasks: ', offload)
         cooperative_mec(offload)
-        deadlock += 1
+        deadlock[0] += 1
 
     print('Execution seq: ', exec_seq)
 
@@ -529,7 +529,9 @@ def calc_wait_time(list_seq):
         j = i.split('_')[0]           # i = 't5_3_3', j = 't5_3'
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)            # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)
+
     send_message('wt {} {}'.format(ip_address(), str(w_send)))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
@@ -606,7 +608,8 @@ def receive_message():
         elif _d[:2] == 'wt':
             split_data = _d.split()
             if split_data[1] != host_ip:
-                w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
+                # calcuate moving average of mec wait time => w_time = wait time + rtt
+                w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(address[0]))
                 if split_data[1] in mec_waiting_time:
                     mec_waiting_time[split_data[1]].append(w_time)
                 else:
@@ -642,7 +645,8 @@ def cooperative_mec(mec_list):
             send = 'false'
             if not (False in list(np.greater_equal(_max, _need[j[:2]]))):
                 send = 'true'
-            if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
+            # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
+            if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':
                 send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
                 _off_mec += 1
 
