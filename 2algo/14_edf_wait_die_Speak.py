@@ -455,32 +455,33 @@ def receive_message():
     while True:
         if stop == 1:
             break
-        data, address = sock1.recvfrom(1024)
-        _d = data.decode()
-        if _d[:5] == 'hello':
-            _data = ast.literal_eval(_d[6:])
-            hosts[_data[0]] = _data[1]
-            # print('received: ', hosts)
-            if _data[1] != host_ip:
-                mec_rtt[_data[1]] = []
+        else:
+            data, address = sock1.recvfrom(1024)
+            _d = data.decode()
+            if _d[:5] == 'hello':
+                _data = ast.literal_eval(_d[6:])
+                hosts[_data[0]] = _data[1]
+                # print('received: ', hosts)
+                if _data[1] != host_ip:
+                    mec_rtt[_data[1]] = []
 
-        elif (_d[:6] == 'update') and (discovering == 0):
-            hosts = ast.literal_eval(_d[7:])
-            # print('received: ', hosts)
+            elif (_d[:6] == 'update') and (discovering == 0):
+                hosts = ast.literal_eval(_d[7:])
+                # print('received: ', hosts)
 
-        elif _d[:2] == 'wt':
-            split_data = _d.split()
-            if split_data[1] != host_ip:
-                w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(
-                    address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
+            elif _d[:2] == 'wt':
+                split_data = _d.split()
+                if split_data[1] != host_ip:
+                    w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(
+                        address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
 
-                if split_data[1] in mec_waiting_time:
-                    mec_waiting_time[split_data[1]].append(w_time)
-                else:
-                    mec_waiting_time[split_data[1]] = [w_time]
+                    if split_data[1] in mec_waiting_time:
+                        mec_waiting_time[split_data[1]].append(w_time)
+                    else:
+                        mec_waiting_time[split_data[1]] = [w_time]
 
-        elif data.decode().strip() == 'user':
-            send_message('update')
+            elif data.decode().strip() == 'user':
+                send_message('update')
 
 
 def mec_comparison():
@@ -562,21 +563,22 @@ def receive_offloaded_task_mec():    # run as a thread
     while True:
         if stop == 1:
             break
-        data, address = sock2.recvfrom(1024)
-        if len(data.decode()) > 0:
-            da = data.decode().split(' ')
-            if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
-                # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
-                _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
-            elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
-                _received = ast.literal_eval(da[2] + da[3])
-                shared_resource_lock.acquire()
-                task = _received[0] + '*{}'.format(t_track)
-                reoffload_list[0].append(task)
-                reoffload_list[1][task] = _received[1]
-                shared_resource_lock.release()
-                t_track += 1
-                _inward_mec += 1
+        else:
+            data, address = sock2.recvfrom(1024)
+            if len(data.decode()) > 0:
+                da = data.decode().split(' ')
+                if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
+                    # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
+                    _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
+                elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
+                    _received = ast.literal_eval(da[2] + da[3])
+                    shared_resource_lock.acquire()
+                    task = _received[0] + '*{}'.format(t_track)
+                    reoffload_list[0].append(task)
+                    reoffload_list[1][task] = _received[1]
+                    shared_resource_lock.release()
+                    t_track += 1
+                    _inward_mec += 1
 
 
 def call_execute_re_offload():
@@ -585,22 +587,23 @@ def call_execute_re_offload():
     while True:
         if stop == 1:
             break
-        if len(reoffload_list[0]) == 1:
-            t = reoffload_list[0][-1]
-            time.sleep(reoffload_list[1][t]/2)
-            shared_resource_lock.acquire()
-            reoffload_list[0].remove(t)
-            del reoffload_list[1][t]
-            shared_resource_lock.release()
-            send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
-        elif len(reoffload_list[0]) > 1:
-            o = reoffload_list.copy()
-            execute_re_offloaded_task(o)
-            for i in o[0]:
+        else:
+            if len(reoffload_list[0]) == 1:
+                t = reoffload_list[0][-1]
+                time.sleep(reoffload_list[1][t]/2)
                 shared_resource_lock.acquire()
-                reoffload_list[0].remove(i)
-                del reoffload_list[1][i]
+                reoffload_list[0].remove(t)
+                del reoffload_list[1][t]
                 shared_resource_lock.release()
+                send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
+            elif len(reoffload_list[0]) > 1:
+                o = reoffload_list.copy()
+                execute_re_offloaded_task(o)
+                for i in o[0]:
+                    shared_resource_lock.acquire()
+                    reoffload_list[0].remove(i)
+                    del reoffload_list[1][i]
+                    shared_resource_lock.release()
 
         time.sleep(1)
 
@@ -692,15 +695,14 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                stop += 1
-                _client.loop_stop()
-
                 cmd = 'echo "wt_16_4 = {} \nrtt_16_4 = {} \ncpu_16_4 = {} \noff_mec16_4 = {}' \
                       '\noff_cloud16_4 = {} \nloc16_4 = {} \ndeadlock16_4 = {}' \
                       '\nmemory16_4 = {} " >> data.py'.format(mec_waiting_time, mec_rtt, _cpu, _off_mec, _off_cloud,
                                                               _loc,
                                                               deadlock, memory)
                 os.system(cmd)
+                stop += 1
+                _client.loop_stop()
 
                 break
 
