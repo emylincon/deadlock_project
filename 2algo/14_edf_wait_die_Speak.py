@@ -703,6 +703,7 @@ def start_loop():
                 os.system(cmd)
                 stop += 1
                 _client.loop_stop()
+                print('done')
 
                 break
 

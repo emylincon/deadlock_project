@@ -410,6 +410,7 @@ def main():
 
                 os.system(cmd)
                 task_client.loop_stop()
+                print('done')
                 break
         except KeyboardInterrupt:
             print('\nProgramme terminated')
