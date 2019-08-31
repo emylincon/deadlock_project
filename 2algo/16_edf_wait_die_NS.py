@@ -124,7 +124,7 @@ def ip_address():
 def _memory():
     global memory
 
-    memory.append(algo.memory_percent())
+    memory.append(round(algo.memory_percent(), 4))
 
 
 def m_cpu():
@@ -134,7 +134,7 @@ def m_cpu():
     next_t = psutil.cpu_percent(percpu=False)
     delta = abs(prev_t - next_t)
     prev_t = next_t
-    _cpu.append(delta)
+    _cpu.append(round(delta, 4))
 
 
 def get_mec_rtts():
@@ -170,7 +170,7 @@ def get_time():
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
 
-    return rtt
+    return round(rtt, 4)
 
 
 def gcd(a, b):
@@ -401,7 +401,7 @@ def calculate_mov_avg(ma1, a1):
     avg1 = ((_count - 1) * avg1 + a1) / _count
     # ma1.append(avg1) #cumulative average formula
     # μ_n=((n-1) μ_(n-1)  + x_n)/n
-    return avg1
+    return round(avg1, 4)
 
 
 def send_message(mg):
