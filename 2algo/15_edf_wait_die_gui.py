@@ -126,7 +126,7 @@ def _mov_avg(a1):
     for i in range(len(a1)):
         count += 1
         avg1 = ((count-1)*avg1+a1[i])/count
-        ma1.append(avg1)    # cumulative average formula
+        ma1.append(round(avg1, 2))    # cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
 
@@ -194,7 +194,7 @@ def plot_deadlock():
 def plot_memory():
     global memory
 
-    memory.append(algo.memory_percent())
+    memory.append(round(algo.memory_percent(), 2))
 
     ax6.grid(True)
     ax6.plot(list(range(len(_mov_avg(memory)))), _mov_avg(memory), linewidth=2, label='Memory', color='m')
@@ -260,7 +260,7 @@ def plot_cpu():
     next_t = psutil.cpu_percent(percpu=False)
     delta = abs(prev_t - next_t)
     prev_t = next_t
-    _cpu.append(delta)
+    _cpu.append(round(delta, 2))
 
     # plot graph
     ax4.grid(True)
@@ -316,7 +316,7 @@ def host_ip_set():
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
 
-    return rtt
+    return round(rtt, 2)
 
 
 def get_time():
@@ -562,7 +562,7 @@ def calculate_mov_avg(ma1, a1):
     avg1 = ((_count - 1) * avg1 + a1) / _count
     # ma1.append(avg1) #cumulative average formula
     # μ_n=((n-1) μ_(n-1)  + x_n)/n
-    return avg1
+    return round(avg1, 2)
 
 
 def send_message(mg):
