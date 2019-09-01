@@ -793,6 +793,7 @@ def start_loop():
     # print('node id: ', node_id)
     _threads_ = [receive_offloaded_task_mec, call_execute_re_offload, connect_to_broker]
     for i in _threads_:
+        thread_record.append(Thread(target=i))
         Thread(target=i).daemon = True
         Thread(target=i).start()
 
@@ -834,6 +835,8 @@ def start_loop():
                                                               _loc,
                                                               deadlock, memory)
                 os.system(cmd)
+                for i in thread_record:
+                    i.join()
                 stop += 1
                 _client.loop_stop()
                 print('done')
@@ -853,6 +856,8 @@ def initialization():
         print('\nCompiling MEC Details')
         h1 = Thread(target=receive_message)
         h2 = Thread(target=receive_offloaded_task_mec)
+        thread_record.append(h1)
+        thread_record.append(h2)
         h1.daemon = True
         h2.daemon = True
         h1.start()

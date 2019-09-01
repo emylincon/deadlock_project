@@ -14,6 +14,7 @@ def yes():
             break
         else:
             print('i am yes')
+            print('stop : ', stop)
             time.sleep(2)
 
 
