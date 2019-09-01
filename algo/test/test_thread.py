@@ -69,9 +69,10 @@ def start():
         x = input('Enter: ')
         if x == 'stop':
             os.system('echo "yes" >> da.py')
+            stop += 1
             for i in thread_record:
                 i.join()
-            stop += 1
+
             time.sleep(2)
             print('\nprogramme terminated')
             break
