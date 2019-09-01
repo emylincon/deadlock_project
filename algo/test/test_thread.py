@@ -10,6 +10,7 @@ def yes():
 
     while True:
         if stop == 1:
+            print('stopped yes')
             break
         else:
             print('i am yes')
@@ -21,6 +22,7 @@ def yes1():
 
     while True:
         if stop == 1:
+            print('stopped yes1')
             break
         else:
             print('i am yes1')
@@ -32,6 +34,7 @@ def yes2():
 
     while True:
         if stop == 1:
+            print('stopped yes2')
             break
         else:
             print('i am yes2')
@@ -43,6 +46,7 @@ def yes3():
 
     while True:
         if stop == 1:
+            print('stopped yes3')
             break
         else:
             print('i am yes3')
@@ -67,6 +71,7 @@ def start():
             for i in thread_record:
                 i.join()
             stop += 1
+            time.sleep(2)
             print('\nprogramme terminated')
             break
         else:
