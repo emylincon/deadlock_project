@@ -74,7 +74,7 @@ def start():
             for i in thread_record:
                 i.join()
             '''
-            time.sleep(2)
+            # time.sleep(2)
             print('\nprogramme terminated')
             break
         else:
