@@ -6,6 +6,8 @@ stop = 0
 
 
 def yes():
+    global stop
+
     while True:
         if stop == 1:
             break
@@ -15,6 +17,8 @@ def yes():
 
 
 def yes1():
+    global stop
+
     while True:
         if stop == 1:
             break
@@ -24,6 +28,8 @@ def yes1():
 
 
 def yes2():
+    global stop
+
     while True:
         if stop == 1:
             break
@@ -33,6 +39,8 @@ def yes2():
 
 
 def yes3():
+    global stop
+
     while True:
         if stop == 1:
             break
@@ -63,5 +71,6 @@ def start():
             break
         else:
             print('you: ', x)
+
 
 start()
