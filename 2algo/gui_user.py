@@ -8,6 +8,7 @@ from threading import Thread
 import random as r
 import time
 import datetime as dt
+import subprocess as sp
 import paho.mqtt.client as mqtt
 import matplotlib.pyplot as plt
 from drawnow import *
@@ -318,6 +319,12 @@ def receive_tasks():
         except KeyboardInterrupt:
             print('\nProgramme Forcefully Terminated')
             break
+
+
+def get_hostname():
+    cmd = ['cat /etc/hostname']
+    hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
+    return hostname
 
 
 def client_id(client_ip):
