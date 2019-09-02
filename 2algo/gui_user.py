@@ -433,7 +433,7 @@ def main():
                     task_record,
                     host_dict)
                 cmd = 'echo  "{}" >> record.py'.format(result)
-                print(cmd)
+                # print(cmd)
                 send_email(result)
                 os.system(cmd)
                 task_client.loop_stop()
