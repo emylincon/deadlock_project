@@ -843,6 +843,7 @@ def start_loop():
                     i.join()
 
                 _client.loop_stop()
+                time.sleep(1)
                 print('done')
 
                 break

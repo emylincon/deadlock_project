@@ -411,6 +411,7 @@ def main():
                 os.system(cmd)
                 task_client.loop_stop()
                 print('done')
+                # time.sleep(1)
                 break
         except KeyboardInterrupt:
             print('\nProgramme terminated')

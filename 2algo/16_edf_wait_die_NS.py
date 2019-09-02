@@ -681,6 +681,7 @@ def start_loop():
                 os.system(cmd)
                 stop += 1
                 _client.loop_stop()
+                time.sleep(1)
                 print('done')
 
                 break
