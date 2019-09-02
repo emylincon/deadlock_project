@@ -432,6 +432,7 @@ def receive_message():                 # used for multi-cast message exchange am
 
     while True:
         if stop == 1:
+            print('Stopped: receive_message()')
             break
         else:
             data, address = sock1.recvfrom(1024)
@@ -540,6 +541,7 @@ def receive_offloaded_task_mec():    # run as a thread
 
     while True:
         if stop == 1:
+            print('Stopped: receive_offloaded_task_mec()')
             break
         else:
             data, address = sock2.recvfrom(1024)
@@ -564,6 +566,7 @@ def call_execute_re_offload():
 
     while True:
         if stop == 1:
+            print('Stopped : call_execute_re_offload()')
             break
         else:
             if len(reoffload_list[0]) == 1:
