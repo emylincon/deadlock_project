@@ -592,6 +592,7 @@ def receive_message():
 
     while True:
         if stop == 1:
+            print('Stopped : receive_message')
             break
         else:
             data, address = sock1.recvfrom(1024)
@@ -699,6 +700,7 @@ def receive_offloaded_task_mec():    # run as a thread
 
     while True:
         if stop == 1:
+            print('Stopped: receive_offloaded_task_mec()')
             break
         else:
             data, address = sock2.recvfrom(1024)
@@ -723,6 +725,7 @@ def call_execute_re_offload():
 
     while True:
         if stop == 1:
+            print('Stopped: call_executed_re_offload()')
             break
         else:
             if len(reoffload_list[0]) == 1:
@@ -835,9 +838,10 @@ def start_loop():
                                                               _loc,
                                                               deadlock, memory)
                 os.system(cmd)
+                stop += 1
                 for i in thread_record:
                     i.join()
-                stop += 1
+
                 _client.loop_stop()
                 print('done')
 
