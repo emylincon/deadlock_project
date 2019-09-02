@@ -428,7 +428,7 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                result = "record5 = {} \ntask_record5 = {} \nhost_names5 = {}".format(
+                result = "record6 = {} \ntask_record6 = {} \nhost_names6 = {}".format(
                     record,
                     task_record,
                     host_dict)
