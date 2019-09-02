@@ -407,7 +407,7 @@ def main():
                     record,
                     task_record,
                     host_dict)
-
+                print(cmd)
                 os.system(cmd)
                 task_client.loop_stop()
                 print('done')

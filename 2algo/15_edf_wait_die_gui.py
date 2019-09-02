@@ -18,6 +18,8 @@ from drawnow import *
 from matplotlib import pyplot as plt
 from netifaces import interfaces, ifaddresses, AF_INET
 import paho.mqtt.client as mqtt
+import smtplib
+import config
 
 
 hosts = {}  # {hostname: ip}
@@ -757,6 +759,22 @@ def send_offloaded_task_mec(msg):
         print(e)
 
 
+def send_email(msg):
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com')
+        server.ehlo()
+        server.login(config.email_address, config.password)
+        subject = 'Deadlock results'
+        # msg = 'Attendance done for {}'.format(_timer)
+        _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
+        server.sendmail(config.email_address, config.send_email, _message)
+        server.quit()
+        print("Email sent!")
+    except Exception as e:
+        print(e)
+
+
 def mec_id(client_ip):
 
     _id = client_ip.split('.')[-1]
@@ -832,12 +850,13 @@ def start_loop():
                     time.sleep(.5)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                cmd = 'echo "wt_16_4 = {} \nrtt_16_4 = {} \ncpu_16_4 = {} \noff_mec16_4 = {}' \
-                      '\noff_cloud16_4 = {} \nloc16_4 = {} \ndeadlock16_4 = {}' \
-                      '\nmemory16_4 = {} " >> data.py'.format(mec_waiting_time, mec_rtt, _cpu, _off_mec, _off_cloud,
-                                                              _loc,
-                                                              deadlock, memory)
+                result = "wt_16_4 = {} \nrtt_16_4 = {} \ncpu_16_4 = {} \noff_mec16_4 = {} \noff_cloud16_4 = {} " \
+                         "\nloc16_4 = {} \ndeadlock16_4 = {} \nmemory16_4 = {}".format(mec_waiting_time, mec_rtt, _cpu,
+                                                                                       _off_mec, _off_cloud, _loc,
+                                                                                       deadlock, memory)
+                cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
+                send_email(result)
                 stop += 1
                 for i in thread_record:
                     i.join()

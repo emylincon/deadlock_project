@@ -18,6 +18,8 @@ import datetime as dt
 import getpass as gp
 import paho.mqtt.client as mqtt
 from netifaces import interfaces, ifaddresses, AF_INET
+import smtplib
+import config
 
 
 hosts = {}  # {hostname: ip}
@@ -611,6 +613,22 @@ def call_execute_re_offload():
         time.sleep(1)
 
 
+def send_email(msg):
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com')
+        server.ehlo()
+        server.login(config.email_address, config.password)
+        subject = 'Deadlock results'
+        # msg = 'Attendance done for {}'.format(_timer)
+        _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
+        server.sendmail(config.email_address, config.send_email, _message)
+        server.quit()
+        print("Email sent!")
+    except Exception as e:
+        print(e)
+
+
 def send_offloaded_task_mec(msg):
     _multicast_group = ('224.5.5.55', 20000)
     try:
@@ -698,13 +716,17 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                cmd = 'echo "wt_16_4 = {} \nrtt_16_4 = {} \ncpu_16_4 = {} \noff_mec16_4 = {}' \
-                      '\noff_cloud16_4 = {} \nloc16_4 = {} \ndeadlock16_4 = {}' \
-                      '\nmemory16_4 = {} " >> data.py'.format(mec_waiting_time, mec_rtt, _cpu, _off_mec, _off_cloud,
-                                                              _loc,
-                                                              deadlock, memory)
+                result = "wt_16_4 = {} \nrtt_16_4 = {} \ncpu_16_4 = {} \noff_mec16_4 = {} \noff_cloud16_4 = {} " \
+                         "\nloc16_4 = {} \ndeadlock16_4 = {} \nmemory16_4 = {}".format(mec_waiting_time, mec_rtt, _cpu,
+                                                                                       _off_mec, _off_cloud, _loc,
+                                                                                       deadlock, memory)
+                cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
+                send_email(result)
                 stop += 1
+                for i in thread_record:
+                    i.join()
+
                 _client.loop_stop()
                 time.sleep(1)
                 print('done')
