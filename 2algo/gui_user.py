@@ -409,7 +409,7 @@ def main():
         try:
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
             if x == 'y':
-                for i in range(600):
+                for i in range(10):
                     seq = i
                     rand_host = hosts[gosh_dist(len(hosts))]      # randomly selecting a host to send task to
                     _task_ = get_tasks()                 # tasks, waiting time
