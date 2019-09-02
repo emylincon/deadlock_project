@@ -858,13 +858,14 @@ def start_loop():
                 os.system(cmd)
                 send_email(result)
                 stop += 1
+                '''
                 for i in thread_record:
                     i.join()
-
+                '''
                 _client.loop_stop()
                 time.sleep(1)
                 print('done')
-
+                os.system('kill -9 {}'.format(os.getpid()))
                 break
 
 

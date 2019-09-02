@@ -707,7 +707,7 @@ def start_loop():
                 _client.loop_stop()
                 time.sleep(1)
                 print('done')
-
+                os.system('kill -9 {}'.format(os.getpid()))
                 break
 
 
