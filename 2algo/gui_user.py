@@ -12,6 +12,8 @@ import subprocess as sp
 import paho.mqtt.client as mqtt
 import matplotlib.pyplot as plt
 from drawnow import *
+import smtplib
+import config
 
 
 port = 65000        # The port used by the server
@@ -327,6 +329,22 @@ def get_hostname():
     return hostname
 
 
+def send_email(msg):
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com')
+        server.ehlo()
+        server.login(config.email_address, config.password)
+        subject = 'Deadlock results {}'.format(get_hostname())
+        # msg = 'Attendance done for {}'.format(_timer)
+        _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
+        server.sendmail(config.email_address, config.send_email, _message)
+        server.quit()
+        print("Email sent!")
+    except Exception as e:
+        print(e)
+
+
 def client_id(client_ip):
 
     _id = client_ip.split('.')[-1]
@@ -410,16 +428,19 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                cmd = 'echo "record4 = {} \ntask_record4 = {} \nhost_names4 = {}" >> record.py'.format(
+                result = "record4 = {} \ntask_record4 = {} \nhost_names4 = {}".format(
                     record,
                     task_record,
                     host_dict)
+                cmd = 'echo  "{}" >> record.py'.format(result)
                 print(cmd)
+                send_email(result)
                 os.system(cmd)
                 task_client.loop_stop()
                 print('done')
-                # time.sleep(1)
+                time.sleep(1)
                 break
+
         except KeyboardInterrupt:
             print('\nProgramme terminated')
             task_client.loop_stop()
