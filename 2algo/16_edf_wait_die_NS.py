@@ -691,8 +691,8 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = "wt_16_4 = {} \nrtt_16_4 = {} \ncpu_16_4 = {} \noff_mec16_4 = {} \noff_cloud16_4 = {} " \
-                         "\nloc16_4 = {} \ndeadlock16_4 = {} \nmemory16_4 = {}".format(mec_waiting_time, mec_rtt, _cpu,
+                result = "wt_16_5 = {} \nrtt_16_5 = {} \ncpu_16_5 = {} \noff_mec16_5 = {} \noff_cloud16_5 = {} " \
+                         "\nloc16_5 = {} \ndeadlock16_5 = {} \nmemory16_5 = {}".format(mec_waiting_time, mec_rtt, _cpu,
                                                                                        _off_mec, _off_cloud, _loc,
                                                                                        deadlock, memory)
                 cmd = 'echo "{}" >> data.py'.format(result)
