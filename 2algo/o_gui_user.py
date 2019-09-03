@@ -10,6 +10,9 @@ import datetime as dt
 import paho.mqtt.client as mqtt
 # import matplotlib.pyplot as plt
 from drawnow import *
+import subprocess as sp
+import config
+import smtplib
 import record as rc
 
 hosts = {}  # {hostname: ip}
@@ -284,6 +287,28 @@ def receive_data(_con, _addr):
                 break
 
 
+def get_hostname():
+    cmd = ['cat /etc/hostname']
+    hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
+    return hostname
+
+
+def send_email(msg):
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com')
+        server.ehlo()
+        server.login(config.email_address, config.password)
+        subject = 'Deadlock results {}'.format(get_hostname())
+        # msg = 'Attendance done for {}'.format(_timer)
+        _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
+        server.sendmail(config.email_address, config.send_email, _message)
+        server.quit()
+        print("Email sent!")
+    except Exception as e:
+        print(e)
+
+
 def client_id(client_ip):
 
     _id = client_ip.split('.')[-1]
@@ -323,7 +348,7 @@ def main():
         time.sleep(1)
         if len(hosts) > 0:
             break
-    print('Client is connected to servers: {}'.format(hosts))
+    print('\nClient is connected to servers: \n{}'.format(hosts))
     while True:
         try:
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
@@ -347,15 +372,15 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                cmd = 'echo "task_record16 = {} \nhost_names16 = {}' \
-                      '\ntimely16 = {} \nuntimely16 = {}" >> record.py'.format(
-                                                                           task_record,
-                                                                           ho,
-                                                                           tasks_executed_on_time,
-                                                                           tasks_not_executed_on_time)
-
+                result = "timely4 = {} \nuntimely4 = {}".format(
+                     tasks_executed_on_time, tasks_not_executed_on_time)
+                cmd = 'echo  "{}" >> record.py'.format(result)
                 os.system(cmd)
+                send_email(result)
+
                 task_client.loop_stop()
+                print('done')
+                time.sleep(1)
                 break
         except KeyboardInterrupt:
             print('\nProgramme terminated')

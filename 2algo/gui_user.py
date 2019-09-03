@@ -428,10 +428,10 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                result = "record6 = {} \ntask_record6 = {} \nhost_names6 = {}".format(
+                result = "record6 = {} \ntask_record6 = {} \nhost_names6 = {} \ntimely16 = {} \nuntimely16 = {}".format(
                     record,
                     task_record,
-                    host_dict)
+                    host_dict, tasks_executed_on_time, tasks_not_executed_on_time)
                 cmd = 'echo  "{}" >> record.py'.format(result)
                 os.system(cmd)
                 send_email(result)
