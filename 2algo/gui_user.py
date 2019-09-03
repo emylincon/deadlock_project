@@ -433,9 +433,9 @@ def main():
                     task_record,
                     host_dict)
                 cmd = 'echo  "{}" >> record.py'.format(result)
-                # print(cmd)
-                send_email(result)
                 os.system(cmd)
+                send_email(result)
+
                 task_client.loop_stop()
                 print('done')
                 time.sleep(1)
