@@ -311,7 +311,7 @@ def scheduler(_lcm_):               # RMS algorithm
     return rms
 
 
-# generate execution sequence
+# generate execution sequence  using banker's algorithm
 def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
     need = [_need_[i] for i in _need_]
     _allot_ = [allot[i] for i in allot]
