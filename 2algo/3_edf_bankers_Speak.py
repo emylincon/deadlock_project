@@ -245,70 +245,52 @@ def connect_to_broker():
     _client.loop_forever()
 
 
-def load_tasks():
-    global tasks
+def edf():
+    t_lcm = lcm([tasks[i]['period'] for i in tasks])
 
-    period_list = [tasks[i]['period'] for i in tasks]
+    t_dead = {i: tasks[i]['deadline'] for i in tasks}
 
-    lcm_period = lcm(period_list)
-    # insert idle task
-    tasks['idle'] = {'wcet': lcm_period, 'period': lcm_period + 1}
-    return lcm_period
+    sorted_dead = sorted(t_dead.items(), key=lambda kv: (kv[1], kv[0]))
+    # print(sorted_dead)
 
+    ready_task = []
+    for i in sorted_dead:
+        period = tasks[i[0]]['period']
+        # print('lcm: ', t_lcm, ' period: ', period)
+        t_range = int(t_lcm/period)
+        last_dead = 0
+        for j in range(t_range):
+            ready_task.append((i[0], last_dead+tasks[i[0]]['deadline']))
+            last_dead += period
 
-def scheduler(_lcm_):               # RMS algorithm
-    queue = list(tasks.keys())  # initialize task queue
+    ready_task = sorted(ready_task, key=lambda t: t[1])
+    print(ready_task)
+
+    t_time_ = 0
     schedule = []
-    rms = []
-    curr = ''  # current task
-    prev = ''  # previous task
-    tmp = {}
-    for task in tasks.keys():
-        tmp[task] = {}  # temporary data for each task
-        tmp[task]['deadline'] = tasks[task]['period']
-        tmp[task]['executed'] = 0
+    missed = []
+    register = {i: 0 for i in tasks.keys()}   # {ti : amount executed}
+    for i in ready_task:
+        if (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
+            while (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
+                t_time_ += 1
+                # schedule.append(('idle', t_time))
+        if (t_time_//tasks[i[0]]['period'])+1 > register[i[0]]:
+            if t_time_ + tasks[i[0]]['wcet'] <= i[1]:
+                register[i[0]] += 1
+                t_time_ += tasks[i[0]]['wcet']
+                schedule.append(i[0])
+            else:
+                print('Deadline missed: ', i)
+                missed.append(i[0])
 
-    # start scheduling...
-    # proceed by one timestamp to handle preemption
-    for _time_ in range(_lcm_):
-        # insert new tasks into the queue
-        for t in tmp.keys():
-            if _time_ == tmp[t]['deadline']:
-                if tasks[t]['wcet'] > tmp[t]['executed']:
-                    # print('Scheduling Failed at %d' % time)
-                    exit(1)
-                else:
-                    tmp[t]['deadline'] += tasks[t]['period']
-                    tmp[t]['executed'] = 0
-                    queue.append(t)
-        # select next task to be scheduled
-        _min_ = _lcm_ * 2
-        for task in queue:
-            if tmp[task]['deadline'] < _min_:
-                _min_ = tmp[task]['deadline']
-                curr = task
-        tmp[curr]['executed'] += 1
-        # print(time, queue, curr)
+    # print('s : ', schedule)
+    # print('r: ', register)
+    if len(missed) > 0:
+        # print('missed deadline: ', missed)
+        cooperative_mec(missed)
 
-        # dequeue the execution-completed task
-        if tmp[curr]['executed'] == tasks[curr]['wcet']:
-            for i in range(len(queue)):
-                if curr == queue[i]:
-                    del queue[i]
-                    break
-
-        # record to the schedule trace
-        if prev != curr:
-            if prev in queue and prev != 'idle':  # previous task is preempted..
-                s = schedule.pop()
-                schedule.append([s[0], s[1], '*'])
-                rms.append(s[1])
-            schedule.append([_time_, curr])
-            if curr != 'idle':
-                rms.append(curr)
-        prev = curr
-
-    return rms
+    return schedule
 
 
 # generate execution sequence  using banker's algorithm
@@ -667,7 +649,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+bankers {}'.format(message())
+        subject = 'Deadlock results edf+bankers {}'.format(message())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -744,8 +726,8 @@ def start_loop():
                     print('EDF List of Processes: ', tasks, '\n')
 
                     print('\n========= Running Deadlock Algorithm ===========')
-                    a = load_tasks()
-                    list_seq = get_exec_seq(scheduler(a))
+
+                    list_seq = get_exec_seq(edf())
                     if len(list_seq) > 0:  # do only when there is a task in safe sequence
                         wait_list = calc_wait_time(list_seq)
                         print('\nWaiting Time List: ', wait_list)
@@ -765,8 +747,8 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = "wt_2_4 = {} \nrtt_2_4 = {} \ncpu_2_4 = {} \noff_mec2_4 = {} \noff_cloud2_4 = {} " \
-                         "\nloc2_4 = {} \ndeadlock2_4 = {} \nmemory2_4 = {}".format(mec_waiting_time, mec_rtt, _cpu,
+                result = "wt_3_4 = {} \nrtt_3_4 = {} \ncpu_3_4 = {} \noff_mec3_4 = {} \noff_cloud3_4 = {} " \
+                         "\nloc3_4 = {} \ndeadlock3_4 = {} \nmemory3_4 = {}".format(mec_waiting_time, mec_rtt, _cpu,
                                                                                     _off_mec, _off_cloud, _loc,
                                                                                     deadlock, memory)
                 cmd = 'echo "{}" >> data.py'.format(result)
