@@ -85,7 +85,7 @@ def isSafe(processes, avail, maxm, allot):
 
         # If we could not find a next process
         # in safe sequence.
-        if (found == False):
+        if not found:
             print("System is not in safe state")
 
             a = list(set(processes) - set(safeSeq) - set(offload))

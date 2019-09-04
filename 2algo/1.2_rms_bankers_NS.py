@@ -245,7 +245,7 @@ def load_tasks():
     return lcm_period
 
 
-def scheduler(D):               # RMS algorithm
+def scheduler(_lcm_):               # RMS algorithm
     queue = list(tasks.keys())  # initialize task queue
     schedule = []
     rms = []
@@ -259,10 +259,10 @@ def scheduler(D):               # RMS algorithm
 
     # start scheduling...
     # proceed by one timestamp to handle preemption
-    for time in range(D):
+    for _time_ in range(_lcm_):
         # insert new tasks into the queue
         for t in tmp.keys():
-            if time == tmp[t]['deadline']:
+            if _time_ == tmp[t]['deadline']:
                 if tasks[t]['wcet'] > tmp[t]['executed']:
                     # print('Scheduling Failed at %d' % time)
                     exit(1)
@@ -271,10 +271,10 @@ def scheduler(D):               # RMS algorithm
                     tmp[t]['executed'] = 0
                     queue.append(t)
         # select next task to be scheduled
-        min = D * 2
+        _min_ = _lcm_ * 2
         for task in queue:
-            if tmp[task]['deadline'] < min:
-                min = tmp[task]['deadline']
+            if tmp[task]['deadline'] < _min_:
+                _min_ = tmp[task]['deadline']
                 curr = task
         tmp[curr]['executed'] += 1
         # print(time, queue, curr)
@@ -292,36 +292,38 @@ def scheduler(D):               # RMS algorithm
                 s = schedule.pop()
                 schedule.append([s[0], s[1], '*'])
                 rms.append(s[1])
-            schedule.append([time, curr])
-            if curr != 'idle': rms.append(curr)
+            schedule.append([_time_, curr])
+            if curr != 'idle':
+                rms.append(curr)
         prev = curr
 
     return rms
 
 
 # generate execution sequence
-def is_safe(processes, avail, need, allot, p):     # bankers algorithm
+def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
+    need = [_need_[i] for i in _need_]
     # tasks to offload if exit
     offload = []
 
     # Number of resources
-    r = 3
+    res = 3
 
     # Mark all processes as infinish
     finish = [0] * p
 
     # To store safe sequence
-    safeSeq = [0] * p
+    safe_seq = [0] * p
 
     # Make a copy of available resources
-    work = [0] * r
-    for i in range(r):
+    work = [0] * res
+    for i in range(res):
         work[i] = avail[i]
 
         # While all processes are not finished
     # or system is not in safe state.
     count = 0
-    while (count < p):
+    while count < p:
 
         # Find a process which is not finish
         # and whose needs can be satisfied
@@ -331,26 +333,26 @@ def is_safe(processes, avail, need, allot, p):     # bankers algorithm
 
             # First check if a process is finished,
             # if no, go for next condition
-            if (finish[t] == 0):
+            if finish[t] == 0:
 
                 # Check if for all resources
                 # of current P need is less
                 # than work
-                for j in range(r):
+                for j in range(res):
                     if need[t][j] > work[j]:
                         break
 
                 # If all needs of p were satisfied.
-                if j == r - 1:
+                if j == res - 1:
 
                     # Add the allocated resources of
                     # current P to the available/work
                     # resources i.e.free the resources
-                    for k in range(r):
+                    for k in range(res):
                         work[k] += allot[t][k]
 
                         # Add this process to safe sequence.
-                    safeSeq[count] = processes[t]
+                    safe_seq[count] = processes[t]
                     count += 1
 
                     # Mark this p as finished
@@ -360,10 +362,10 @@ def is_safe(processes, avail, need, allot, p):     # bankers algorithm
 
         # If we could not find a next process
         # in safe sequence.
-        if (found == False):
+        if not found:
             print("System is not in safe state")
 
-            a = list(set(processes) - set(safeSeq) - set(offload))
+            a = list(set(processes) - set(safe_seq) - set(offload))
             _max = np.array([0, 0, 0])
             n = {}
             for i in a:
@@ -381,15 +383,15 @@ def is_safe(processes, avail, need, allot, p):     # bankers algorithm
     # If system is in safe state then
     # safe sequence will be as below
     if len(offload) > 0:
-        safeSeq = safeSeq[:safeSeq.index(0)]
+        safe_seq = safe_seq[:safe_seq.index(0)]
         print('offloading tasks: ', offload)
         cooperative_mec(offload)
         deadlock[0] += 1
     print("System is in safe state.",
           "\nSafe sequence is: ", end=" ")
-    print('safe seq: ', safeSeq)
+    print('safe seq: ', safe_seq)
 
-    return safeSeq
+    return safe_seq
 
 
 def get_exec_seq(pro):
