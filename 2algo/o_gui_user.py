@@ -335,7 +335,7 @@ def main():
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
     get_mec_details()
-    client_id_ = list(rc.record6[0][0][0].keys())[0].split('.')[2]
+    client_id_ = list(rc.record4[0][0][0].keys())[0].split('.')[2]
     '''
     thread_record.append(Thread(target=receive_tasks))
     thread_record[-1].daemon = True
@@ -353,8 +353,8 @@ def main():
         try:
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
             if x == 'y':
-                for i in rc.record6:
-                    seq = rc.record6.index(i)
+                for i in rc.record4:
+                    seq = rc.record4.index(i)
                     rand_host = ho[i[1]]      # randomly selecting a host to send task to
                     # _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
@@ -372,8 +372,8 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                result = "timely6 = {} \nuntimely6 = {}".format(
-                     tasks_executed_on_time, tasks_not_executed_on_time)
+                result = "timely{} = {} \nuntimely{} = {}".format(
+                    len(hosts), tasks_executed_on_time, len(hosts), tasks_not_executed_on_time)
                 cmd = 'echo  "{}" >> record.py'.format(result)
                 os.system(cmd)
                 send_email(result)
