@@ -17,7 +17,7 @@ import record as rc
 
 hosts = {}  # {hostname: ip}
 
-record = []  # records the task list and execution and waiting time and host sent
+# record = []  # records the task list and execution and waiting time and host sent
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
@@ -299,7 +299,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results {}'.format(get_hostname())
+        subject = 'Deadlock results rms+bankers {}'.format(get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -328,14 +328,14 @@ def name_task(task_list, node_id, seq_no):
 
 
 def main():
-    global record
+    # global record
     global client_id_
     global seq
 
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
     get_mec_details()
-    client_id_ = list(rc.record[0][0][0].keys())[0].split('.')[2]
+    client_id_ = list(rc.record4[0][0][0].keys())[0].split('.')[2]
     '''
     thread_record.append(Thread(target=receive_tasks))
     thread_record[-1].daemon = True
@@ -353,8 +353,8 @@ def main():
         try:
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
             if x == 'y':
-                for i in rc.record:
-                    seq = rc.record.index(i)
+                for i in rc.record4:
+                    seq = rc.record4.index(i)
                     rand_host = ho[i[1]]      # randomly selecting a host to send task to
                     # _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
