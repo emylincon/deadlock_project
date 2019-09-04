@@ -312,98 +312,52 @@ def scheduler(_lcm_):               # RMS algorithm
 
 
 # generate execution sequence  using banker's algorithm
-def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
-    need = [_need_[i] for i in _need_]
-    _allot_ = [allot[i] for i in allot]
-    # tasks to offload if exit
+def wound_wait(processes, avail, n_need, allocat):
+    global deadlock
+
     offload = []
 
-    # Number of resources
-    res = 3
-
-    # Mark all processes as unfinished
-    finish = [0] * p
-
-    # To store safe sequence
-    safe_seq = [0] * p
+    # To store execution sequence
+    exec_seq = []
 
     # Make a copy of available resources
-    work = [0] * res
-    for i in range(res):
-        work[i] = avail[i]
+    work = [0] * len(processes)
 
-        # While all processes are not finished
+    # While all processes are not finished
     # or system is not in safe state.
-    count = 0
-    while count < p:
+    while 0 in work:
+        ind = work.index(0)
+        i = processes[ind]
+        # print('comparing| process: ', i, n_need[i], 'work: ', avail)
+        if not (False in list(np.greater_equal(avail, n_need[i]))):
+            exec_seq.append(i)
+            avail = np.add(avail, allocat[i])
+            work[ind] = 1
 
-        # Find a process which is not finish
-        # and whose needs can be satisfied
-        # with current work[] resources.
-        found = False
-        for t in range(p):
-
-            # First check if a process is finished,
-            # if no, go for next condition
-            if finish[t] == 0:
-
-                # Check if for all resources
-                # of current P need is less
-                # than work
-                for j in range(res):
-                    if need[t][j] > work[j]:
-                        break
-
-                # If all needs of p were satisfied.
-                if j == res - 1:
-
-                    # Add the allocated resources of
-                    # current P to the available/work
-                    # resources i.e.free the resources
-                    for k in range(res):
-                        work[k] += _allot_[t][k]
-
-                        # Add this process to safe sequence.
-                    safe_seq[count] = processes[t]
-                    count += 1
-
-                    # Mark this p as finished
-                    finish[t] = 1
-
-                    found = True
-
-        # If we could not find a next process
-        # in safe sequence.
-        if not found:
-            print("System is not in safe state")
-
-            a = list(set(processes) - set(safe_seq) - set(offload))
-            _max = np.array([0, 0, 0])
+        else:
+            a = list(set(processes) - set(exec_seq) - set(offload))
             n = {}
-            for i in a:
-                n[i] = sum(allocation[i[:2]])
+            for j in a:
+                n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max[:2]])
-            offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max[:2]])
-            count += 1
+            # print('work: ', work, 'need: ', _need[_max])
+            if not (False in list(np.greater_equal(np.array(avail) + np.array(allocat[_max]), n_need[i]))):
+                offload.append(_max)
+                avail = np.array(avail) + np.array(allocat[_max])
+                work[processes.index(_max)] = 1
+            else:
+                offload.append(i)
+                avail = np.array(avail) + np.array(allocat[i])
+                work[processes.index(i)] = 1
 
-            # Mark this p as finished
-            finish[processes.index(_max)] = 1
-            found = True
-
-    # If system is in safe state then
-    # safe sequence will be as below
     if len(offload) > 0:
-        safe_seq = safe_seq[:safe_seq.index(0)]
         print('offloading tasks: ', offload)
         cooperative_mec(offload)
         deadlock[0] += 1
-    print("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    print('safe seq: ', safe_seq)
 
-    return safe_seq
+    print('Execution seq: ', exec_seq)
+
+    return exec_seq
 
 
 def get_exec_seq(pro):
@@ -421,7 +375,7 @@ def get_exec_seq(pro):
     allot = {i: allocation[i[:2]] for i in processes}
 
     # return execution sequence
-    return is_safe(processes, avail, n_need, allot, p)
+    return wound_wait(processes, avail, n_need, allot)
 
 
 def calc_wait_time(list_seq):
@@ -667,7 +621,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+bankers {}'.format(message())
+        subject = 'Deadlock results rms+wound_wait {}'.format(message())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -765,8 +719,8 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = "wt_2_6 = {} \nrtt_2_6 = {} \ncpu_2_6 = {} \noff_mec2_6 = {} \noff_cloud2_6 = {} " \
-                         "\nloc2_6 = {} \ndeadlock2_6 = {} \nmemory2_6 = {}".format(mec_waiting_time, mec_rtt, _cpu,
+                result = "wt_5_4 = {} \nrtt_5_4 = {} \ncpu_5_4 = {} \noff_mec5_4 = {} \noff_cloud5_4 = {} " \
+                         "\nloc5_4 = {} \ndeadlock5_4 = {} \nmemory5_4 = {}".format(mec_waiting_time, mec_rtt, _cpu,
                                                                                     _off_mec, _off_cloud, _loc,
                                                                                     deadlock, memory)
                 cmd = 'echo "{}" >> data.py'.format(result)
