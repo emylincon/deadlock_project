@@ -303,13 +303,14 @@ def scheduler(_lcm_):               # RMS algorithm
 # generate execution sequence
 def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
     need = [_need_[i] for i in _need_]
+    _allot_ = [allot[i] for i in allot]
     # tasks to offload if exit
     offload = []
 
     # Number of resources
     res = 3
 
-    # Mark all processes as infinish
+    # Mark all processes as unfinished
     finish = [0] * p
 
     # To store safe sequence
@@ -349,7 +350,7 @@ def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
                     # current P to the available/work
                     # resources i.e.free the resources
                     for k in range(res):
-                        work[k] += allot[t][k]
+                        work[k] += _allot_[t][k]
 
                         # Add this process to safe sequence.
                     safe_seq[count] = processes[t]
