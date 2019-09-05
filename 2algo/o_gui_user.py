@@ -349,12 +349,14 @@ def main():
         if len(hosts) > 0:
             break
     print('\nClient is connected to servers: \n{}'.format(hosts))
+    data = {4:rc.record4, 5:rc.record5, 6:rc.record6}
     while True:
         try:
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
+            _data_ = data[len(hosts)]
             if x == 'y':
-                for i in rc.record4:
-                    seq = rc.record4.index(i)
+                for i in _data_:
+                    seq = _data_.index(i)
                     rand_host = ho[i[1]]      # randomly selecting a host to send task to
                     # _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
