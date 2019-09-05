@@ -388,7 +388,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
-    avail = [5, 5, 5]
+    avail = [7, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -641,7 +641,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+wound_wait {}'.format(message())
+        subject = 'Deadlock results rms+wait_die {}'.format(message())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -739,9 +739,9 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = f"wt_7_{mec_no} = {mec_waiting_time} \nrtt_7_{mec_no} = {mec_rtt} \ncpu_7_{mec_no} = {_cpu} " \
-                         f"\noff_mec7_{mec_no} = {_off_mec} \noff_cloud7_{mec_no} = {_off_cloud} " \
-                         f"\nloc7_{mec_no} = {_loc} \ndeadlock7_{mec_no} = {deadlock} \nmemory7_{mec_no} = {memory}"
+                result = f"wt_10_{mec_no} = {mec_waiting_time} \nrtt_10_{mec_no} = {mec_rtt} \ncpu_10_{mec_no} = {_cpu} " \
+                         f"\noff_mec10_{mec_no} = {_off_mec} \noff_cloud10_{mec_no} = {_off_cloud} " \
+                         f"\nloc10_{mec_no} = {_loc} \ndeadlock10_{mec_no} = {deadlock} \nmemory10_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
                 send_email(result)
