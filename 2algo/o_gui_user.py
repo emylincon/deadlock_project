@@ -349,7 +349,7 @@ def main():
         if len(hosts) > 0:
             break
     print('\nClient is connected to servers: \n{}'.format(hosts))
-    data = {4:rc.record4, 5:rc.record5, 6:rc.record6}
+    data = {4: rc.record4, 5: rc.record5, 6: rc.record6}
     while True:
         try:
             x = input('Enter "y" to start and "stop" to exit: ').strip().lower()
