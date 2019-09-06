@@ -1,5 +1,3 @@
-# Author Emeka Ugwuanyi Emmanuel
-
 from functools import reduce
 from sys import *
 import numpy as np
@@ -8,16 +6,16 @@ import ping_code as pc
 import socket
 import struct
 import subprocess as sp
-from threading import Thread
 import threading
+from threading import Thread
 import ast
 import time
+import datetime as dt
 import os
 import psutil
-import datetime as dt
 import getpass as gp
-import paho.mqtt.client as mqtt
 from netifaces import interfaces, ifaddresses, AF_INET
+import paho.mqtt.client as mqtt
 import smtplib
 import config
 
@@ -55,8 +53,8 @@ _off_cloud = 0        # used to keep a count of tasks offloaded to cloud
 _loc = 0              # used to keep a count of tasks executed locally
 _inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
 deadlock = [1]          # keeps count of how many deadlock is resolved
-mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 memory = []
+mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 mec_rtt = {}               # {ip: [RTT]}
 
 offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
@@ -65,16 +63,14 @@ discovering = 0            # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
-# received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
-received_task_queue = []   # [(task_list,wait_time), ....]
+received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
 thread_record = []
-port = 65000
 _port_ = 64000
 cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
 stop = 0
-t_track = 1
 shared_resource_lock = threading.Lock()
+t_track = 1
 
 
 def discovering_group():
@@ -133,11 +129,6 @@ def _memory():
     memory.append(round(algo.memory_percent(), 4))
 
 
-def get_mec_rtts():
-    for i in mec_rtt:
-        mec_rtt[i].append(get_rtt(i))
-
-
 def m_cpu():
     global prev_t
 
@@ -146,6 +137,11 @@ def m_cpu():
     delta = abs(prev_t - next_t)
     prev_t = next_t
     _cpu.append(round(delta, 4))
+
+
+def get_mec_rtts():
+    for i in mec_rtt:
+        mec_rtt[i].append(get_rtt(i))
 
 
 def generate_results():
@@ -201,7 +197,6 @@ def on_connect(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
     connect_client.subscribe(node_id)
-    connect_client.subscribe('mec')
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -213,28 +208,22 @@ def on_message(message_client, userdata, msg):
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
 
-    elif data[0] == 't':     # receive from client
+    elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
-    '''
+
     else:
         print('data: ', data)
-    
-    elif data[0] == 't':
-        print('send: ', data[2:])
-    '''
 
 
 def connect_to_broker():
     global _client
     global broker_ip
-    global topic
 
     username = 'mec'
     password = 'password'
-    broker_ip = 'localhost'
+    broker_ip = hosts['speaker']
     broker_port_no = 1883
-    topic = 'mec'     # topic used to exchange mec details to clients
 
     _client = mqtt.Client()
     _client.on_connect = on_connect
@@ -311,79 +300,107 @@ def scheduler(_lcm_):               # RMS algorithm
     return rms
 
 
-# generate execution sequence  using wait_die algorithm
-def wait_die(processes, avail, n_need, allocat):
-    global deadlock
-
+# generate execution sequence
+def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
+    need = [_need_[i] for i in _need_]
+    _allot_ = [allot[i] for i in allot]
+    # tasks to offload if exit
     offload = []
 
-    # To store execution sequence
-    exec_seq = []
+    # Number of resources
+    res = 3
+
+    # Mark all processes as unfinished
+    finish = [0] * p
+
+    # To store safe sequence
+    safe_seq = [0] * p
 
     # Make a copy of available resources
-    work = [0] * len(processes)
+    work = [0] * res
+    for i in range(res):
+        work[i] = avail[i]
 
-    # While all processes are not finished
+        # While all processes are not finished
     # or system is not in safe state.
-    while 'w' or 0 in work:
-        if 0 in work:
-            ind = work.index(0)
-            i = processes[ind]
-        elif 'w' in work:
-            # print('wk: ', work)
-            ind = work.index('w')
-            i = processes[ind]
-        else:
-            break
+    count = 0
+    while count < p:
 
-        # print('comparing| process: ', i, n_need[i], 'work: ', avail)
-        if not (False in list(np.greater_equal(avail, n_need[i]))):
-            exec_seq.append(i)
-            avail = np.add(avail, allocat[i])
-            work[ind] = 1
-            # print('added: ', exec_seq)
+        # Find a process which is not finish
+        # and whose needs can be satisfied
+        # with current work[] resources.
+        found = False
+        for t in range(p):
 
-        else:
-            a = list(set(processes) - set(exec_seq) - set(offload))
+            # First check if a process is finished,
+            # if no, go for next condition
+            if finish[t] == 0:
+
+                # Check if for all resources
+                # of current P need is less
+                # than work
+                for j in range(res):
+                    if need[t][j] > work[j]:
+                        break
+
+                # If all needs of p were satisfied.
+                if j == res - 1:
+
+                    # Add the allocated resources of
+                    # current P to the available/work
+                    # resources i.e.free the resources
+                    for k in range(res):
+                        work[k] += _allot_[t][k]
+
+                        # Add this process to safe sequence.
+                    safe_seq[count] = processes[t]
+                    count += 1
+
+                    # Mark this p as finished
+                    finish[t] = 1
+
+                    found = True
+
+        # If we could not find a next process
+        # in safe sequence.
+        if not found:
+            print("System is not in safe state")
+
+            a = list(set(processes) - set(safe_seq) - set(offload))
+            _max = np.array([0, 0, 0])
             n = {}
-            for j in a:
-                n[j] = sum(allocat[j])
+            for i in a:
+                n[i] = sum(allocation[i[:2]])
             _max = max(n, key=n.get)
-            # print('work: ', work, 'need: ', n_need[_max])
-            if processes.index(_max) > processes.index(i):   # if true, i is older
-                # if process is already waiting then offload process
-                if work[ind] == 'w':
-                    offload.append(i)
-                    avail = np.array(avail) + np.array(allocat[i])
-                    work[processes.index(i)] = 1
-                    # print('offload reentry: ', i, offload)
-                else:
-                    # wait put process to waiting
-                    work[processes.index(i)] = 'w'
-                    # print('waiting: ', i)
+            print('work: ', work, 'need: ', _need[_max[:2]])
+            offload.append(_max)
+            work = np.array(work) + np.array(allocation[_max[:2]])
+            count += 1
 
-            else:
-                # abort i
-                offload.append(i)
-                avail = np.array(avail) + np.array(allocat[i])
-                work[processes.index(i)] = 1
-                # print('offload: ', i)
+            # Mark this p as finished
+            finish[processes.index(_max)] = 1
+            found = True
 
+    # If system is in safe state then
+    # safe sequence will be as below
     if len(offload) > 0:
+        safe_seq = safe_seq[:safe_seq.index(0)]
         print('offloading tasks: ', offload)
         cooperative_mec(offload)
         deadlock[0] += 1
+    print("System is in safe state.",
+          "\nSafe sequence is: ", end=" ")
+    print('safe seq: ', safe_seq)
 
-    print('Execution seq: ', exec_seq)
-
-    return exec_seq
+    return safe_seq
 
 
 def get_exec_seq(pro):
 
     # Number of processes
     p = len(pro)
-    processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
+
+    processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
 
     # Available instances of resources
     avail = [7, 5, 5]
@@ -393,7 +410,7 @@ def get_exec_seq(pro):
     allot = {i: allocation[i[:2]] for i in processes}
 
     # return execution sequence
-    return wait_die(processes, avail, n_need, allot)
+    return is_safe(processes, avail, n_need, allot, p)
 
 
 def calc_wait_time(list_seq):
@@ -405,7 +422,7 @@ def calc_wait_time(list_seq):
         pre += t_time[j][0]
     # waiting time = total waiting time ÷ 2 average waiting time might be too tight
     w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)
-    send_message('wt {} {}'.format(ip_address(), str(w_send)))   # multi-casting waiting time to cooperative MECs
+    send_message('wt {} {}'.format(ip_address(), str(w_send)))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
@@ -424,7 +441,6 @@ def compare_local_mec(list_seq):
 
 
 def calculate_mov_avg(ma1, a1):
-
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
         avg1 = mec_waiting_time[ma1][-1]
@@ -444,20 +460,10 @@ def send_message(mg):
 
         # Send data to the multicast group
         if mg == 'hello':
-            smg = mg + ' ' + str(['speaker', ip_address()])
+            smg = mg + ' ' + str([message(), ip_address()])
             sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
-        elif mg == 'update':
-            ho = hosts.copy()
-            ho[message()] = host_ip
-            smg = mg + ' ' + str(ho)
-            sock1.sendto(str.encode(smg), _multicast_group)
-            # print('\n===**====**==update message sent===**======**=========')
-        elif mg == 'client':
-            ho = hosts.copy()
-            ho[message()] = host_ip
-            smg = 'm {}'.format(ho)
-            _client.publish(topic, smg, retain=True)
+
         else:
             sock1.sendto(str.encode(mg), _multicast_group)
 
@@ -471,12 +477,12 @@ def message():
     return hostname
 
 
-def receive_message():
+def receive_message():                 # used for multi-cast message exchange among MEC
     global hosts
 
     while True:
         if stop == 1:
-            print('Stopped : receive_message()')
+            print('Stopped: receive_message()')
             break
         else:
             data, address = sock1.recvfrom(1024)
@@ -484,7 +490,7 @@ def receive_message():
             if _d[:5] == 'hello':
                 _data = ast.literal_eval(_d[6:])
                 hosts[_data[0]] = _data[1]
-                # print('received: ', hosts)
+
                 if _data[1] != host_ip:
                     mec_rtt[_data[1]] = []
 
@@ -493,8 +499,11 @@ def receive_message():
                 # print('received: ', hosts)
 
             elif _d[:2] == 'wt':
+
                 split_data = _d.split()
+
                 if split_data[1] != host_ip:
+
                     w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(
                         address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
 
@@ -502,9 +511,6 @@ def receive_message():
                         mec_waiting_time[split_data[1]].append(w_time)
                     else:
                         mec_waiting_time[split_data[1]] = [w_time]
-
-            elif data.decode().strip() == 'user':
-                send_message('update')
 
 
 def mec_comparison():
@@ -557,9 +563,10 @@ def cooperative_mec(mec_list):
 
 def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
-    for i in exec_list:
+    for i in exec_list:      # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j]/2)
+        # print('j task: ', j)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
 
@@ -572,7 +579,6 @@ def execute(local):
         print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
-
         elif j.split('.')[1] == node_id:
             # send_client({j: get_time()}, send_back_host)
             _client.publish(j.split('.')[2], str({j: get_time()}))
@@ -610,7 +616,7 @@ def call_execute_re_offload():
 
     while True:
         if stop == 1:
-            print('Stopped: call_execute_re_offload()')
+            print('Stopped : call_execute_re_offload()')
             break
         else:
             if len(reoffload_list[0]) == 1:
@@ -639,7 +645,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+wait_die {}'.format(message())
+        subject = 'Deadlock results rms+bankers {}'.format(message())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -671,19 +677,17 @@ def mec_id(client_ip):
 
 def run_me():
     global discovering
+    global hosts
 
     initialization()
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
-            del hosts['speaker']
+            del hosts[message()]
             discovering = 1
             break
         time.sleep(2)
-    speak = Thread(target=speaking_node)
-    thread_record.append(speak)
-    speak.daemon = True
-    speak.start()
+
     start_loop()
 
 
@@ -702,8 +706,7 @@ def start_loop():
     for i in _threads_:
         Thread(target=i).daemon = True
         Thread(target=i).start()
-    time.sleep(2)
-    send_message('client')  # send mec details to clients
+
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
@@ -737,9 +740,10 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = f"wt_10_{mec_no} = {mec_waiting_time} \nrtt_10_{mec_no} = {mec_rtt} \ncpu_10_{mec_no} = {_cpu} " \
-                         f"\noff_mec10_{mec_no} = {_off_mec} \noff_cloud10_{mec_no} = {_off_cloud} " \
-                         f"\nloc10_{mec_no} = {_loc} \ndeadlock10_{mec_no} = {deadlock} \nmemory10_{mec_no} = {memory}"
+                result = "wt_2_4 = {} \nrtt_2_4 = {} \ncpu_2_4 = {} \noff_mec2_4 = {} \noff_cloud2_4 = {} " \
+                         "\nloc2_4 = {} \ndeadlock2_4 = {} \nmemory2_4 = {}".format(mec_waiting_time, mec_rtt, _cpu,
+                                                                                    _off_mec, _off_cloud, _loc,
+                                                                                    deadlock, memory)
                 cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
                 send_email(result)
@@ -748,21 +752,12 @@ def start_loop():
                 for i in thread_record:
                     i.join()
                 '''
+
                 _client.loop_stop()
                 time.sleep(1)
                 print('done')
                 os.system('kill -9 {}'.format(os.getpid()))
                 break
-
-
-def speaking_node():
-    global mec_no
-
-    while True:
-        if len(hosts) > (mec_no - 1):
-            send_message('update')
-            mec_no = len(hosts) + 1
-        time.sleep(2)
 
 
 def initialization():
@@ -771,9 +766,6 @@ def initialization():
     global cloud_ip
 
     host_ip = ip_address()
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    print('Broker IP: ', s.getsockname()[0])
     try:
         mec_no = int(input('Number of MECs: ').strip())
         cloud_ip = input('Cloud Server IP: ').strip()
@@ -784,7 +776,6 @@ def initialization():
         h2.daemon = True
         h1.start()
         h2.start()
-        time.sleep(1.5)
         while True:
             b = input('Send Hello Message (Y/N): ').strip().lower()
             if b == 'y':
