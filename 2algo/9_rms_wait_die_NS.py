@@ -300,107 +300,79 @@ def scheduler(_lcm_):               # RMS algorithm
     return rms
 
 
-# generate execution sequence
-def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
-    need = [_need_[i] for i in _need_]
-    _allot_ = [allot[i] for i in allot]
-    # tasks to offload if exit
+# generate execution sequence with wait_die
+def wait_die(processes, avail, n_need, allocat):
+    global deadlock
+
     offload = []
 
-    # Number of resources
-    res = 3
-
-    # Mark all processes as unfinished
-    finish = [0] * p
-
-    # To store safe sequence
-    safe_seq = [0] * p
+    # To store execution sequence
+    exec_seq = []
 
     # Make a copy of available resources
-    work = [0] * res
-    for i in range(res):
-        work[i] = avail[i]
+    work = [0] * len(processes)
 
-        # While all processes are not finished
+    # While all processes are not finished
     # or system is not in safe state.
-    count = 0
-    while count < p:
+    while 'w' or 0 in work:
+        if 0 in work:
+            ind = work.index(0)
+            i = processes[ind]
+        elif 'w' in work:
+            # print('wk: ', work)
+            ind = work.index('w')
+            i = processes[ind]
+        else:
+            break
 
-        # Find a process which is not finish
-        # and whose needs can be satisfied
-        # with current work[] resources.
-        found = False
-        for t in range(p):
+        # print('comparing| process: ', i, n_need[i], 'work: ', avail)
+        if not (False in list(np.greater_equal(avail, n_need[i]))):
+            exec_seq.append(i)
+            avail = np.add(avail, allocat[i])
+            work[ind] = 1
+            # print('added: ', exec_seq)
 
-            # First check if a process is finished,
-            # if no, go for next condition
-            if finish[t] == 0:
-
-                # Check if for all resources
-                # of current P need is less
-                # than work
-                for j in range(res):
-                    if need[t][j] > work[j]:
-                        break
-
-                # If all needs of p were satisfied.
-                if j == res - 1:
-
-                    # Add the allocated resources of
-                    # current P to the available/work
-                    # resources i.e.free the resources
-                    for k in range(res):
-                        work[k] += _allot_[t][k]
-
-                        # Add this process to safe sequence.
-                    safe_seq[count] = processes[t]
-                    count += 1
-
-                    # Mark this p as finished
-                    finish[t] = 1
-
-                    found = True
-
-        # If we could not find a next process
-        # in safe sequence.
-        if not found:
-            print("System is not in safe state")
-
-            a = list(set(processes) - set(safe_seq) - set(offload))
-            _max = np.array([0, 0, 0])
+        else:
+            a = list(set(processes) - set(exec_seq) - set(offload))
             n = {}
-            for i in a:
-                n[i] = sum(allocation[i[:2]])
+            for j in a:
+                n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max[:2]])
-            offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max[:2]])
-            count += 1
+            # print('work: ', work, 'need: ', n_need[_max])
+            if processes.index(_max) > processes.index(i):   # if true, i is older
+                # if process is already waiting then offload process
+                if work[ind] == 'w':
+                    offload.append(i)
+                    avail = np.array(avail) + np.array(allocat[i])
+                    work[processes.index(i)] = 1
+                    # print('offload reentry: ', i, offload)
+                else:
+                    # wait put process to waiting
+                    work[processes.index(i)] = 'w'
+                    # print('waiting: ', i)
 
-            # Mark this p as finished
-            finish[processes.index(_max)] = 1
-            found = True
+            else:
+                # abort i
+                offload.append(i)
+                avail = np.array(avail) + np.array(allocat[i])
+                work[processes.index(i)] = 1
+                # print('offload: ', i)
 
-    # If system is in safe state then
-    # safe sequence will be as below
     if len(offload) > 0:
-        safe_seq = safe_seq[:safe_seq.index(0)]
         print('offloading tasks: ', offload)
         cooperative_mec(offload)
         deadlock[0] += 1
-    print("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    print('safe seq: ', safe_seq)
 
-    return safe_seq
+    print('Execution seq: ', exec_seq)
+
+    return exec_seq
 
 
 def get_exec_seq(pro):
 
     # Number of processes
     p = len(pro)
-
-    processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
+    processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
 
     # Available instances of resources
     avail = [7, 5, 5]
@@ -410,7 +382,7 @@ def get_exec_seq(pro):
     allot = {i: allocation[i[:2]] for i in processes}
 
     # return execution sequence
-    return is_safe(processes, avail, n_need, allot, p)
+    return wait_die(processes, avail, n_need, allot)
 
 
 def calc_wait_time(list_seq):
