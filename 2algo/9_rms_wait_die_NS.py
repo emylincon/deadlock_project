@@ -372,7 +372,7 @@ def get_exec_seq(pro):
 
     # Number of processes
     p = len(pro)
-    processes = ['{}_{}'.format(pro[i], i) for i in range(P)]
+    processes = ['{}_{}'.format(pro[i], i) for i in range(p)]
 
     # Available instances of resources
     avail = [7, 5, 5]
