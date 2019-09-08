@@ -716,10 +716,10 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = "wt_16_6 = {} \nrtt_16_6 = {} \ncpu_16_6 = {} \noff_mec16_6 = {} \noff_cloud16_6 = {} " \
-                         "\nloc16_6 = {} \ndeadlock16_6 = {} \nmemory16_6 = {}".format(mec_waiting_time, mec_rtt, _cpu,
-                                                                                       _off_mec, _off_cloud, _loc,
-                                                                                       deadlock, memory)
+                result = f"wt_16_{mec_no} = {mec_waiting_time} \nrtt_16_{mec_no} = {mec_rtt} " \
+                         f"\ncpu_16_{mec_no} = {_cpu} " \
+                         f"\noff_mec16_{mec_no} = {_off_mec} \noff_cloud16_{mec_no} = {_off_cloud} " \
+                         f"\nloc16_{mec_no} = {_loc} \ndeadlock16_{mec_no} = {deadlock} \nmemory16_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
                 send_email(result)
