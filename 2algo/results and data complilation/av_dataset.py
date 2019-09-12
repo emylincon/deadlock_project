@@ -1,5 +1,5 @@
 
-av = {'timely_4_2': 10374,
+time_av = {'timely_4_2': 10374,
       'timely_5_2': 11052,
       'timely_6_2': 10861,
 
