@@ -8,8 +8,8 @@ ax3 = fig.add_subplot(313)
 width = 0.35
 title = {2}
 time_av_t = {'_4_2': 10374,
-             '_5_2': 11052,
-             '_6_2': 10861,
+             '_5_2': 10861,
+             '_6_2': 11052,
 
              '_4_3': 6465,
              '_5_3': 8200,
@@ -34,8 +34,8 @@ time_av_t = {'_4_2': 10374,
              }
 time_av_u = {
     '_4_2': 544,
-    '_5_2': 111,
-    '_6_2': 211,
+    '_5_2': 211,
+    '_6_2': 111,
 
     '_4_3': 4479,
     '_5_3': 2898,
@@ -60,6 +60,13 @@ time_av_u = {
 }
 
 
+def percent(value, total):
+    if value > 0:
+        return round((value/total)*100, 2)
+    else:
+        return 0
+
+
 def histogram(timely, untimely, ax):
     ind = np.arange(len(timely))
     p1 = ax.bar(ind, untimely , width)
@@ -71,6 +78,13 @@ def histogram(timely, untimely, ax):
                         'RMS + wait die',
                         'EDF + wound wait',
                         'EDF + wait die'))
+    for i in timely:
+        j = timely.index(i)
+        total = i + untimely[j]
+        ax.text(j, timely[j]+untimely[j], '{}%'.format(percent(i, total)), rotation=0,
+                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
+        ax.text(j, untimely[j], '{}%'.format(percent(untimely[j], total)), rotation=0,
+                ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax.legend((p1[0], p2[0]), ('Untimely', 'Timely'))
 
 
