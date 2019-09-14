@@ -851,7 +851,7 @@ def start_loop():
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
                 result = f"wt_16_{mec_no} = {mec_waiting_time} \nrtt_16_{mec_no} = {mec_rtt} " \
-                         f"\ncpu_16_{mec_no} = {_cpu} " \
+                         f"\ncpu_16_{mec_no} = {_cpu} \ninward_mec16_{mec_no} = {_inward_mec}" \
                          f"\noff_mec16_{mec_no} = {_off_mec} \noff_cloud16_{mec_no} = {_off_cloud} " \
                          f"\nloc16_{mec_no} = {_loc} \ndeadlock16_{mec_no} = {deadlock} \nmemory16_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
