@@ -852,6 +852,7 @@ def start_loop():
                 print('\nProgramme Terminated')
                 result = f"wt_7_{mec_no} = {mec_waiting_time} \nrtt_7_{mec_no} = {mec_rtt} \ncpu_7_{mec_no} = {_cpu} " \
                          f"\noff_mec7_{mec_no} = {_off_mec} \noff_cloud7_{mec_no} = {_off_cloud} " \
+                         f"\ninward_mec7_{mec_no} = {_inward_mec}" \
                          f"\nloc7_{mec_no} = {_loc} \ndeadlock7_{mec_no} = {deadlock} \nmemory7_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
