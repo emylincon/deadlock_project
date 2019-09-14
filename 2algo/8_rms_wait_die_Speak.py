@@ -21,7 +21,6 @@ from netifaces import interfaces, ifaddresses, AF_INET
 import smtplib
 import config
 
-
 hosts = {}  # {hostname: ip}
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
@@ -48,29 +47,29 @@ allocation = {
     't5': [0, 0, 2]
 }
 
-_cpu = []             # cpu plot list
-prev_t = 0            # variable for cpu util
-_off_mec = 0          # used to keep a count of tasks offloaded from local mec to another mec
-_off_cloud = 0        # used to keep a count of tasks offloaded to cloud
-_loc = 0              # used to keep a count of tasks executed locally
-_inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
-deadlock = [1]          # keeps count of how many deadlock is resolved
-mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
+_cpu = []  # cpu plot list
+prev_t = 0  # variable for cpu util
+_off_mec = 0  # used to keep a count of tasks offloaded from local mec to another mec
+_off_cloud = 0  # used to keep a count of tasks offloaded to cloud
+_loc = 0  # used to keep a count of tasks executed locally
+_inward_mec = 0  # used to keep a count of tasks offloaded from another mec to local mec
+deadlock = [1]  # keeps count of how many deadlock is resolved
+mec_waiting_time = {}  # {ip : [moving (waiting time + rtt)]}
 memory = []
-mec_rtt = {}               # {ip: [RTT]}
+mec_rtt = {}  # {ip: [RTT]}
 
-offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
-reoffload_list = [[], {}]   # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
-discovering = 0            # if discovering == 0 update host
+offload_register = {}  # {task: host_ip} to keep track of tasks sent to mec for offload
+reoffload_list = [[], {}]  # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
+discovering = 0  # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
 # received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
-received_task_queue = []   # [(task_list,wait_time), ....]
+received_task_queue = []  # [(task_list,wait_time), ....]
 thread_record = []
 port = 65000
 _port_ = 64000
-cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
+cloud_register = {}  # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
 stop = 0
 t_track = 1
@@ -207,13 +206,13 @@ def on_connect(connect_client, userdata, flags, rc):
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
     data = str(msg.payload, 'utf-8')
-    if data[0] == 'c':       # receive from cloud
+    if data[0] == 'c':  # receive from cloud
         data = data[2:]
         received_task = ast.literal_eval(data)
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
 
-    elif data[0] == 't':     # receive from client
+    elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
     '''
@@ -234,7 +233,7 @@ def connect_to_broker():
     password = 'password'
     broker_ip = 'localhost'
     broker_port_no = 1883
-    topic = 'mec'     # topic used to exchange mec details to clients
+    topic = 'mec'  # topic used to exchange mec details to clients
 
     _client = mqtt.Client()
     _client.on_connect = on_connect
@@ -256,7 +255,7 @@ def load_tasks():
     return lcm_period
 
 
-def scheduler(_lcm_):               # RMS algorithm
+def scheduler(_lcm_):  # RMS algorithm
     queue = list(tasks.keys())  # initialize task queue
     schedule = []
     rms = []
@@ -350,7 +349,7 @@ def wait_die(processes, avail, n_need, allocat):
                 n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
             # print('work: ', work, 'need: ', n_need[_max])
-            if processes.index(_max) > processes.index(i):   # if true, i is older
+            if processes.index(_max) > processes.index(i):  # if true, i is older
                 # if process is already waiting then offload process
                 if work[ind] == 'w':
                     offload.append(i)
@@ -380,7 +379,6 @@ def wait_die(processes, avail, n_need, allocat):
 
 
 def get_exec_seq(pro):
-
     # Number of processes
     p = len(pro)
     processes = ['{}_{}'.format(pro[i], i) for i in range(p)]
@@ -404,8 +402,8 @@ def calc_wait_time(list_seq):
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)
-    send_message('wt {} {}'.format(ip_address(), str(w_send)))   # multi-casting waiting time to cooperative MECs
+    w_send = round(time_dic[list(time_dic.keys())[-1]] / 2, 3)
+    send_message('wt {} {}'.format(ip_address(), str(w_send)))  # multi-casting waiting time to cooperative MECs
     return time_dic
 
 
@@ -424,7 +422,6 @@ def compare_local_mec(list_seq):
 
 
 def calculate_mov_avg(ma1, a1):
-
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
         avg1 = mec_waiting_time[ma1][-1]
@@ -559,7 +556,7 @@ def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:
         j = i.split('_')[0]
-        time.sleep(offloaded_task[1][j]/2)
+        time.sleep(offloaded_task[1][j] / 2)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
 
@@ -568,7 +565,7 @@ def execute(local):
 
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0]/2)
+        time.sleep(t_time[j][0] / 2)
         print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
@@ -579,7 +576,7 @@ def execute(local):
     print('============== EXECUTION DONE ===============')
 
 
-def receive_offloaded_task_mec():    # run as a thread
+def receive_offloaded_task_mec():  # run as a thread
     global _inward_mec
     global t_track
 
@@ -591,7 +588,7 @@ def receive_offloaded_task_mec():    # run as a thread
             data, address = sock2.recvfrom(1024)
             if len(data.decode()) > 0:
                 da = data.decode().split(' ')
-                if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
+                if (address[0] not in ip_set) and da[0] == node_id:  # send back to client
                     # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
                     _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
                 elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
@@ -615,7 +612,7 @@ def call_execute_re_offload():
         else:
             if len(reoffload_list[0]) == 1:
                 t = reoffload_list[0][-1]
-                time.sleep(reoffload_list[1][t]/2)
+                time.sleep(reoffload_list[1][t] / 2)
                 shared_resource_lock.acquire()
                 reoffload_list[0].remove(t)
                 del reoffload_list[1][t]
@@ -634,7 +631,6 @@ def call_execute_re_offload():
 
 
 def send_email(msg):
-
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
@@ -659,7 +655,6 @@ def send_offloaded_task_mec(msg):
 
 
 def mec_id(client_ip):
-
     _id = client_ip.split('.')[-1]
     if len(_id) == 1:
         return '00' + _id
@@ -737,7 +732,8 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = f"wt_10_{mec_no} = {mec_waiting_time} \nrtt_10_{mec_no} = {mec_rtt} \ncpu_10_{mec_no} = {_cpu} " \
+                result = f"wt_10_{mec_no} = {mec_waiting_time} \nrtt_10_{mec_no} = {mec_rtt} " \
+                         f"\ncpu_10_{mec_no} = {_cpu} \ninward_mec10_{mec_no} = {_inward_mec}" \
                          f"\noff_mec10_{mec_no} = {_off_mec} \noff_cloud10_{mec_no} = {_off_cloud} " \
                          f"\nloc10_{mec_no} = {_loc} \ndeadlock10_{mec_no} = {deadlock} \nmemory10_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
