@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from textwrap import wrap
 
 fig = plt.figure()
 ax1 = fig.add_subplot(311)
@@ -15,21 +16,21 @@ time_av_t = {'_4_2': 10374,
              '_5_3': 8200,
              '_6_3': 10791,
 
-             '_4_7': 10329,
-             '_5_7': 10951,
-             '_6_7': 10136,
+             '_4_7': 10136,
+             '_5_7': 10329,
+             '_6_7': 10951,
 
              '_4_10': 6721,
              '_5_10': 7418,
              '_6_10': 10913,
 
              '_4_12': 9172,
-             '_5_12': 10441,
-             '_6_12': 9618,
+             '_5_12': 9618,
+             '_6_12': 10441,
 
              '_4_16': 8364,
-             '_5_16': 9225,
-             '_6_16': 8536,
+             '_5_16': 8536,
+             '_6_16': 9225,
 
              }
 time_av_u = {
@@ -41,21 +42,21 @@ time_av_u = {
     '_5_3': 2898,
     '_6_3': 165,
 
-    '_4_7': 580,
-    '_5_7': 218,
-    '_6_7': 919,
+    '_4_7': 919,
+    '_5_7': 580,
+    '_6_7': 218,
 
     '_4_10': 4193,
     '_5_10': 3743,
     '_6_10': 170,
 
     '_4_12': 1717,
-    '_5_12': 651,
-    '_6_12': 1337,
+    '_5_12': 1337,
+    '_6_12': 651,
 
     '_4_16': 2527,
-    '_5_16': 1855,
-    '_6_16': 2396
+    '_5_16': 2396,
+    '_6_16': 1855,
 
 }
 
@@ -67,10 +68,10 @@ def percent(value, total):
         return 0
 
 
-def histogram(timely, untimely, ax):
+def histogram(timely, untimely, ax, no):
     ind = np.arange(len(timely))
-    p1 = ax.bar(ind, untimely , width)
-    p2 = ax.bar(ind, timely , width, bottom=untimely)
+    p1 = ax.bar(ind, untimely , width, color='r', alpha=0.4)
+    p2 = ax.bar(ind, timely , width, color='g', bottom=untimely, alpha=0.4)
     ax.set_xticks(ind)
     ax.set_xticklabels(('RMS + Bankers',
                         'EDF + Bankers',
@@ -82,10 +83,12 @@ def histogram(timely, untimely, ax):
         j = timely.index(i)
         total = i + untimely[j]
         ax.text(j, timely[j]+untimely[j], '{}%'.format(percent(i, total)), rotation=0,
-                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
+                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.), ))
         ax.text(j, untimely[j], '{}%'.format(percent(untimely[j], total)), rotation=0,
-                ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
+                ha="center", va="center", bbox=dict(boxstyle="round",ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax.legend((p1[0], p2[0]), ('Untimely', 'Timely'))
+    #ax.set_ylabel('\n'.join(wrap(f'Plot for {no} MECs', 8))).set_rotation(0)
+    ax.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
 
 
 def format_data():
@@ -132,7 +135,7 @@ def plot_av_times():
     axes = {ax1: 4, ax2: 5, ax3: 6}
     _data = format_data()
     for i in axes:
-        histogram(_data[0][axes[i]], _data[1][axes[i]], i)
+        histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
     fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
     plt.show()
 
