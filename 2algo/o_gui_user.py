@@ -405,7 +405,7 @@ def main():
                 result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
                          f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}"
 
-                cmd = 'echo  "{}" >> record.py'.format(result)
+                cmd = 'echo  "{}" >> data.py'.format(result)
                 os.system(cmd)
                 send_result(ho['osboxes-0'], result)
                 send_email(result)
