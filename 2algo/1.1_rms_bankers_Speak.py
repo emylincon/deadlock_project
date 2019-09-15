@@ -468,7 +468,7 @@ def calculate_mov_avg(ma1, a1):
 
 
 def algo_id():
-    no = os.path.basename(__file__)[0]
+    no = int(os.path.basename(__file__)[0])
     if no <= 2:
         return 2
     elif no <= 4:
