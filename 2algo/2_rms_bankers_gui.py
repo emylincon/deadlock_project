@@ -866,6 +866,7 @@ def start_loop():
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
+        _time_ = dt.datetime.now()
         while True:
             try:
                 if len(received_task_queue) > 0:
@@ -890,10 +891,44 @@ def start_loop():
                             cooperative_mec(compare_result[0])
                         execute(compare_result[1])
                         show_graphs()
+                        _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    # show_graphs()
-                    time.sleep(.5)
+                    time.sleep(1)
+                    now = dt.datetime.now()
+                    delta = now - _time_
+                    if delta > dt.timedelta(5, 0, 0):
+                        print('terminating programme 5 mins elapsed')
+                        _id_ = get_hostname()[-1]
+                        result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
+                                 f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
+                                 f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
+                                 f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
+                                 f"\nloc{_id_}_2_{mec_no} = {_loc} " \
+                                 f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
+                        list_result = [
+                            f"wt{_id_}_2_{mec_no} = {mec_waiting_time} ",
+                            f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
+                            f"\no_mec{_id_}_2_{mec_no} = {_off_mec} \no_cloud{_id_}_2_{mec_no} = {_off_cloud} ",
+                            f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}",
+                            f"\nloc{_id_}_2_{mec_no} = {_loc} ",
+                            f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
+                        ]
+                        for i in list_result:
+                            cmd = 'echo "{}" >> data.py'.format(i)
+                            os.system(cmd)
+                        os.system('echo "{}" >> /home/mec/result/data.py'.format(result))
+                        send_email(result)
+                        stop += 1
+                        '''
+                        for i in thread_record:
+                            i.join()
+                        '''
+                        _client.loop_stop()
+                        time.sleep(1)
+                        print('done')
+                        os.system('kill -9 {}'.format(os.getpid()))
+                        break
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
                 _id_ = get_hostname()[-1]
