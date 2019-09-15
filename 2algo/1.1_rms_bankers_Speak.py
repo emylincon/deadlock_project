@@ -477,13 +477,13 @@ def send_message(mg):
             print('\nHello message sent')
         elif mg == 'update':
             ho = hosts.copy()
-            ho[message()] = host_ip
+            ho[get_hostname()] = host_ip
             smg = mg + ' ' + str(ho)
             sock1.sendto(str.encode(smg), _multicast_group)
             # print('\n===**====**==update message sent===**======**=========')
         elif mg == 'client':
             ho = hosts.copy()
-            ho[message()] = host_ip
+            ho[get_hostname()] = host_ip
             smg = 'm {}'.format(ho)
             _client.publish(topic, smg, retain=True)
         else:
@@ -493,7 +493,7 @@ def send_message(mg):
         print(e)
 
 
-def message():
+def get_hostname():
     cmd = ['cat /etc/hostname']
     hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
     return hostname
@@ -667,7 +667,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+bankers {}'.format(message())
+        subject = 'Deadlock results rms+bankers {}'.format(get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -765,10 +765,13 @@ def start_loop():
 
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = f"wt_2_{mec_no} = {mec_waiting_time} \nrtt_2_{mec_no} = {mec_rtt} \ncpu_2_{mec_no} = {_cpu} " \
-                         f"\noff_mec2_{mec_no} = {_off_mec} \noff_cloud2_{mec_no} = {_off_cloud} " \
-                         f"\ninward_mec2_{mec_no} = {_inward_mec}" \
-                         f"\nloc2_{mec_no} = {_loc} \ndeadlock2_{mec_no} = {deadlock} \nmemory2_{mec_no} = {memory}"
+                _id_ = get_hostname()[-1]
+                result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
+                         f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
+                         f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
+                         f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
+                         f"\nloc{_id_}_2_{mec_no} = {_loc} " \
+                         f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
                 send_email(result)
