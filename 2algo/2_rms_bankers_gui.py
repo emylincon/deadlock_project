@@ -905,6 +905,7 @@ def start_loop():
                          f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
+                os.system('echo "{}" >> /home/mec/result/data.py'.format(result))
                 send_email(result)
                 stop += 1
                 '''

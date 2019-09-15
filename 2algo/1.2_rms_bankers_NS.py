@@ -664,6 +664,23 @@ def send_offloaded_task_mec(msg):
         print(e)
 
 
+def send_result(host_, data):
+    try:
+        c = paramiko.SSHClient()
+
+        un = 'mec'
+        pw = 'password'
+        port = 22
+
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        c.connect(host_, port, un, pw)
+        cmd = ('echo "{}" >> /home/mec/result/data.py'.format(data))  # task share : host ip task
+
+        stdin, stdout, stderr = c.exec_command(cmd)
+    except Exception as e:
+        print(e)
+
+
 def mec_id(client_ip):
 
     _id = client_ip.split('.')[-1]
@@ -749,6 +766,7 @@ def start_loop():
                          f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
                 cmd = 'echo "{}" >> data.py'.format(result)
                 os.system(cmd)
+                send_result(hosts['osboxes-0'], result)
                 send_email(result)
                 stop += 1
                 '''
