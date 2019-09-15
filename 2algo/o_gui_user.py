@@ -14,6 +14,7 @@ import subprocess as sp
 import config
 import smtplib
 import record as rc
+import paramiko
 
 hosts = {}  # {hostname: ip}
 
@@ -52,6 +53,13 @@ task_record = {}    # records tasks start time and finish time {seq_no:{task:[du
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
+filename = {2: 'rms+bankers',
+            3: 'edf+bankers',
+            7: 'rms+wound_wait',
+            10: 'rms+wait_die',
+            12: 'edf+wound_wait',
+            16: 'edf+wait_die'}
+
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
@@ -146,9 +154,12 @@ def on_connect(connect_client, userdata, flags, rc):
 def on_message(message_client, userdata, msg):
     global hosts
     global ho
+    global algo_id
+
     # print the message received from the subscribed topic
-    details = str(msg.payload, 'utf-8')[2:]
-    ho = ast.literal_eval(details)                             # {hostname: ip}
+    details = str(msg.payload, 'utf-8')[2:].split('_')
+    ho = ast.literal_eval(details[0])                             # {hostname: ip}
+    algo_id = details[1]
     hosts = list(ho.values())
     # print('hosts: ', hosts)
     _client.loop_stop()
@@ -299,12 +310,29 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results edf+wait_die {}'.format(get_hostname())
+        subject = 'Deadlock results {} {}'.format(filename[algo_id], get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
         server.quit()
         print("Email sent!")
+    except Exception as e:
+        print(e)
+
+
+def send_result(host_, data):
+    try:
+        c = paramiko.SSHClient()
+
+        un = 'mec'
+        pw = 'password'
+        port = 22
+
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        c.connect(host_, port, un, pw)
+        cmd = ('echo "{}" >> /home/mec/result/data.py'.format(data))  # task share : host ip task
+
+        stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
         print(e)
 
@@ -374,10 +402,12 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                result = "timely{} = {} \nuntimely{} = {}".format(
-                    len(hosts), tasks_executed_on_time, len(hosts), tasks_not_executed_on_time)
+                result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
+                         f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}"
+
                 cmd = 'echo  "{}" >> record.py'.format(result)
                 os.system(cmd)
+                send_result(ho['osboxes-0'], result)
                 send_email(result)
 
                 task_client.loop_stop()
