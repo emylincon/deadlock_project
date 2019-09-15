@@ -159,7 +159,7 @@ def on_message(message_client, userdata, msg):
     # print the message received from the subscribed topic
     details = str(msg.payload, 'utf-8')[2:].split('_')
     ho = ast.literal_eval(details[0])                             # {hostname: ip}
-    algo_id = details[1]
+    algo_id = int(details[1])
     hosts = list(ho.values())
     # print('hosts: ', hosts)
     _client.loop_stop()

@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from drawnow import *
 import smtplib
 import config
+import paramiko
 
 
 port = 65000        # The port used by the server
@@ -66,6 +67,13 @@ task_record = {}    # records tasks start time and finish time {seq_no:{task:[du
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
+filename = {2: 'rms+bankers',
+            3: 'edf+bankers',
+            7: 'rms+wound_wait',
+            10: 'rms+wait_die',
+            12: 'edf+wound_wait',
+            16: 'edf+wait_die'}
+
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
@@ -160,9 +168,13 @@ def on_connect(connect_client, userdata, flags, rc):
 def on_message(message_client, userdata, msg):
     global hosts
     global host_dict
+    global algo_id
+    global ho
+
     # print the message received from the subscribed topic
-    details = str(msg.payload, 'utf-8')[2:]
-    ho = ast.literal_eval(details)                             # {hostname: ip}
+    details = str(msg.payload, 'utf-8')[2:].split('_')
+    ho = ast.literal_eval(details[0])  # {hostname: ip}
+    algo_id = int(details[1])
     hosts = list(ho.values())
     host_dict = dict(zip(list(ho.values()), list(ho.keys())))  # {ip: hostname}
     # print('hosts: ', hosts)
@@ -257,72 +269,6 @@ def ip_address():
     return s.getsockname()[0]
 
 
-def receive_data(_con, _addr):
-    global tasks_executed_on_time
-    global tasks_not_executed_on_time
-
-    with _con:
-        while True:
-            try:
-                data = _con.recv(1024)
-                # print(_addr[0], ': ', data.decode())
-                if len(data) > 0:
-                    received_task = ast.literal_eval(data.decode())
-                    # print('task_record: {}'.format(task_record))
-                    # print('r: {}'.format(received_task))
-                    for i in received_task:
-                        tk = i.split('_')[0]
-                        # print('tk: {}'.format(tk))
-                        k = task_record[int(tk.split('.')[-1])][tk]
-                        if len(k) < 3:
-                            a = received_task[i]
-                            k.append(dt.datetime(int(a[0]), int(a[1]),
-                                                 int(a[2]), int(a[3]),
-                                                 int(a[4]), int(a[5]),
-                                                 int(a[6])))
-                            p = float(str(k[2] - k[1]).split(':')[-1])
-                            if p < k[0]:
-                                tasks_executed_on_time += 1
-                            else:
-                                tasks_not_executed_on_time += 1
-                        elif len(k) == 3:
-                            a = received_task[i]
-                            t = dt.datetime(int(a[0]), int(a[1]),
-                                            int(a[2]), int(a[3]),
-                                            int(a[4]), int(a[5]),
-                                            int(a[6]))
-                            p = float(str(t - k[1]).split(':')[-1])
-                            if p < k[0]:
-                                tasks_executed_on_time += 1
-                            else:
-                                tasks_not_executed_on_time += 1
-
-            except KeyboardInterrupt:
-                print('Receive Tasks Terminated')
-                break
-
-
-def receive_tasks():
-    _host_ = ip_address()
-    _port_ = 64000        # Port to listen on (non-privileged ports are > 1023)
-
-    while True:
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((_host_, _port_))
-                s.listen()
-                conn, addr = s.accept()
-
-                th = Thread(target=receive_data, args=(conn, addr))
-                thread_record.append(th)
-                th.start()
-                _port_ += 10
-
-        except KeyboardInterrupt:
-            print('\nProgramme Forcefully Terminated')
-            break
-
-
 def get_hostname():
     cmd = ['cat /etc/hostname']
     hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
@@ -335,12 +281,29 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results {}'.format(get_hostname())
+        subject = 'Deadlock results {} {}'.format(filename[algo_id], get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
         server.quit()
         print("Email sent!")
+    except Exception as e:
+        print(e)
+
+
+def send_result(host_, data):
+    try:
+        c = paramiko.SSHClient()
+
+        un = 'mec'
+        pw = 'password'
+        port = 22
+
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        c.connect(host_, port, un, pw)
+        cmd = ('echo "{}" >> /home/mec/result/data.py'.format(data))  # task share : host ip task
+
+        stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
         print(e)
 
@@ -428,12 +391,13 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-                result = "record6 = {} \ntask_record6 = {} \nhost_names6 = {} \ntimely16 = {} \nuntimely16 = {}".format(
-                    record,
-                    task_record,
-                    host_dict, tasks_executed_on_time, tasks_not_executed_on_time)
+
+                result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
+                         f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
+                         f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}"
                 cmd = 'echo  "{}" >> record.py'.format(result)
                 os.system(cmd)
+                send_result(ho['osboxes-0'], result)
                 send_email(result)
 
                 task_client.loop_stop()
