@@ -403,7 +403,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
 
     # Available instances of resources
-    avail = [7, 5, 5]
+    avail = [6, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -538,7 +538,7 @@ def cooperative_mec(mec_list):
 
         else:
             j = i.split('_')[0]
-            _max = np.array([7, 5, 5])
+            _max = np.array([6, 5, 5])
             send = 'false'
             if not (False in list(np.greater_equal(_max, _need[j[:2]]))):
                 send = 'true'
