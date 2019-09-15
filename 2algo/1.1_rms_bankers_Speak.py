@@ -766,6 +766,7 @@ def start_loop():
         Thread(target=i).start()
     time.sleep(2)
     send_message('client')  # send mec details to clients
+    print('algo_id: ', algo_id())
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
