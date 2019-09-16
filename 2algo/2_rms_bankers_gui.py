@@ -894,7 +894,7 @@ def start_loop():
                         _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(1)
+                    time.sleep(.5)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(5, 0, 0):
@@ -917,7 +917,8 @@ def start_loop():
                         for i in list_result:
                             cmd = 'echo "{}" >> data.py'.format(i)
                             os.system(cmd)
-                        os.system('echo "{}" >> /home/mec/result/data.py'.format(result))
+                            os.system('echo "{}" >> /home/mec/result/data.py'.format(i))
+
                         send_email(result)
                         stop += 1
                         '''
@@ -938,9 +939,19 @@ def start_loop():
                          f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
                          f"\nloc{_id_}_2_{mec_no} = {_loc} " \
                          f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
-                cmd = 'echo "{}" >> data.py'.format(result)
-                os.system(cmd)
-                os.system('echo "{}" >> /home/mec/result/data.py'.format(result))
+                list_result = [
+                    f"wt{_id_}_2_{mec_no} = {mec_waiting_time} ",
+                    f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
+                    f"\no_mec{_id_}_2_{mec_no} = {_off_mec} \no_cloud{_id_}_2_{mec_no} = {_off_cloud} ",
+                    f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}",
+                    f"\nloc{_id_}_2_{mec_no} = {_loc} ",
+                    f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
+                ]
+                for i in list_result:
+                    cmd = 'echo "{}" >> data.py'.format(i)
+                    os.system(cmd)
+                    os.system('echo "{}" >> /home/mec/result/data.py'.format(i))
+
                 send_email(result)
                 stop += 1
                 '''
