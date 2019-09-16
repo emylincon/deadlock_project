@@ -771,6 +771,7 @@ def start_loop():
                             cooperative_mec(compare_result[0])
                         execute(compare_result[1])
                         generate_results()
+                    _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
                     time.sleep(.5)
