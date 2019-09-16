@@ -572,7 +572,7 @@ def send_message(mg):
 
         # Send data to the multicast group
         if mg == 'hello':
-            smg = mg + ' ' + str([message(), ip_address()])
+            smg = mg + ' ' + str([get_hostname(), ip_address()])
             sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
         else:
@@ -582,7 +582,7 @@ def send_message(mg):
         print(e)
 
 
-def message():
+def get_hostname():
     cmd = ['cat /etc/hostname']
     hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
     return hostname
@@ -764,7 +764,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+wound_wait {}'.format(message())
+        subject = 'Deadlock results rms+wound_wait {}'.format(get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -772,6 +772,42 @@ def send_email(msg):
         print("Email sent!")
     except Exception as e:
         print(e)
+
+
+def save_and_abort():
+    global stop
+
+    _id_ = get_hostname()[-1]
+    result = f"wt{_id_}_7_{mec_no} = {mec_waiting_time} " \
+             f"\nrtt{_id_}_7_{mec_no} = {mec_rtt} \ncpu{_id_}_7_{mec_no} = {_cpu} " \
+             f"\noff_mec{_id_}_7_{mec_no} = {_off_mec} " \
+             f"\noff_cloud{_id_}_7_{mec_no} = {_off_cloud} " \
+             f"\ninward_mec{_id_}_7_{mec_no} = {_inward_mec}" \
+             f"\nloc{_id_}_7_{mec_no} = {_loc} " \
+             f"\ndeadlock{_id_}_7_{mec_no} = {deadlock} \nmemory{_id_}_7_{mec_no} = {memory}"
+    list_result = [
+        f"wt{_id_}_7_{mec_no} = {mec_waiting_time} ",
+        f"\nrtt{_id_}_7_{mec_no} = {mec_rtt} \ncpu{_id_}_7_{mec_no} = {_cpu} ",
+        f"\no_mec{_id_}_7_{mec_no} = {_off_mec} \no_cloud{_id_}_7_{mec_no} = {_off_cloud} ",
+        f"\ninward_mec{_id_}_7_{mec_no} = {_inward_mec}",
+        f"\nloc{_id_}_7_{mec_no} = {_loc} ",
+        f"\ndeadlock{_id_}_7_{mec_no} = {deadlock} \nmemory{_id_}_7_{mec_no} = {memory}"
+    ]
+    for i in list_result:
+        cmd = 'echo "{}" >> data.py'.format(i)
+        os.system(cmd)
+        os.system('echo "{}" >> /home/mec/result/data.py'.format(i))
+
+    send_email(result)
+    stop += 1
+    '''
+    for i in thread_record:
+        i.join()
+    '''
+    _client.loop_stop()
+    time.sleep(1)
+    print('done')
+    os.system('kill -9 {}'.format(os.getpid()))
 
 
 def mec_id(client_ip):
@@ -793,7 +829,7 @@ def run_me():
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
-            del hosts[message()]
+            del hosts[get_hostname()]
             discovering = 1
             break
         time.sleep(2)
@@ -851,7 +887,7 @@ def start_loop():
                     time.sleep(.5)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(5, 0, 0):
+                    if delta > dt.timedelta(3, 0, 0):
                         print('terminating programme 5 mins elapsed')
                         save_and_abort()
                         break
