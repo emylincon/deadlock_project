@@ -664,6 +664,7 @@ def start_loop():
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
+        _time_ = dt.datetime.now()
         while True:
             try:
                 if len(received_task_queue) > 0:

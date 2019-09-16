@@ -820,6 +820,7 @@ def start_loop():
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
+        _time_ = dt.datetime.now()
         while True:
             try:
                 if len(received_task_queue) > 0:
@@ -844,28 +845,19 @@ def start_loop():
                             cooperative_mec(compare_result[0])
                         execute(compare_result[1])
                         show_graphs()
+                    _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    # show_graphs()
                     time.sleep(.5)
+                    now = dt.datetime.now()
+                    delta = now - _time_
+                    if delta > dt.timedelta(5, 0, 0):
+                        print('terminating programme 5 mins elapsed')
+                        save_and_abort()
+                        break
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = f"wt_7_{mec_no} = {mec_waiting_time} \nrtt_7_{mec_no} = {mec_rtt} \ncpu_7_{mec_no} = {_cpu} " \
-                         f"\noff_mec7_{mec_no} = {_off_mec} \noff_cloud7_{mec_no} = {_off_cloud} " \
-                         f"\ninward_mec7_{mec_no} = {_inward_mec}" \
-                         f"\nloc7_{mec_no} = {_loc} \ndeadlock7_{mec_no} = {deadlock} \nmemory7_{mec_no} = {memory}"
-                cmd = 'echo "{}" >> data.py'.format(result)
-                os.system(cmd)
-                send_email(result)
-                stop += 1
-                '''
-                for i in thread_record:
-                    i.join()
-                '''
-                _client.loop_stop()
-                time.sleep(1)
-                print('done')
-                os.system('kill -9 {}'.format(os.getpid()))
+                save_and_abort()
                 break
 
 
