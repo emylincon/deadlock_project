@@ -18,6 +18,7 @@ from netifaces import interfaces, ifaddresses, AF_INET
 import paho.mqtt.client as mqtt
 import smtplib
 import config
+import paramiko
 
 
 hosts = {}  # {hostname: ip}
