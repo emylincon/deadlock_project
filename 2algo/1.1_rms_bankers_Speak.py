@@ -529,7 +529,7 @@ def receive_message():
             if _d[:5] == 'hello':
                 _data = ast.literal_eval(_d[6:])
                 hosts[_data[0]] = _data[1]
-                print('received: ', hosts)
+                # print('received: ', hosts)
                 if _data[1] != host_ip:
                     mec_rtt[_data[1]] = []
 
