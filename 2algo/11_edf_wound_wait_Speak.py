@@ -669,6 +669,42 @@ def send_result(host_, data):
         print(e)
 
 
+def save_and_abort():
+    global stop
+
+    _id_ = get_hostname()[-1]
+    result = f"wt{_id_}_12_{mec_no} = {mec_waiting_time} " \
+             f"\nrtt{_id_}_12_{mec_no} = {mec_rtt} \ncpu{_id_}_12_{mec_no} = {_cpu} " \
+             f"\noff_mec{_id_}_12_{mec_no} = {_off_mec} " \
+             f"\noff_cloud{_id_}_12_{mec_no} = {_off_cloud} " \
+             f"\ninward_mec{_id_}_12_{mec_no} = {_inward_mec}" \
+             f"\nloc{_id_}_12_{mec_no} = {_loc} " \
+             f"\ndeadlock{_id_}_12_{mec_no} = {deadlock} \nmemory{_id_}_12_{mec_no} = {memory}"
+    list_result = [
+        f"wt{_id_}_12_{mec_no} = {mec_waiting_time} ",
+        f"\nrtt{_id_}_12_{mec_no} = {mec_rtt} \ncpu{_id_}_12_{mec_no} = {_cpu} ",
+        f"\noff_mec{_id_}_12_{mec_no} = {_off_mec} \noff_cloud{_id_}_12_{mec_no} = {_off_cloud} ",
+        f"\ninward_mec{_id_}_12_{mec_no} = {_inward_mec}",
+        f"\nloc{_id_}_12_{mec_no} = {_loc} ",
+        f"\ndeadlock{_id_}_12_{mec_no} = {deadlock} \nmemory{_id_}_12_{mec_no} = {memory}"
+    ]
+    for i in list_result:
+        cmd = 'echo "{}" >> data.py'.format(i)
+        os.system(cmd)
+
+    send_result(hosts['osboxes-0'], list_result)
+    send_email(result)
+    stop += 1
+    '''
+    for i in thread_record:
+        i.join()
+    '''
+    _client.loop_stop()
+    time.sleep(1)
+    print('done')
+    os.system('kill -9 {}'.format(os.getpid()))
+
+
 def start_loop():
     global _loc
     global tasks
