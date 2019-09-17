@@ -709,10 +709,10 @@ def send_result(host_, data):
 
         un = 'mec'
         pw = 'password'
-        port = 22
+        s_port = 22
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
+        c.connect(host_, s_port, un, pw)
         for i in data:
             cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
             stdin, stdout, stderr = c.exec_command(cmd)
@@ -766,7 +766,7 @@ def start_loop():
         Thread(target=i).start()
     time.sleep(2)
     send_message('client')  # send mec details to clients
-    print('algo_id: ', algo_id())
+    # print('algo_id: ', algo_id())
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
@@ -801,12 +801,13 @@ def start_loop():
                     time.sleep(1)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(1, 0, 0):
-                        print('terminating programme 5 mins elapsed')
+                    if delta > dt.timedelta(minutes=3):
+                        print('terminating programme 3 mins elapsed')
                         _id_ = get_hostname()[-1]
                         result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
                                  f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
-                                 f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
+                                 f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} " \
+                                 f"\noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
                                  f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
                                  f"\nloc{_id_}_2_{mec_no} = {_loc} " \
                                  f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
@@ -819,7 +820,7 @@ def start_loop():
                             f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
                         ]
                         for i in list_result:
-                            cmd = 'echo "{}" >> gata.py'.format(i)
+                            cmd = 'echo "{}" >> data.py'.format(i)
                             os.system(cmd)
                         send_result(hosts['osboxes-0'], list_result)
                         send_email(result)

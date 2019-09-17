@@ -759,12 +759,13 @@ def start_loop():
                     time.sleep(1)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(5, 0, 0):
+                    if delta > dt.timedelta(minutes=3):
                         print('terminating programme 5 mins elapsed')
                         _id_ = get_hostname()[-1]
                         result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
                                  f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
-                                 f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
+                                 f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} " \
+                                 f"\noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
                                  f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
                                  f"\nloc{_id_}_2_{mec_no} = {_loc} " \
                                  f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
