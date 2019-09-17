@@ -801,7 +801,7 @@ def start_loop():
                     time.sleep(1)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(5, 0, 0):
+                    if delta > dt.timedelta(0, 10, 0):
                         print('terminating programme 5 mins elapsed')
                         _id_ = get_hostname()[-1]
                         result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
