@@ -340,7 +340,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
 
     # Available instances of resources
-    avail = [7, 5, 5]
+    avail = [6, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -397,7 +397,7 @@ def send_message(mg):
 
         # Send data to the multicast group
         if mg == 'hello':
-            smg = mg + ' ' + str([message(), ip_address()])
+            smg = mg + ' ' + str([get_hostname(), ip_address()])
             sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
 
@@ -408,7 +408,7 @@ def send_message(mg):
         print(e)
 
 
-def message():
+def get_hostname():
     cmd = ['cat /etc/hostname']
     hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
     return hostname
@@ -475,7 +475,7 @@ def cooperative_mec(mec_list):
 
         else:
             j = i.split('_')[0]
-            _max = np.array([7, 5, 5])
+            _max = np.array([6, 5, 5])
             send = 'false'
             if not (False in list(np.greater_equal(_max, _need[j[:2]]))):
                 send = 'true'
@@ -582,7 +582,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results edf+wound_wait {}'.format(message())
+        subject = 'Deadlock results edf+wound_wait {}'.format(get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -620,7 +620,7 @@ def run_me():
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
-            del hosts[message()]
+            del hosts[get_hostname()]
             discovering = 1
             break
         time.sleep(2)
