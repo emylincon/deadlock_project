@@ -801,7 +801,7 @@ def start_loop():
                     time.sleep(1)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(0, 10, 0):
+                    if delta > dt.timedelta(1, 0, 0):
                         print('terminating programme 5 mins elapsed')
                         _id_ = get_hostname()[-1]
                         result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
@@ -819,7 +819,7 @@ def start_loop():
                             f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}"
                         ]
                         for i in list_result:
-                            cmd = 'echo "{}" >> data.py'.format(i)
+                            cmd = 'echo "{}" >> gata.py'.format(i)
                             os.system(cmd)
                         send_result(hosts['osboxes-0'], list_result)
                         send_email(result)
