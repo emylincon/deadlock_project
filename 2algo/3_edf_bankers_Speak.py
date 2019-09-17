@@ -801,8 +801,8 @@ def start_loop():
                     time.sleep(.5)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(5, 0, 0):
-                        print('terminating programme 5 mins elapsed')
+                    if delta > dt.timedelta(minutes=3):
+                        print('terminating programme 3 mins elapsed')
                         save_and_abort()
                         break
             except KeyboardInterrupt:
