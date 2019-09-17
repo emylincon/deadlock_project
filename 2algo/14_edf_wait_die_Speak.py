@@ -668,6 +668,23 @@ def run_me():
     start_loop()
 
 
+def send_result(host_, data):
+    try:
+        c = paramiko.SSHClient()
+
+        un = 'mec'
+        pw = 'password'
+        port = 22
+
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        c.connect(host_, port, un, pw)
+        for i in data:
+            cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
+            stdin, stdout, stderr = c.exec_command(cmd)
+    except Exception as e:
+        print(e)
+
+
 def start_loop():
     global _loc
     global tasks
