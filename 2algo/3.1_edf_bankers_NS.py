@@ -521,7 +521,7 @@ def cooperative_mec(mec_list):
 
         else:
             j = i.split('_')[0]
-            _max = np.array([7, 5, 5])
+            _max = np.array([6, 5, 5])
             send = 'false'
             if not (False in list(np.greater_equal(_max, _need[j[:2]]))):
                 send = 'true'
