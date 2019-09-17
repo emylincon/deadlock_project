@@ -838,6 +838,7 @@ def start_loop():
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
+        _time_ = dt.datetime.now()
         while True:
             try:
                 if len(received_task_queue) > 0:
@@ -862,6 +863,7 @@ def start_loop():
                             cooperative_mec(compare_result[0])
                         execute(compare_result[1])
                         show_graphs()
+                    _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
                     # show_graphs()
