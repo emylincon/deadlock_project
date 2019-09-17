@@ -768,26 +768,16 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(1)
-
+                    time.sleep(.5)
+                    now = dt.datetime.now()
+                    delta = now - _time_
+                    if delta > dt.timedelta(minutes=3):
+                        print('terminating programme 3 mins elapsed')
+                        save_and_abort()
+                        break
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = f"wt_16_{mec_no} = {mec_waiting_time} \nrtt_16_{mec_no} = {mec_rtt} " \
-                         f"\ncpu_16_{mec_no} = {_cpu} \ninward_mec16_{mec_no} = {_inward_mec}" \
-                         f"\noff_mec16_{mec_no} = {_off_mec} \noff_cloud16_{mec_no} = {_off_cloud} " \
-                         f"\nloc16_{mec_no} = {_loc} \ndeadlock16_{mec_no} = {deadlock} \nmemory16_{mec_no} = {memory}"
-                cmd = 'echo "{}" >> data.py'.format(result)
-                os.system(cmd)
-                send_email(result)
-                stop += 1
-                '''
-                for i in thread_record:
-                    i.join()
-                '''
-                _client.loop_stop()
-                time.sleep(1)
-                print('done')
-                os.system('kill -9 {}'.format(os.getpid()))
+                save_and_abort()
                 break
 
 
