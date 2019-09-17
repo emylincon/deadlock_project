@@ -403,6 +403,22 @@ def calculate_mov_avg(ma1, a1):
     return round(avg1, 4)
 
 
+def algo_id():
+    no = int(os.path.basename(__file__)[0])
+    if no <= 2:
+        return 2
+    elif no <= 4:
+        return 3
+    elif no <= 7:
+        return 7
+    elif no <= 10:
+        return 10
+    elif no <= 13:
+        return 12
+    else:
+        return 16
+
+
 def send_message(mg):
     _multicast_group = ('224.3.29.71', 10000)
     try:
@@ -421,7 +437,7 @@ def send_message(mg):
         elif mg == 'client':
             ho = hosts.copy()
             ho[get_hostname()] = host_ip
-            smg = 'm {}'.format(ho)
+            smg = f'm {ho}_{algo_id()}'
             _client.publish(topic, smg, retain=True)
         else:
             sock1.sendto(str.encode(mg), _multicast_group)
@@ -658,10 +674,10 @@ def send_result(host_, data):
 
         un = 'mec'
         pw = 'password'
-        port = 22
+        s_port = 22
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
+        c.connect(host_, s_port, un, pw)
         for i in data:
             cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
             stdin, stdout, stderr = c.exec_command(cmd)
