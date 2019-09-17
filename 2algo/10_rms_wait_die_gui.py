@@ -531,7 +531,7 @@ def get_exec_seq(pro):
     processes = ['{}_{}'.format(pro[i], i) for i in range(p)]
 
     # Available instances of resources
-    avail = [7, 5, 5]
+    avail = [6, 5, 5]
     n_need = {i: _need[i[:2]] for i in processes}
     # print('need', n_need)
     # Resources allocated to processes
@@ -590,7 +590,7 @@ def send_message(mg):
 
         # Send data to the multicast group
         if mg == 'hello':
-            smg = mg + ' ' + str([message(), ip_address()])
+            smg = mg + ' ' + str([get_hostname(), ip_address()])
             sock1.sendto(str.encode(smg), _multicast_group)
             print('\nHello message sent')
         else:
@@ -600,7 +600,7 @@ def send_message(mg):
         print(e)
 
 
-def message():
+def get_hostname():
     cmd = ['cat /etc/hostname']
     hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
     return hostname
@@ -662,7 +662,7 @@ def cooperative_mec(mec_list):
 
         else:
             j = i.split('_')[0]
-            _max = np.array([7, 5, 5])
+            _max = np.array([6, 5, 5])
             send = 'false'
             if not (False in list(np.greater_equal(_max, _need[j[:2]]))):
                 send = 'true'
@@ -782,7 +782,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+wait_die {}'.format(message())
+        subject = 'Deadlock results rms+wait_die {}'.format(get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -811,11 +811,47 @@ def run_me():
     while True:
         if len(hosts) == mec_no:
             print('MEC Details: ', hosts)
-            del hosts[message()]
+            del hosts[get_hostname()]
             discovering = 1
             break
         time.sleep(2)
     start_loop()
+
+
+def save_and_abort():
+    global stop
+
+    _id_ = get_hostname()[-1]
+    result = f"wt{_id_}_10_{mec_no} = {mec_waiting_time} " \
+             f"\nrtt{_id_}_10_{mec_no} = {mec_rtt} \ncpu{_id_}_10_{mec_no} = {_cpu} " \
+             f"\noff_mec{_id_}_10_{mec_no} = {_off_mec} " \
+             f"\noff_cloud{_id_}_10_{mec_no} = {_off_cloud} " \
+             f"\ninward_mec{_id_}_10_{mec_no} = {_inward_mec}" \
+             f"\nloc{_id_}_10_{mec_no} = {_loc} " \
+             f"\ndeadlock{_id_}_10_{mec_no} = {deadlock} \nmemory{_id_}_10_{mec_no} = {memory}"
+    list_result = [
+        f"wt{_id_}_10_{mec_no} = {mec_waiting_time} ",
+        f"\nrtt{_id_}_10_{mec_no} = {mec_rtt} \ncpu{_id_}_10_{mec_no} = {_cpu} ",
+        f"\no_mec{_id_}_10_{mec_no} = {_off_mec} \no_cloud{_id_}_10_{mec_no} = {_off_cloud} ",
+        f"\ninward_mec{_id_}_10_{mec_no} = {_inward_mec}",
+        f"\nloc{_id_}_10_{mec_no} = {_loc} ",
+        f"\ndeadlock{_id_}_10_{mec_no} = {deadlock} \nmemory{_id_}_10_{mec_no} = {memory}"
+    ]
+    for i in list_result:
+        cmd = 'echo "{}" >> data.py'.format(i)
+        os.system(cmd)
+        os.system('echo "{}" >> /home/mec/result/data.py'.format(i))
+
+    send_email(result)
+    stop += 1
+    '''
+    for i in thread_record:
+        i.join()
+    '''
+    _client.loop_stop()
+    time.sleep(1)
+    print('done')
+    os.system('kill -9 {}'.format(os.getpid()))
 
 
 def start_loop():
@@ -838,6 +874,7 @@ def start_loop():
     x = gp.getpass('Press any key to Start...').lower()
     if x != 'exit':
         print('========= Waiting for tasks ==========')
+        _time_ = dt.datetime.now()
         while True:
             try:
                 if len(received_task_queue) > 0:
@@ -862,28 +899,19 @@ def start_loop():
                             cooperative_mec(compare_result[0])
                         execute(compare_result[1])
                         show_graphs()
+                    _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    # show_graphs()
                     time.sleep(.5)
+                    now = dt.datetime.now()
+                    delta = now - _time_
+                    if delta > dt.timedelta(minutes=3):
+                        print('terminating programme 3 mins elapsed')
+                        save_and_abort()
+                        break
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                result = f"wt_10_{mec_no} = {mec_waiting_time} \nrtt_10_{mec_no} = {mec_rtt} " \
-                         f"\ncpu_10_{mec_no} = {_cpu} \ninward_mec10_{mec_no} = {_inward_mec}" \
-                         f"\noff_mec10_{mec_no} = {_off_mec} \noff_cloud10_{mec_no} = {_off_cloud} " \
-                         f"\nloc10_{mec_no} = {_loc} \ndeadlock10_{mec_no} = {deadlock} \nmemory10_{mec_no} = {memory}"
-                cmd = 'echo "{}" >> data.py'.format(result)
-                os.system(cmd)
-                send_email(result)
-                stop += 1
-                '''
-                for i in thread_record:
-                    i.join()
-                '''
-                _client.loop_stop()
-                time.sleep(1)
-                print('done')
-                os.system('kill -9 {}'.format(os.getpid()))
+                save_and_abort()
                 break
 
 

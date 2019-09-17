@@ -728,7 +728,7 @@ def save_and_abort():
     list_result = [
         f"wt{_id_}_3_{mec_no} = {mec_waiting_time} ",
         f"\nrtt{_id_}_3_{mec_no} = {mec_rtt} \ncpu{_id_}_3_{mec_no} = {_cpu} ",
-        f"\no_mec{_id_}_3_{mec_no} = {_off_mec} \no_cloud{_id_}_3_{mec_no} = {_off_cloud} ",
+        f"\noff_mec{_id_}_3_{mec_no} = {_off_mec} \noff_cloud{_id_}_3_{mec_no} = {_off_cloud} ",
         f"\ninward_mec{_id_}_3_{mec_no} = {_inward_mec}",
         f"\nloc{_id_}_3_{mec_no} = {_loc} ",
         f"\ndeadlock{_id_}_3_{mec_no} = {deadlock} \nmemory{_id_}_3_{mec_no} = {memory}"

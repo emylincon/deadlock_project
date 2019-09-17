@@ -301,9 +301,10 @@ def send_result(host_, data):
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect(host_, port, un, pw)
-        cmd = ('echo "{}" >> /home/mec/result/data.py'.format(data))  # task share : host ip task
+        for i in data:
+            cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
 
-        stdin, stdout, stderr = c.exec_command(cmd)
+            stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
         print(e)
 
@@ -395,9 +396,17 @@ def main():
                 result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
                          f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
                          f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}"
-                cmd = 'echo  "{}" >> record.py'.format(result)
-                os.system(cmd)
-                send_result(ho['osboxes-0'], result)
+                list_result = [
+                    f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} ",
+                    f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}",
+                    f"\nrecord{len(hosts)} = {record} ",
+                    f"\nhost_names{len(hosts)} = {host_dict}"
+                ]
+                for i in list_result:
+                    cmd = 'echo "{}" >> data.py'.format(i)
+                    os.system(cmd)
+
+                send_result(ho['osboxes-0'], list_result)
                 send_email(result)
 
                 task_client.loop_stop()
