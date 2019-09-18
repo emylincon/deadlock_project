@@ -28,7 +28,7 @@ record = []  # records the task list and execution and waiting time and host sen
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Bind to the server address
 sock.bind(server_address)
-# Tell the operating system to add the socket to the multicast group
+# Tell the operating system to add the socket to the multi-cast group
 # on all interfaces.
 group = socket.inet_aton(multicast_group)
 mreq = struct.pack('4sL', group, socket.INADDR_ANY)
