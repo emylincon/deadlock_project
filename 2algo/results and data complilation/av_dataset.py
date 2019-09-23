@@ -134,6 +134,7 @@ def format_data():
 def plot_av_times():
     axes = {ax1: 4, ax2: 5, ax3: 6}
     _data = format_data()
+    print(_data)
     for i in axes:
         histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
     fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
