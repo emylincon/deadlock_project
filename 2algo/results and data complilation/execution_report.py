@@ -11,22 +11,21 @@ ax6 = fig.add_subplot(466)
 ax7 = fig.add_subplot(467)
 ax8 = fig.add_subplot(468)
 ax9 = fig.add_subplot(469)
-ax10 = fig.add_subplot(4,6,10)
-ax11 = fig.add_subplot(4,6,11)
-ax12 = fig.add_subplot(4,6,12)
-ax13 = fig.add_subplot(4,6,13)
-ax14 = fig.add_subplot(4,6,14)
-ax15 = fig.add_subplot(4,6,15)
-ax16 = fig.add_subplot(4,6,16)
-ax17 = fig.add_subplot(4,6,17)
-ax18 = fig.add_subplot(4,6,18)
-ax19 = fig.add_subplot(4,6,19)
-ax20 = fig.add_subplot(4,6,20)
-ax21 = fig.add_subplot(4,6,21)
-ax22 = fig.add_subplot(4,6,22)
-ax23 = fig.add_subplot(4,6,23)
-ax24 = fig.add_subplot(4,6,24)
-
+ax10 = fig.add_subplot(4, 6, 10)
+ax11 = fig.add_subplot(4, 6, 11)
+ax12 = fig.add_subplot(4, 6, 12)
+ax13 = fig.add_subplot(4, 6, 13)
+ax14 = fig.add_subplot(4, 6, 14)
+ax15 = fig.add_subplot(4, 6, 15)
+ax16 = fig.add_subplot(4, 6, 16)
+ax17 = fig.add_subplot(4, 6, 17)
+ax18 = fig.add_subplot(4, 6, 18)
+ax19 = fig.add_subplot(4, 6, 19)
+ax20 = fig.add_subplot(4, 6, 20)
+ax21 = fig.add_subplot(4, 6, 21)
+ax22 = fig.add_subplot(4, 6, 22)
+ax23 = fig.add_subplot(4, 6, 23)
+ax24 = fig.add_subplot(4, 6, 24)
 
 _loc_ = {
     24: [rd.loc0_2_4, rd.loc1_2_4, rd.loc2_2_4, rd.loc3_2_4],
@@ -185,3 +184,23 @@ _inward_mec_ = {
     167: [rd.inward_mec0_16_7, rd.inward_mec1_16_7, rd.inward_mec2_16_7, rd.inward_mec3_16_7, rd.inward_mec4_16_7,
           rd.inward_mec5_16_7, rd.inward_mec6_16_7],
 }
+
+_data_ = [_off_mec_, _off_cloud_, _loc_, _inward_mec_]
+
+
+def sum_data():
+    s_deadlock= {}
+    _deadlock_ = {}
+
+    # cleaning data
+    for i in _deadlock:
+        _deadlock_[i] = [j[0] - 1 for j in _deadlock[i]]
+
+    for i in _deadlock_:
+        s_deadlock[i] = sum(_deadlock_[i])
+
+    # print("s: ", s_deadlock)
+
+    # print(f"_dead_: {_deadlock_}")
+
+    return s_deadlock
