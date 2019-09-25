@@ -60,9 +60,9 @@ def sum_deadlock():
     for i in _deadlock_:
         s_deadlock[i] = sum(_deadlock_[i])
 
-    print("s: ", s_deadlock)
+    # print("s: ", s_deadlock)
 
-    print(f"_dead_: {_deadlock_}")
+    # print(f"_dead_: {_deadlock_}")
 
     return s_deadlock
 
@@ -117,4 +117,6 @@ def format_data(d_dict):
 
 
 print(format_data(sum_deadlock()))
-print("d: ", _deadlock)
+# print("d: ", _deadlock)
+
+# no difference in results
