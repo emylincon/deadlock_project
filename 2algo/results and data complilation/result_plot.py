@@ -143,11 +143,11 @@ def format_data():
             if 7 in t_data:
                 t_data[7].append(time_av_t[j])
                 u_data[7].append(time_av_u[j])
-                s6 += 4
+                s7 += 4
             else:
                 t_data[7] = [time_av_t[j]]
                 u_data[7] = [time_av_u[j]]
-                s6 += 4
+                s7 += 4
 
     return t_data, u_data
 
@@ -155,7 +155,7 @@ def format_data():
 def plot_av_times():
     axes = {ax1: 4, ax2: 5, ax3: 6, ax4: 7}
     _data = format_data()
-    print(_data)
+    # print(_data)
     for i in axes:
         histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
     fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
@@ -163,4 +163,4 @@ def plot_av_times():
 
 
 plot_av_times()
-# fix bugs
+
