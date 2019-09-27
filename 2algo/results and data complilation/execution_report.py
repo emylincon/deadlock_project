@@ -185,7 +185,7 @@ _inward_mec_ = {
           rd.inward_mec5_16_7, rd.inward_mec6_16_7],
 }
 
-_data_ = [_off_mec_, _off_cloud_, _loc_, _inward_mec_]
+_data_ = [_off_mec_, _off_cloud_, _loc_]    # _inward_mec_]
 
 
 def sum_data():
@@ -193,7 +193,7 @@ def sum_data():
     off_cloud = {}
     loc = {}
     inward_mec = {}
-    d_list = [off_mec, off_cloud, loc, inward_mec]
+    d_list = [off_mec, off_cloud, loc]     # inward_mec]
     t = 0
     for data in _data_:
         name = d_list[t]
@@ -277,6 +277,7 @@ def group_format(data_list):
                     d_dict[key] = [value]
 
     # print("Grouplist: ", group_list)
+    # print(f"format_list: {format_list}")
 
     return group_list
 
@@ -291,7 +292,7 @@ def percent(value, total):
 def plot_offloaded_remote(data_list, ax, _id_):
     # data_list =  [off_mec, off_cloud, loc, inward_mec]
     ax_list = {ax1: 4, ax7: 5, ax13: 6, ax19: 7}
-
+    title = [ax1, ax2, ax3, ax4, ax5, ax6]
     names = ('RMS + Bankers',
              'EDF + Bankers',
              'RMS + wound wait',
@@ -299,28 +300,20 @@ def plot_offloaded_remote(data_list, ax, _id_):
              'EDF + wound wait',
              'EDF + wait die')
 
-    keys = ['O-Out', 'Cloud', 'Local', 'O-In']
+    keys = ['off-mec', 'Cloud', 'Local']     # , 'O-In']
     total = sum(data_list)
 
     val = [percent(data_list[0], total),
            percent(data_list[1], total),
-           percent(data_list[2], total),
-           percent(data_list[3], total)]
-    cols = ['r', 'g', 'b', 'm']
-    ypos = ([0, 1, 2, 3])
+           percent(data_list[2], total)]      # percent(data_list[3], total)]
+    cols = ['r', 'g', 'b']      # , 'm']
+    ypos = ([0, 1, 2])         # , 3])
 
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-
-    ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5),
-            startangle=-40, shadow=True, explode=explode, colors=cols)
     values = data_list
+    # print(values)
     for i in values:
         j = values.index(i)
+        # print(j)
         ax.text(j - 0.1, values[j], '{}%'.format(val[j]), rotation=0,
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax.set_xticks(ypos)
@@ -328,7 +321,9 @@ def plot_offloaded_remote(data_list, ax, _id_):
     ax.bar(ypos, values, align='center', color=cols, alpha=0.3)
     if ax in ax_list:
         ax.set_ylabel(f'{ax_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
-    ax.set_title(names[_id_])
+
+    if ax in title:
+        ax.set_title(names[_id_])
     plt.subplot(ax)
 
 
@@ -336,13 +331,22 @@ def plot_av_times():
     axes = [ax1, ax2, ax3, ax4, ax5, ax6,
             ax7, ax8, ax9, ax10, ax11, ax12,
             ax13, ax14, ax15, ax16, ax17, ax18,
-            ax19, ax20, ax21, ax22, ax23, ax24, ]
+            ax19, ax20, ax21, ax22, ax23, ax24]
     _data = group_format(sum_data())
     # plot_offloaded_remote(data_list, ax, _id_)
-    # for i in axes:
-    #    histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
+    no = 0
+    for i in _data:
+        # i = keys 4 5 6 7
+        for j in _data[i]:
+            # _data[i] = dictionary => {0: [], 1: [] ...}
+            data_plot = _data[i][j]
+            plot_offloaded_remote(data_plot, axes[no], j)
+            no += 1
     fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
+    plt.subplots_adjust(wspace=0.3, hspace=0.2)
     plt.show()
 
 
-print(group_format((sum_data())))
+plot_av_times()
+# group_format(sum_data())
+# print("data: ", _data_)
