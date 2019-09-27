@@ -288,8 +288,9 @@ def percent(value, total):
         return 0
 
 
-def plot_offloaded_remote(data_list, ax, id):
+def plot_offloaded_remote(data_list, ax, _id_):
     # data_list =  [off_mec, off_cloud, loc, inward_mec]
+    ax_list = {ax1: 4, ax7: 5, ax13: 6, ax19: 7}
 
     names = ('RMS + Bankers',
              'EDF + Bankers',
@@ -325,19 +326,19 @@ def plot_offloaded_remote(data_list, ax, id):
     ax.set_xticks(ypos)
     ax.set_xticklabels(keys)
     ax.bar(ypos, values, align='center', color=cols, alpha=0.3)
-    ax.set_title(names[id])
+    if ax in ax_list:
+        ax.set_ylabel(f'{ax_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
+    ax.set_title(names[_id_])
     plt.subplot(ax)
 
 
 def plot_av_times():
-    axes = {
-        ax1: 4, ax2: 4, ax3: 4, ax4: 4, ax5: 4, ax6: 4,
-        ax7: 5, ax8: 5, ax9: 5, ax10: 5, ax11: 5, ax12: 5,
-        ax13: 6, ax14: 6, ax15: 6, ax16: 6, ax17: 6, ax18: 6,
-        ax19: 7, ax20: 7, ax21: 7, ax22: 7, ax23: 7, ax24: 7,
-    }
+    axes = [ax1, ax2, ax3, ax4, ax5, ax6,
+            ax7, ax8, ax9, ax10, ax11, ax12,
+            ax13, ax14, ax15, ax16, ax17, ax18,
+            ax19, ax20, ax21, ax22, ax23, ax24, ]
     _data = group_format(sum_data())
-    # print(_data)
+    # plot_offloaded_remote(data_list, ax, _id_)
     # for i in axes:
     #    histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
     fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
