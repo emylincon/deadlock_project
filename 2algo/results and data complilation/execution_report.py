@@ -189,18 +189,159 @@ _data_ = [_off_mec_, _off_cloud_, _loc_, _inward_mec_]
 
 
 def sum_data():
-    s_deadlock= {}
-    _deadlock_ = {}
+    off_mec = {}
+    off_cloud = {}
+    loc = {}
+    inward_mec = {}
+    d_list = [off_mec, off_cloud, loc, inward_mec]
+    t = 0
+    for data in _data_:
+        name = d_list[t]
+        for key in data:
+            name[key] = sum(data[key])
+        t += 1
 
-    # cleaning data
-    for i in _deadlock:
-        _deadlock_[i] = [j[0] - 1 for j in _deadlock[i]]
+    # print(d_list)
+    return d_list
 
-    for i in _deadlock_:
-        s_deadlock[i] = sum(_deadlock_[i])
 
-    # print("s: ", s_deadlock)
+def format_data(d_dict):
+    t_data = {}
+    _keys = list(d_dict.keys())
+    s4 = 0
+    s5 = 1
+    s6 = 2
+    s7 = 3
+    for i in range(len(_keys)):
+        j = _keys[i]
+        if i == s4:
+            if 4 in t_data:
+                t_data[4].append(d_dict[j])
 
-    # print(f"_dead_: {_deadlock_}")
+                s4 += 4
+            else:
+                t_data[4] = [d_dict[j]]
 
-    return s_deadlock
+                s4 += 4
+        elif i == s5:
+            if 5 in t_data:
+                t_data[5].append(d_dict[j])
+
+                s5 += 4
+            else:
+                t_data[5] = [d_dict[j]]
+
+                s5 += 4
+        elif i == s6:
+            if 6 in t_data:
+                t_data[6].append(d_dict[j])
+
+                s6 += 4
+            else:
+                t_data[6] = [d_dict[j]]
+
+                s6 += 4
+        elif i == s7:
+            if 7 in t_data:
+                t_data[7].append(d_dict[j])
+
+                s7 += 4
+            else:
+                t_data[7] = [d_dict[j]]
+
+                s7 += 4
+
+    return t_data
+
+
+def group_format(data_list):
+    format_list = []
+    for i in data_list:
+        format_list.append(format_data(i))
+
+    group_list = {4: {},
+                  5: {},
+                  6: {},
+                  7: {}
+                  }
+
+    for i in format_list:
+        for j in i:
+            _list_ = i[j]
+            for key in range(len(_list_)):
+                value = _list_[key]
+                d_dict = group_list[j]
+                if key in d_dict:
+                    d_dict[key].append(value)
+                else:
+                    d_dict[key] = [value]
+
+    # print("Grouplist: ", group_list)
+
+    return group_list
+
+
+def percent(value, total):
+    if value > 0:
+        return round((value / total) * 100, 2)
+    else:
+        return 0
+
+
+def plot_offloaded_remote(data_list, ax, id):
+    # data_list =  [off_mec, off_cloud, loc, inward_mec]
+
+    names = ('RMS + Bankers',
+             'EDF + Bankers',
+             'RMS + wound wait',
+             'RMS + wait die',
+             'EDF + wound wait',
+             'EDF + wait die')
+
+    keys = ['O-Out', 'Cloud', 'Local', 'O-In']
+    total = sum(data_list)
+
+    val = [percent(data_list[0], total),
+           percent(data_list[1], total),
+           percent(data_list[2], total),
+           percent(data_list[3], total)]
+    cols = ['r', 'g', 'b', 'm']
+    ypos = ([0, 1, 2, 3])
+
+    explode = []
+    for i in val:
+        if i == max(val):
+            explode.append(0.1)
+        else:
+            explode.append(0)
+
+    ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5),
+            startangle=-40, shadow=True, explode=explode, colors=cols)
+    values = data_list
+    for i in values:
+        j = values.index(i)
+        ax.text(j - 0.1, values[j], '{}%'.format(val[j]), rotation=0,
+                ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
+    ax.set_xticks(ypos)
+    ax.set_xticklabels(keys)
+    ax.bar(ypos, values, align='center', color=cols, alpha=0.3)
+    ax.set_title(names[id])
+    plt.subplot(ax)
+
+
+def plot_av_times():
+    axes = {
+        ax1: 4, ax2: 4, ax3: 4, ax4: 4, ax5: 4, ax6: 4,
+        ax7: 5, ax8: 5, ax9: 5, ax10: 5, ax11: 5, ax12: 5,
+        ax13: 6, ax14: 6, ax15: 6, ax16: 6, ax17: 6, ax18: 6,
+        ax19: 7, ax20: 7, ax21: 7, ax22: 7, ax23: 7, ax24: 7,
+    }
+    _data = group_format(sum_data())
+    # print(_data)
+    # for i in axes:
+    #    histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
+    fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
+    plt.show()
+
+
+print(group_format((sum_data())))
