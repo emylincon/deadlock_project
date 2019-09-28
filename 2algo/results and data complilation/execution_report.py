@@ -185,7 +185,7 @@ _inward_mec_ = {
           rd.inward_mec5_16_7, rd.inward_mec6_16_7],
 }
 
-_data_ = [_off_mec_, _off_cloud_, _loc_]    # _inward_mec_]
+_data_ = [_off_mec_, _loc_, _off_cloud_]    # _inward_mec_]
 
 
 def sum_data():
@@ -193,7 +193,7 @@ def sum_data():
     off_cloud = {}
     loc = {}
     inward_mec = {}
-    d_list = [off_mec, off_cloud, loc]     # inward_mec]
+    d_list = [off_mec, loc, off_cloud]     # inward_mec]
     t = 0
     for data in _data_:
         name = d_list[t]
@@ -300,7 +300,7 @@ def plot_offloaded_remote(data_list, ax, _id_):
              'EDF + wound wait',
              'EDF + wait die')
 
-    keys = ['off-mec', 'Cloud', 'Local']     # , 'O-In']
+    keys = ['off-mec', 'Local', 'Cloud']     # , 'O-In']
     total = sum(data_list)
 
     val = [percent(data_list[0], total),
