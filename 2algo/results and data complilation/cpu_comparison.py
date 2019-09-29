@@ -159,6 +159,23 @@ def plot_cpu(plot_data, ax, no):
                 label=names[style_id])
     ax.set_title(f'Moving Utilization for {no} MEC Set-up')
     ax.set_xlabel('Time (seconds)')
+    ax.set_ylabel('CPU Utilization in Percentage')
+    ax.legend()
+    plt.subplot(ax)
+
+
+def _plot_cpu(plot_data, ax, no):
+    ax.grid(True)
+
+    for i in plot_data:
+        style_id = plot_data.index(i)
+
+        ax.plot(i,
+
+                linewidth=2,
+                label=names[style_id])
+    ax.set_title(f'Moving Utilization for {no} MEC Set-up')
+    ax.set_xlabel('Time (seconds)')
     ax.legend()
     plt.subplot(ax)
 
@@ -169,9 +186,10 @@ def call_plot():
 
     for i in k:
         #print(i, len(k[i]), k[i])
+        #plot_cpu(k[i], axis[i], i)
         plot_cpu(k[i], axis[i], i)
     fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
-    plt.subplots_adjust(wspace=0.3, hspace=0.2)
+    # plt.subplots_adjust(wspace=0.3, hspace=0.2)
     plt.show()
 
 call_plot()
