@@ -2,14 +2,11 @@ import matplotlib.pyplot as plt
 import data as rd
 
 fig = plt.figure()
-ax1 = fig.add_subplot(461)
-ax2 = fig.add_subplot(462)
-ax3 = fig.add_subplot(463)
-ax4 = fig.add_subplot(464)
-ax5 = fig.add_subplot(465)
-ax6 = fig.add_subplot(466)
-ax7 = fig.add_subplot(467)
-ax8 = fig.add_subplot(468)
+ax1 = fig.add_subplot(141)
+ax2 = fig.add_subplot(142)
+ax3 = fig.add_subplot(143)
+ax4 = fig.add_subplot(144)
+
 
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c-.s']
 names = ('RMS + Bankers',
@@ -145,25 +142,36 @@ def _mov_avg(a1):
     return ma1
 
 
-def plot_cpu(plot_data, ax, style_id):
+def plot_cpu(plot_data, ax, no):
     ax.grid(True)
 
-    mv = _mov_avg(plot_data)
-    pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
-    if pt[-1] != mv[-1]:
-        pt.append(mv[-1])
-    ptx = [mv.index(i) for i in pt]
-    ax.plot(ptx,
-            pt,
-            style[style_id],
-            linewidth=2,
-            label=names[style_id])
-    ax.set_title('RTT Utilization over Time')
-    ax3.set_xlabel('Time (seconds)')
-    ax3.legend()
-    plt.subplot(ax3)
+    for i in plot_data:
+        style_id = plot_data.index(i)
+        mv = _mov_avg(i)
+        pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax.plot(ptx,
+                pt,
+                style[style_id],
+                linewidth=2,
+                label=names[style_id])
+    ax.set_title(f'Moving Utilization for {no} MEC Set-up')
+    ax.set_xlabel('Time (seconds)')
+    ax.legend()
+    plt.subplot(ax)
 
 
-k = format_data(_cpu)
-for i in k:
-    print(i, k[i])
+def call_plot():
+    axis = {4:ax1, 5:ax2, 6:ax3, 7:ax4}
+    k = format_data(_cpu)
+
+    for i in k:
+        #print(i, len(k[i]), k[i])
+        plot_cpu(k[i], axis[i], i)
+    fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
+    plt.subplots_adjust(wspace=0.3, hspace=0.2)
+    plt.show()
+
+call_plot()
