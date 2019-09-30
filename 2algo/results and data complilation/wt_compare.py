@@ -36,36 +36,36 @@ names = ('RMS + Bankers',
          'EDF + wound wait',
          'EDF + wait die')
 
-_rtt = {
-    24: rd.rtt2_2_4,
-    25: rd.rtt2_2_5,
-    26: rd.rtt2_2_6,
-    27: rd.rtt2_2_7,
+_wt = {
+    24: rd.wt2_2_4,
+    25: rd.wt2_2_5,
+    26: rd.wt2_2_6,
+    27: rd.wt2_2_7,
 
-    34: rd.rtt2_3_4,
-    35: rd.rtt2_3_5,
-    36: rd.rtt2_3_6,
-    37: rd.rtt2_3_7,
+    34: rd.wt2_3_4,
+    35: rd.wt2_3_5,
+    36: rd.wt2_3_6,
+    37: rd.wt2_3_7,
 
-    74: rd.rtt2_7_4,
-    75: rd.rtt2_7_5,
-    76: rd.rtt2_7_6,
-    77: rd.rtt2_7_7,
+    74: rd.wt2_7_4,
+    75: rd.wt2_7_5,
+    76: rd.wt2_7_6,
+    77: rd.wt2_7_7,
 
-    104: rd.rtt2_10_4,
-    105: rd.rtt2_10_5,
-    106: rd.rtt2_10_6,
-    107: rd.rtt2_10_7,
+    104: rd.wt2_10_4,
+    105: rd.wt2_10_5,
+    106: rd.wt2_10_6,
+    107: rd.wt2_10_7,
 
-    124: rd.rtt2_12_4,
-    125: rd.rtt2_12_5,
-    126: rd.rtt2_12_6,
-    127: rd.rtt2_12_7,
+    124: rd.wt2_12_4,
+    125: rd.wt2_12_5,
+    126: rd.wt2_12_6,
+    127: rd.wt2_12_7,
 
-    164: rd.rtt2_16_4,
-    165: rd.rtt2_16_5,
-    166: rd.rtt2_16_6,
-    167: rd.rtt2_16_7,
+    164: rd.wt2_16_4,
+    165: rd.wt2_16_5,
+    166: rd.wt2_16_6,
+    167: rd.wt2_16_7,
 }
 
 
@@ -130,7 +130,7 @@ def _mov_avg(a1):
     return ma1
 
 
-def plot_rtt(plot_data, ax, no, mec):
+def plot_wt(plot_data, ax, no, mec):
     ax.grid(True)
     ax_list = {ax1: 4, ax7: 5, ax13: 6, ax19: 7}
     list_dict = list(plot_data.keys())
@@ -153,7 +153,7 @@ def plot_rtt(plot_data, ax, no, mec):
     ax.set_xlabel('Time (seconds)')
     if ax in ax_list:
         ax.set_ylabel(f'{ax_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
-    # ax.set_ylabel('RTT ')
+    # ax.set_ylabel('wt ')
     # ax.legend()
     plt.subplot(ax)
 
@@ -163,19 +163,19 @@ def call_plot():
             ax7, ax8, ax9, ax10, ax11, ax12,
             ax13, ax14, ax15, ax16, ax17, ax18,
             ax19, ax20, ax21, ax22, ax23, ax24]
-    k = format_data(_rtt)
+    k = format_data(_wt)
     axis_id = 0
     for i in k:
         print(i, len(k[i]), k[i])
         for j in k[i]:
             nos = k[i].index(j)
-            plot_rtt(j, axis[axis_id], nos, i)
+            plot_wt(j, axis[axis_id], nos, i)
             axis_id += 1
 
-        #plot_rtt(k[i], axis[i], i)
+        #plot_wt(k[i], axis[i], i)
 
-    fig.suptitle('MEC RTT Utilization During Deadlock Experiment')
-    plt.subplots_adjust(wspace=0.3, hspace=0.2)
+    fig.suptitle('MEC Waiting Time Convergence During Deadlock Experiment')
+    # plt.subplots_adjust(wspace=0.3, hspace=0.2)
     plt.show()
 
 

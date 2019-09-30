@@ -175,7 +175,7 @@ def call_plot():
         #plot_rtt(k[i], axis[i], i)
 
     fig.suptitle('MEC RTT Utilization During Deadlock Experiment')
-    plt.subplots_adjust(wspace=0.3, hspace=0.2)
+    # plt.subplots_adjust(wspace=0.3, hspace=0.2)
     plt.show()
 
 
