@@ -20,7 +20,7 @@ import smtplib
 import config
 import paramiko
 
-# update required
+# update required not done
 hosts = {}  # {hostname: ip}
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
