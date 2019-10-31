@@ -17,7 +17,9 @@ z = np.array([[4, 4, 4, 4, 4, 4, 4],[5, 5, 5, 5, 5, 5, 5], [6, 6, 6, 6, 6, 6, 6]
 ax.plot_surface(x, y, z, cmap=plt.cm.jet, rstride=1, cstride=1, linewidth=0)
 '''
 
-x, y, z = [r.randrange(10) for i in list(range(10))], [r.randrange(10) for j in list(range(10))], \
-          [r.randrange(10) for k in list(range(10))]
-ax.plot(x,y,z)
+x, y, z = np.array([[r.randrange(10) for i in list(range(10))]]), np.array([[r.randrange(10) for j in list(range(10))]]), \
+          np.array([[r.randrange(10) for k in list(range(10))], [r.randrange(10) for h in list(range(10))]])
+#ax.plot(x,y,z)
+ax.plot_surface(x, y, z, cmap=plt.cm.jet, rstride=1, cstride=1, linewidth=0)
+
 plt.show()
