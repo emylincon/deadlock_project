@@ -33,7 +33,7 @@ def line_graph():
     # ax1.plot(list(range(500)), _mov_avg(data.cpu_1), linewidth=2, label='RMS + Bankers')
     y = np.array(_mov_avg(hom_data.cpu_1))
     x = np.array(list(range(500)))
-    z = np.array([4 for i in list(range(500))])
+    z = np.array([i for i in list(range(500))])
     ax.plot(x,y,z)
     #ax.plot_surface(x, y, z, cmap=plt.cm.jet, rstride=1, cstride=1, linewidth=0)
 
@@ -44,32 +44,32 @@ def surface_graph():
     # ax1.plot(list(range(500)), _mov_avg(data.cpu_1), linewidth=2, label='RMS + Bankers')
     y1 = np.array([_mov_avg(hom_data.cpu_1)])
     x1 = np.array([list(range(500))])
-    z1 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z1 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax.plot_surface(x1, y1, z1, cmap=plt.cm.jet, rstride=1, cstride=1, linewidth=0, label='RMS + Bankers')
 
     y2 = np.array([_mov_avg(hom_data.cpu_3)])
     x2 = np.array([list(range(500))])
-    z2 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z2 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax.plot_surface(x2, y2, z2, color='r', rstride=1, cstride=1, linewidth=0, label='EDF + Bankers')
 
     y3 = np.array([_mov_avg(hom_data.cpu_5)])
     x3 = np.array([list(range(500))])
-    z3 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z3 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax.plot_surface(x3, y3, z3, color='y', rstride=1, cstride=1, linewidth=0, label='RMS + wound wait')
 
     y4 = np.array([_mov_avg(hom_data.cpu_8)])
     x4 = np.array([list(range(500))])
-    z4 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z4 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax.plot_surface(x4, y4, z4, color='m', rstride=1, cstride=1, linewidth=0, label='RMS + wait die')
 
     y5 = np.array([_mov_avg(hom_data.cpu_11)])
     x5 = np.array([list(range(500))])
-    z5 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z5 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax.plot_surface(x5, y5, z5, color='c', rstride=1, cstride=1, linewidth=0, label='EDF + wound wait')
 
     y6 = np.array([_mov_avg(hom_data.cpu_16)])
     x6 = np.array([list(range(500))])
-    z6 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z6 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax.plot_surface(x6, y6, z6, color='k', rstride=1, cstride=1, linewidth=0, label='EDF + wait die')
 
     # Add a color bar which maps values to colors.
@@ -88,32 +88,32 @@ def surface_5_graph():
     # ax1.plot(list(range(500)), _mov_avg(data.cpu_1), linewidth=2, label='RMS + Bankers')
     y1 = np.array([_mov_avg(hom_data.cpu_1_5)])
     x1 = np.array([list(range(500))])
-    z1 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z1 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax1.plot_surface(x1, y1, z1, cmap=plt.cm.jet, rstride=1, cstride=1, linewidth=0, label='RMS + Bankers')
 
     y2 = np.array([_mov_avg(hom_data.cpu_3_5)])
     x2 = np.array([list(range(500))])
-    z2 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z2 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax1.plot_surface(x2, y2, z2, color='r', rstride=1, cstride=1, linewidth=0, label='EDF + Bankers')
 
     y3 = np.array([_mov_avg(hom_data.cpu_5_5)])
     x3 = np.array([list(range(500))])
-    z3 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z3 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax1.plot_surface(x3, y3, z3, color='y', rstride=1, cstride=1, linewidth=0, label='RMS + wound wait')
 
     y4 = np.array([_mov_avg(hom_data.cpu_8_5)])
     x4 = np.array([list(range(500))])
-    z4 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z4 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax1.plot_surface(x4, y4, z4, color='m', rstride=1, cstride=1, linewidth=0, label='RMS + wait die')
 
     y5 = np.array([_mov_avg(hom_data.cpu_11_5)])
     x5 = np.array([list(range(500))])
-    z5 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z5 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax1.plot_surface(x5, y5, z5, color='c', rstride=1, cstride=1, linewidth=0, label='EDF + wound wait')
 
     y6 = np.array([_mov_avg(hom_data.cpu_16_5)])
     x6 = np.array([list(range(500))])
-    z6 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z6 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax1.plot_surface(x6, y6, z6, color='k', rstride=1, cstride=1, linewidth=0, label='EDF + wait die')
 
     # Add a color bar which maps values to colors.
@@ -129,32 +129,32 @@ def surface_6_graph():
     # ax1.plot(list(range(500)), _mov_avg(data.cpu_1), linewidth=2, label='RMS + Bankers')
     y1 = np.array([_mov_avg(hom_data.cpu_1_6)])
     x1 = np.array([list(range(500))])
-    z1 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z1 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax2.plot_surface(x1, y1, z1, cmap=plt.cm.jet, rstride=3, cstride=3, linewidth=0, label='RMS + Bankers')
 
     y2 = np.array([_mov_avg(hom_data.cpu_3_6)])
     x2 = np.array([list(range(500))])
-    z2 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z2 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax2.plot_surface(x2, y2, z2, color='r', rstride=3, cstride=3, linewidth=0, label='EDF + Bankers')
 
     y3 = np.array([_mov_avg(hom_data.cpu_5_6)])
     x3 = np.array([list(range(500))])
-    z3 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z3 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax2.plot_surface(x3, y3, z3, color='y', rstride=3, cstride=3, linewidth=0, label='RMS + wound wait')
 
     y4 = np.array([_mov_avg(hom_data.cpu_8_6)])
     x4 = np.array([list(range(500))])
-    z4 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z4 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax2.plot_surface(x4, y4, z4, color='m', rstride=3, cstride=3, linewidth=0, label='RMS + wait die')
 
     y5 = np.array([_mov_avg(hom_data.cpu_11_6)])
     x5 = np.array([list(range(500))])
-    z5 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z5 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax2.plot_surface(x5, y5, z5, color='c', rstride=3, cstride=3, linewidth=0, label='EDF + wound wait')
 
     y6 = np.array([_mov_avg(hom_data.cpu_16_6)])
     x6 = np.array([list(range(500))])
-    z6 = np.array([[4 for i in list(range(500))], [5 for i in list(range(500))]])
+    z6 = np.array([[i for i in list(range(500))], [i for i in list(range(500))]])
     ax2.plot_surface(x6, y6, z6, color='k', rstride=3, cstride=3, linewidth=0, label='EDF + wait die')
 
     # Add a color bar which maps values to colors.
