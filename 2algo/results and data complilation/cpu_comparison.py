@@ -26,7 +26,7 @@ _cpu = {
     34: rd.cpu2_3_4,
     35: rd.cpu2_3_5,
     36: rd.cpu2_3_6,
-    37: rd.cpu2_3_7,
+    37: redo.cpu2_3_7,
 
     74: rd.cpu2_7_4,
     75: rd.cpu2_7_5,
