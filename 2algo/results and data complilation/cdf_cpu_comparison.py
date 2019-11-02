@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import data as rd
+import numpy as np
 
 fig = plt.figure()
 ax1 = fig.add_subplot(141)
@@ -142,16 +143,28 @@ def _mov_avg(a1):
     return ma1
 
 
+def cdf(data):
+    n = len(data)
+    x = np.sort(data) # sort your data
+    y = np.arange(1, n + 1) / n # calculate cumulative probability
+    return x, y
+
+
 def plot_cpu(plot_data, ax, no):
     ax.grid(True)
 
     for i in plot_data:
         style_id = plot_data.index(i)
-        mv = _mov_avg(i)
-        pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
-        if pt[-1] != mv[-1]:
-            pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+
+        '''
+        x, y = cdf(i)
+        pt = y[0:len(y):int((len(y) / 10)) + 1]
+        if pt[-1] != y[-1]:
+            pt = np.append(pt, y[-1])
+        y = list(y)
+        ptx = [x[y.index(i)] for i in pt]
+        '''
+        ptx, pt = cdf(i)
         ax.plot(ptx,
                 pt,
                 style[style_id],
