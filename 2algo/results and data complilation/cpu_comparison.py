@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import data as rd
+import redo_for_cpu_data as redo
 
 fig = plt.figure()
 ax1 = fig.add_subplot(141)
