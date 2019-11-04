@@ -93,7 +93,7 @@ python3 deadlock_project/algo/0_cloud.py
 ###### MEC nodes:
 navigate to the MEC user. that is where the deadlock_project is sitting
 ```bash
-cd /deadlock_project/2algo/
+cd /deadlock_project/algo/
 ```
 * run the setup.sh script to download necessary files for the algorithms to run
 ```bash
