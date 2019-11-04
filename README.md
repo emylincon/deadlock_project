@@ -61,9 +61,9 @@ navigate to the MEC user. that is where the deadlock_project is sitting
 cd /deadlock_project/2algo/
 ```
 run any of the desired algorithm
-* the speak .py runs only on the brokers
+* the speak .py runs only on the broker with is usually the first MEC
 * the gui.py runs only on a gui not a server
-* the np.py runs on any other node
+* the NS.py runs on any other node
 
 
 ###### Clients:
@@ -80,3 +80,34 @@ run any of the desired algorithm
 * The following are the steps for running and setup of the system. 
 * The files for homogeneous are located in algo folder
 
+###### cloud node:
+* start the cloud nodes.
+* run the setup.sh script to download necessary files for the algorithms to run
+```bash
+sudo bash setup.sh 
+```
+* first start the ssh server on the cloud node
+* then run the python script.
+```bash
+python3 deadlock_project/algo/0_cloud.py
+```
+
+
+###### MEC nodes:
+navigate to the MEC user. that is where the deadlock_project is sitting
+```bash
+cd /deadlock_project/2algo/
+```
+* run the setup.sh script to download necessary files for the algorithms to run
+```bash
+sudo bash setup.sh 
+```
+* start ssh server
+* run any of the desired algorithm
+* the speak .py should be executed first
+* the gui.py runs only on a gui not a server
+* the NS.py runs on any other node
+* all the files need a predefined distribution data to run except the files that have the letter 'n' just after the number
+* the predefined data available in `deadlock_project/algo/Experiment` could be used
+* the data available are labelled `data.py`, `data1.py`, `data2.py` and `data4.py`
+* for any of these to be used, it has to be renamed to `data.py` and moved to the directory `deadlock_project/algo`
