@@ -7,9 +7,6 @@
 ### The distribution of tasks used 
 `g/g/1 (((23**r.randrange(1, 1331)) % r.randrange(1, 1777)) % 5)`
 
-```
-homogenous experiment done. still on progress!
-```
 
 #### SET UP Commands
 ```
