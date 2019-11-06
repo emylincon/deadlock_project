@@ -55,18 +55,18 @@ allocation = {
     't5': [0, 0, 2]
 }
 
-mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
+mec_waiting_time = {}  # {ip : [moving (waiting time + rtt)]}
 
-offload_register = {}      # {task: host_ip}
+offload_register = {}  # {task: host_ip}
 
-mec_rtt = {}               # {ip: [RTT]}
+mec_rtt = {}  # {ip: [RTT]}
 
-prev_t = 0            # variable for cpu util
-_cpu = []             # cpu plot list
+prev_t = 0  # variable for cpu util
+_cpu = []  # cpu plot list
 
-_off_mec = 0          # used to keep a count of tasks offloaded to mec
-_off_cloud = 0        # used to keep a count of tasks offloaded to cloud
-_loc = 0              # used to keep a count of tasks executed locally
+_off_mec = 0  # used to keep a count of tasks offloaded to mec
+_off_cloud = 0  # used to keep a count of tasks offloaded to cloud
+_loc = 0  # used to keep a count of tasks executed locally
 _pos = 0
 
 fig = plt.figure()
@@ -77,13 +77,13 @@ ax4 = fig.add_subplot(224)
 
 
 def _mov_avg(a1):
-    ma1=[] # moving average list
-    avg1=0 # movinf average pointwise
-    count=0
+    ma1 = []  # moving average list
+    avg1 = 0  # movinf average pointwise
+    count = 0
     for i in range(len(a1)):
-        count+=1
-        avg1=((count-1)*avg1+a1[i])/count
-        ma1.append(avg1) #cumulative average formula
+        count += 1
+        avg1 = ((count - 1) * avg1 + a1[i]) / count
+        ma1.append(avg1)  # cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
 
@@ -234,10 +234,10 @@ def edf():
     for i in sorted_dead:
         period = tasks[i[0]]['period']
         # print('lcm: ', t_lcm, ' period: ', period)
-        t_range = int(t_lcm/period)
+        t_range = int(t_lcm / period)
         last_dead = 0
         for j in range(t_range):
-            ready_task.append((i[0], last_dead+tasks[i[0]]['deadline']))
+            ready_task.append((i[0], last_dead + tasks[i[0]]['deadline']))
             last_dead += period
 
     ready_task = sorted(ready_task, key=lambda t: t[1])
@@ -246,13 +246,13 @@ def edf():
     t_time_ = 0
     schedule = []
     missed = []
-    register = {i: 0 for i in tasks.keys()}   # {ti : amount executed}
+    register = {i: 0 for i in tasks.keys()}  # {ti : amount executed}
     for i in ready_task:
-        if (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
-            while (t_time_//tasks[i[0]]['period'])+1 <= register[i[0]]:
+        if (t_time_ // tasks[i[0]]['period']) + 1 <= register[i[0]]:
+            while (t_time_ // tasks[i[0]]['period']) + 1 <= register[i[0]]:
                 t_time_ += 1
                 # schedule.append(('idle', t_time))
-        if (t_time_//tasks[i[0]]['period'])+1 > register[i[0]]:
+        if (t_time_ // tasks[i[0]]['period']) + 1 > register[i[0]]:
             if t_time_ + tasks[i[0]]['wcet'] <= i[1]:
                 register[i[0]] += 1
                 t_time_ += tasks[i[0]]['wcet']
@@ -394,11 +394,11 @@ def calc_wait_time(list_seq):
     pre = 0
     time_dic = {}
     for i in list_seq:
-        j = '_'.join(i.split('_')[:-1])            # i = 't5_3_3', j = 't5_3'
+        j = '_'.join(i.split('_')[:-1])  # i = 't5_3_3', j = 't5_3'
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     w_send = time_dic[list(time_dic.keys())[-1]]
-    send_message(str(w_send))   # Broadcasting waiting time to cooperative MECs
+    send_message(str(w_send))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
@@ -417,7 +417,6 @@ def compare_local_mec(list_seq):
 
 
 def calculate_mov_avg(ma1, a1):
-
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
         avg1 = mec_waiting_time[ma1][-1]
@@ -463,7 +462,8 @@ def receive_message():
                 mec_rtt[address[0]] = []
 
         elif address[0] != host_ip:
-            w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(address[0]))      # calcuate moving average of mec wait time => w_time = wait time + rtt
+            w_time = calculate_mov_avg(address[0], float(data.decode()) + get_rtt(
+                address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
             if address[0] in mec_waiting_time:
                 mec_waiting_time[address[0]].append(w_time)
             else:
@@ -489,7 +489,8 @@ def mec_task_unicast(task, host_):
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect(host_, port, un, pw)
-        cmd = ('echo "{} {} {}" >> /home/mec/deadlock_project/temp/task_share.txt'.format(host_ip, task, t_time[task[:2]]))  # task share : host ip task
+        cmd = ('echo "{} {} {}" >> /home/mec/deadlock_project/temp/task_share.txt'.format(host_ip, task, t_time[
+            task[:2]]))  # task share : host ip task
 
         stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
@@ -510,11 +511,13 @@ def cooperative_mec(mec_list, n):
 
         elif n == 0:
             j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:     # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            if mec_waiting_time[_host][-1] < t_time[j][
+                1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
-                mec_task_unicast(i, _host)                 # SENDS TASK TO MEC FOR EXECUTION
+                mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])      # adds a new average waiting time
+                mec_waiting_time[_host].append(
+                    mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
                 _off_mec += 1
 
@@ -525,11 +528,13 @@ def cooperative_mec(mec_list, n):
                 _off_cloud += 1
         else:
             j = '_'.join(i.split('_')[:-1])
-            if mec_waiting_time[_host][-1] < t_time[j][1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
+            if mec_waiting_time[_host][-1] < t_time[j][
+                1]:  # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN TASK LATENCY
 
                 mec_task_unicast(i, _host)  # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
+                mec_waiting_time[_host].append(
+                    mec_waiting_time[_host][-1] + t_time[j][0])  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
                 _off_mec += 1
 
@@ -544,7 +549,7 @@ def check_mec_offload():
     global offloaded
 
     offloaded = []
-    t_mec = {}                # {t1: [execution, latency}
+    t_mec = {}  # {t1: [execution, latency}
     try:
         fr = open('/home/mec/deadlock_project/temp/task_share.txt', 'r')
         t = fr.readlines()
@@ -567,7 +572,7 @@ def execute(local):
     for i in local:
         j = '_'.join(i.split('_')[:-1])
         time.sleep(t_time[j][0])
-        print('#' *((local.index(i) + 1) * 3), ' Executed: ', i)
+        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if len(j) > 2:
             send.append(j)
     print('============== EXECUTION DONE ===============')
@@ -586,7 +591,8 @@ def send_back_task(l_list):
 
             c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             c.connect(offload_register[i], port, un, pw)
-            cmd = ('echo "{} {}" >> /home/mec/deadlock_project/temp/executed.txt'.format(i, _host_ip))  # task share : host ip task
+            cmd = ('echo "{} {}" >> /home/mec/deadlock_project/temp/executed.txt'.format(i,
+                                                                                         _host_ip))  # task share : host ip task
 
             stdin, stdout, stderr = c.exec_command(cmd)
         except Exception as e:
@@ -630,7 +636,7 @@ def start_loop():
                 print('RMS List of Processes: ', rms_list, '\n')
                 print('\nRunning Bankers Algorithm')
                 list_seq = get_safe_seq(rms_list)
-                if len(list_seq) > 0:              # do only when there is a task in safe sequence
+                if len(list_seq) > 0:  # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)
                     print('\nWaiting Time List: ', wait_list)
                     compare_result = compare_local_mec(wait_list)
@@ -642,17 +648,34 @@ def start_loop():
                     if len(compare_result[0]) > 0:
                         cooperative_mec(compare_result[0], 1)
                     local_ = execute(compare_result[1])
-                    if len(local_) > 0:            # do only when there is a task to send back
+                    if len(local_) > 0:  # do only when there is a task to send back
                         send_back_task(local_)
                 receive_executed_task()
-                show_graphs()                           # shows graph plots
+                show_graphs()  # shows graph plots
                 time.sleep(3)
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
+            '''
             cmd = f'echo "wt_3_{mec_no} = {mec_waiting_time} \nrtt_3_{mec_no} = {mec_rtt} \ncpu_3_{mec_no} = {_cpu} ' \
                   f'\noff_mec3_{mec_no} = {_off_mec}' \
                   f'\noff_cloud3_{mec_no} = {_off_cloud} \nloc3_{mec_no} = {_loc}" >> data.py'
+            '''
+            cmd = 'echo "wt_3_{} = {} \nrtt_3_{} = {} \ncpu_3_{} = {} ' \
+                  '\noff_mec3_{} = {}' \
+                  '\noff_cloud3_{} = {} \nloc3_{} = {}" >> data.py'.format(mec_no,
+                                                                           mec_waiting_time,
+                                                                           mec_no,
+                                                                           mec_rtt,
+                                                                           mec_no,
+                                                                           _cpu,
+                                                                           mec_no,
+                                                                           _off_mec,
+                                                                           mec_no,
+                                                                           _off_cloud,
+                                                                           mec_no,
+                                                                           _loc
+                                                                           )
             os.system(cmd)
             break
 
@@ -688,5 +711,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
