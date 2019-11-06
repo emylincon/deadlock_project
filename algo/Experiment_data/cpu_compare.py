@@ -39,6 +39,7 @@ def four_mec():
 
 def five_mec():
     ax2.grid(True)
+    #ax2.plot(list(range(500)), _mov_avg(data.cpu_1_5), linewidth=2, label='RMS + Bankers')
     ax2.plot(list(range(500)), _mov_avg(cp.cpu_1_5), linewidth=2, label='RMS + Bankers')
     ax2.plot(list(range(500)), _mov_avg(data.cpu_3_5), linewidth=2, label='EDF + Bankers')
     ax2.plot(list(range(500)), _mov_avg(data.cpu_5_5), linewidth=2, label='RMS + wound wait')
