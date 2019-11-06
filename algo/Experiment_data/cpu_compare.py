@@ -2,6 +2,7 @@ from drawnow import *
 from matplotlib import pyplot as plt
 import data
 import cpu_redo as cp
+import cpu6_redo as cp6
 
 fig = plt.figure()
 ax1 = fig.add_subplot(131)
@@ -56,7 +57,8 @@ def five_mec():
 
 def six_mec():
     ax3.grid(True)
-    ax3.plot(list(range(500)), _mov_avg(data.cpu_1_6), linewidth=2, label='RMS + Bankers')
+    #ax3.plot(list(range(500)), _mov_avg(data.cpu_1_6), linewidth=2, label='RMS + Bankers')
+    ax3.plot(list(range(500)), _mov_avg(cp6.cpu_1_6), linewidth=2, label='RMS + Bankers')
     ax3.plot(list(range(500)), _mov_avg(data.cpu_3_6), linewidth=2, label='EDF + Bankers')
     ax3.plot(list(range(500)), _mov_avg(data.cpu_5_6), linewidth=2, label='RMS + wound wait')
     ax3.plot(list(range(500)), _mov_avg(data.cpu_8_6), linewidth=2, label='RMS + wait die')
