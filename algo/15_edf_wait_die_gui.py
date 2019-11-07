@@ -678,13 +678,21 @@ def start_loop():
             # cmd = 'echo "task = {}" >> test.py'.format(test)
             # os.system(cmd)
 
-            cmd = 'echo "wt_16_6 = {} \nrtt_16_6 = {} \ncpu_16_6 = {} \noff_mec16_6 = {}' \
-                  '\noff_cloud16_6 = {} \nloc16_6 = {}" >> data.py'.format(mec_waiting_time,
-                                                                           mec_rtt,
-                                                                           _cpu,
-                                                                           _off_mec,
-                                                                           _off_cloud,
-                                                                           _loc)
+            cmd = 'echo "wt_16_{} = {} \nrtt_16_{} = {} \ncpu_16_{} = {} ' \
+                  '\noff_mec16_{} = {}' \
+                  '\noff_cloud16_{} = {} \nloc16_{} = {}" >> data.py'.format(mec_no,
+                                                                             mec_waiting_time,
+                                                                             mec_no,
+                                                                             mec_rtt,
+                                                                             mec_no,
+                                                                             _cpu,
+                                                                             mec_no,
+                                                                             _off_mec,
+                                                                             mec_no,
+                                                                             _off_cloud,
+                                                                             mec_no,
+                                                                             _loc
+                                                                             )
             os.system(cmd)
             break
 
