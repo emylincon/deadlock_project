@@ -598,13 +598,21 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            cmd = 'echo "wt_11_6 = {} \nrtt_11_6 = {} \ncpu_11_6 = {} \noff_mec11_6 = {}' \
-                  '\noff_cloud11_6 = {} \nloc11_6 = {}" >> data.py'.format(mec_waiting_time,
-                                                                       mec_rtt,
-                                                                       _cpu,
-                                                                       _off_mec,
-                                                                       _off_cloud,
-                                                                       _loc)
+            cmd = 'echo "wt_11_{} = {} \nrtt_11_{} = {} \ncpu_11_{} = {} ' \
+                  '\noff_mec11_{} = {}' \
+                  '\noff_cloud11_{} = {} \nloc11_{} = {}" >> data.py'.format(mec_no,
+                                                                             mec_waiting_time,
+                                                                             mec_no,
+                                                                             mec_rtt,
+                                                                             mec_no,
+                                                                             _cpu,
+                                                                             mec_no,
+                                                                             _off_mec,
+                                                                             mec_no,
+                                                                             _off_cloud,
+                                                                             mec_no,
+                                                                             _loc
+                                                                             )
             os.system(cmd)
             break
 
