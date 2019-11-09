@@ -675,8 +675,6 @@ def start_loop():
             print('\nEnter "Exit" to stop Programme!')
         if x == 'exit':
             print('\nProgramme Terminated')
-            # cmd = 'echo "task = {}" >> test.py'.format(test)
-            # os.system(cmd)
 
             cmd = 'echo "wt_16_{} = {} \nrtt_16_{} = {} \ncpu_16_{} = {} ' \
                   '\noff_mec16_{} = {}' \
