@@ -31,11 +31,11 @@ password
 * The following are the steps for running and setup of the system. 
 * The files for heterogenous are located in 2algo folder
 
-###### GNS3 Architecture
-![gns3 architecture](gns3_architecture_heterogeneous.jpeg)
+###### GNS3 Heterogeneous Architecture 
+![gns3 architecture](img/gns3_architecture_heterogeneous.jpeg)
 
 ###### SDN Architecture
-![SDN architecture](sdn_arch_heterogeneous.jpeg)
+![SDN architecture](img/sdn_arch_heterogeneous.jpeg)
 
 ###### Broker:
 * start the mosquitto server first. 
@@ -61,6 +61,9 @@ run any of the desired algorithm
 * the speak .py runs only on the broker with is usually the first MEC
 * the gui.py runs only on a gui not a server
 * the NS.py runs on any other node
+
+###### Live Result During Runtime
+![gui live result](img/runtime_display.png)
 
 
 ###### Clients:
@@ -108,3 +111,6 @@ sudo bash setup.sh
 * the predefined data available in `deadlock_project/algo/Experiment` could be used
 * the data available are labelled `data.py`, `data1.py`, `data2.py` and `data4.py`
 * for any of these to be used, it has to be renamed to `data.py` and moved to the directory `deadlock_project/algo`
+
+###### GNS3 Homogeneous Architecture 
+![gns3 architecture](img/homogenous_arch.png)
