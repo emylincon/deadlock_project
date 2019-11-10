@@ -1,6 +1,7 @@
 from drawnow import *
 from matplotlib import pyplot as plt
 import data
+import redo_data as rd
 
 fig = plt.figure()
 ax1 = fig.add_subplot(461)
@@ -28,7 +29,7 @@ ax22 = fig.add_subplot(4, 6, 22)
 ax23 = fig.add_subplot(4, 6, 23)
 ax24 = fig.add_subplot(4, 6, 24)
 
-style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>']
+style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c--']
 
 def _mov_avg(a1):
     ma1=[] # moving average list
@@ -54,11 +55,12 @@ def one_four():
                  pt,
                  style[list(data.rtt_1.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax1.set_title('RMS + Bankers ')
-    ax1.set_ylabel('Moving RTT')
+    #ax1.set_ylabel('Moving RTT')
     ax1.set_xlabel('Time (seconds)')
-    ax1.legend()
+    ax1.set_ylabel(f'4 MECs', rotation=0, fontsize=15, labelpad=30)
+    #ax1.legend()
     plt.subplot(ax1)
 
 
@@ -74,10 +76,10 @@ def three_four():
                  pt,
                  style[list(data.rtt_3.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax2.set_title('EDF + Bankers')
     ax2.set_xlabel('Time (seconds)')
-    ax2.legend()
+    #ax2.legend()
     plt.subplot(ax2)
 
 
@@ -93,10 +95,10 @@ def five_four():
                  pt,
                  style[list(data.rtt_5.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax3.set_title('RMS + Wound Wait')
     ax3.set_xlabel('Time (seconds)')
-    ax3.legend()
+    #ax3.legend()
     plt.subplot(ax3)
 
 
@@ -112,10 +114,10 @@ def eight_four():
                  pt,
                  style[list(data.rtt_8.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax4.set_title('RMS + Wait Die')
     ax4.set_xlabel('Time (seconds)')
-    ax4.legend()
+    #ax4.legend()
     plt.subplot(ax4)
 
 
@@ -131,10 +133,10 @@ def eleven_four():
                  pt,
                  style[list(data.rtt_11.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax5.set_title('EDF + Wound Wait')
     ax5.set_xlabel('Time (seconds)')
-    ax5.legend()
+    #ax5.legend()
     plt.subplot(ax5)
 
 
@@ -150,10 +152,10 @@ def sixteen_four():
                  pt,
                  style[list(data.rtt_16.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax6.set_title('EDF + Wait Die')
     ax6.set_xlabel('Time (seconds)')
-    ax6.legend()
+    #ax6.legend()
     plt.subplot(ax6)
 
 
@@ -169,10 +171,11 @@ def one_five():
                  pt,
                  style[list(data.rtt_1_5.keys()).index(i)],
                  linewidth=2,
-                 label=i)
-    ax7.set_ylabel('Moving RTT')
+                 )
+    #ax7.set_ylabel('Moving RTT')
     ax7.set_xlabel('Time (seconds)')
-    ax7.legend()
+    ax7.set_ylabel(f'5 MECs', rotation=0, fontsize=15, labelpad=30)
+    #ax7.legend()
     plt.subplot(ax7)
 
 
@@ -188,9 +191,9 @@ def three_five():
                  pt,
                  style[list(data.rtt_3_5.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax8.set_xlabel('Time (seconds)')
-    ax8.legend()
+    #ax8.legend()
     plt.subplot(ax8)
 
 
@@ -206,9 +209,9 @@ def five_five():
                  pt,
                  style[list(data.rtt_5_5.keys()).index(i)],
                  linewidth=2,
-                 label=i)
+                 )
     ax9.set_xlabel('Time (seconds)')
-    ax9.legend()
+    #ax9.legend()
     plt.subplot(ax9)
 
 
@@ -224,9 +227,9 @@ def eight_five():
                   pt,
                   style[list(data.rtt_8_5.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax10.set_xlabel('Time (seconds)')
-    ax10.legend()
+    #ax10.legend()
     plt.subplot(ax10)
 
 
@@ -242,9 +245,9 @@ def eleven_five():
                   pt,
                   style[list(data.rtt_11_5.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax11.set_xlabel('Time (seconds)')
-    ax11.legend()
+    #ax11.legend()
     plt.subplot(ax11)
 
 
@@ -260,9 +263,9 @@ def sixteen_five():
                   pt,
                   style[list(data.rtt_16_5.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax12.set_xlabel('Time (seconds)')
-    ax12.legend()
+    #ax12.legend()
     plt.subplot(ax12)
 
 
@@ -278,10 +281,11 @@ def one_six():
                   pt,
                   style[list(data.rtt_1_6.keys()).index(i)],
                   linewidth=2,
-                  label=i)
-    ax13.set_ylabel('Moving RTT')
+                  )
+    #ax13.set_ylabel('Moving RTT')
     ax13.set_xlabel('Time (seconds)')
-    ax13.legend()
+    ax13.set_ylabel(f'6 MECs', rotation=0, fontsize=15, labelpad=30)
+    #ax13.legend()
     plt.subplot(ax13)
 
 
@@ -297,9 +301,9 @@ def three_six():
                   pt,
                   style[list(data.rtt_3_6.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax14.set_xlabel('Time (seconds)')
-    ax14.legend()
+    #ax14.legend()
     plt.subplot(ax14)
 
 
@@ -315,9 +319,9 @@ def five_six():
                   pt,
                   style[list(data.rtt_5_6.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax15.set_xlabel('Time (seconds)')
-    ax15.legend()
+    #ax15.legend()
     plt.subplot(ax15)
 
 
@@ -333,9 +337,9 @@ def eight_six():
                   pt,
                   style[list(data.rtt_8_6.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax16.set_xlabel('Time (seconds)')
-    ax16.legend()
+    #ax16.legend()
     plt.subplot(ax16)
 
 
@@ -351,9 +355,9 @@ def eleven_six():
                   pt,
                   style[list(data.rtt_11_6.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax17.set_xlabel('Time (seconds)')
-    ax17.legend()
+    #ax17.legend()
     plt.subplot(ax17)
 
 
@@ -369,10 +373,120 @@ def sixteen_six():
                   pt,
                   style[list(data.rtt_16_6.keys()).index(i)],
                   linewidth=2,
-                  label=i)
+                  )
     ax18.set_xlabel('Time (seconds)')
-    ax18.legend()
+    #ax18.legend()
     plt.subplot(ax18)
+
+
+def one_seven():
+    ax19.grid(True)
+    for i in rd.rtt_1_7:
+        mv = _mov_avg(rd.rtt_1_7[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax19.plot(ptx,
+                  pt,
+                  style[list(rd.rtt_1_7.keys()).index(i)],
+                  linewidth=2,
+                  )
+    #ax19.set_ylabel('Moving RTT')
+    ax19.set_xlabel('Time (seconds)')
+    ax19.set_ylabel(f'7 MECs', rotation=0, fontsize=15, labelpad=30)
+    #ax19.legend()
+    plt.subplot(ax19)
+
+
+def three_seven():
+    ax20.grid(True)
+    for i in rd.rtt_3_7:
+        mv = _mov_avg(rd.rtt_3_7[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax20.plot(ptx,
+                  pt,
+                  style[list(rd.rtt_3_7.keys()).index(i)],
+                  linewidth=2,
+                  )
+    ax20.set_xlabel('Time (seconds)')
+    #ax20.legend()
+    plt.subplot(ax20)
+
+
+def five_seven():
+    ax21.grid(True)
+    for i in rd.rtt_5_7:
+        mv = _mov_avg(rd.rtt_5_7[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax21.plot(ptx,
+                  pt,
+                  style[list(rd.rtt_5_7.keys()).index(i)],
+                  linewidth=2,
+                  )
+    ax21.set_xlabel('Time (seconds)')
+    #ax21.legend()
+    plt.subplot(ax21)
+
+
+def eight_seven():
+    ax22.grid(True)
+    for i in rd.rtt_8_7:
+        mv = _mov_avg(rd.rtt_8_7[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax22.plot(ptx,
+                  pt,
+                  style[list(rd.rtt_8_7.keys()).index(i)],
+                  linewidth=2,
+                  )
+    ax22.set_xlabel('Time (seconds)')
+    #ax22.legend()
+    plt.subplot(ax22)
+
+
+def eleven_seven():
+    ax23.grid(True)
+    for i in rd.rtt_11_7:
+        mv = _mov_avg(rd.rtt_11_7[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax23.plot(ptx,
+                  pt,
+                  style[list(rd.rtt_11_7.keys()).index(i)],
+                  linewidth=2,
+                  )
+    ax23.set_xlabel('Time (seconds)')
+    #ax23.legend()
+    plt.subplot(ax23)
+
+
+def sixteen_seven():
+    ax24.grid(True)
+    for i in rd.rtt_16_7:
+        mv = _mov_avg(rd.rtt_16_7[i])
+        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        if pt[-1] != mv[-1]:
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
+        ax24.plot(ptx,
+                  pt,
+                  style[list(rd.rtt_16_7.keys()).index(i)],
+                  linewidth=2,
+                  )
+    ax24.set_xlabel('Time (seconds)')
+    #ax24.legend()
+    plt.subplot(ax24)
 
 
 def plot_graphs():
@@ -394,7 +508,13 @@ def plot_graphs():
     eight_six()
     eleven_six()
     sixteen_six()
-    fig.suptitle('MEC Performance During Deadlock Experiment')
+    one_seven()
+    three_seven()
+    five_seven()
+    eight_seven()
+    eleven_seven()
+    sixteen_seven()
+    fig.suptitle('MEC RTT Performance During Deadlock Experiment')
     plt.show()
 
 
