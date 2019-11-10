@@ -33,28 +33,28 @@ style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c--']
 
 
 def _mov_avg(a1):
-    ma1 = []  # moving average list
-    avg1 = 0  # movinf average pointwise
-    count = 0
+    ma1=[] # moving average list
+    avg1=0 # movinf average pointwise
+    count=0
     for i in range(len(a1)):
-        count += 1
-        avg1 = ((count - 1) * avg1 + a1[i]) / count
-        ma1.append(avg1)  # cumulative average formula
+        count+=1
+        avg1=((count-1)*avg1+a1[i])/count
+        ma1.append(avg1) #cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
 
 
 def one_four():
     ax1.grid(True)
-    for i in data.rtt_1:
-        mv = _mov_avg(data.rtt_1[i])
+    for i in data.wt_1:
+        mv = _mov_avg(data.wt_1[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax1.plot(ptx,
                  pt,
-                 style[list(data.rtt_1.keys()).index(i)],
+                 style[list(data.wt_1.keys()).index(i)],
                  linewidth=2,
                  )
     ax1.set_title('RMS + Bankers ')
@@ -67,15 +67,15 @@ def one_four():
 
 def three_four():
     ax2.grid(True)
-    for i in data.rtt_3:
-        mv = _mov_avg(data.rtt_3[i])
+    for i in data.wt_3:
+        mv = _mov_avg(data.wt_3[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax2.plot(ptx,
                  pt,
-                 style[list(data.rtt_3.keys()).index(i)],
+                 style[list(data.wt_3.keys()).index(i)],
                  linewidth=2,
                  )
     ax2.set_title('EDF + Bankers')
@@ -86,15 +86,15 @@ def three_four():
 
 def five_four():
     ax3.grid(True)
-    for i in data.rtt_5:
-        mv = _mov_avg(data.rtt_5[i])
+    for i in data.wt_5:
+        mv = _mov_avg(data.wt_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax3.plot(ptx,
                  pt,
-                 style[list(data.rtt_5.keys()).index(i)],
+                 style[list(data.wt_5.keys()).index(i)],
                  linewidth=2,
                  )
     ax3.set_title('RMS + Wound Wait')
@@ -105,15 +105,15 @@ def five_four():
 
 def eight_four():
     ax4.grid(True)
-    for i in data.rtt_8:
-        mv = _mov_avg(data.rtt_8[i])
+    for i in data.wt_8:
+        mv = _mov_avg(data.wt_8[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax4.plot(ptx,
                  pt,
-                 style[list(data.rtt_8.keys()).index(i)],
+                 style[list(data.wt_8.keys()).index(i)],
                  linewidth=2,
                  )
     ax4.set_title('RMS + Wait Die')
@@ -124,15 +124,15 @@ def eight_four():
 
 def eleven_four():
     ax5.grid(True)
-    for i in data.rtt_11:
-        mv = _mov_avg(data.rtt_11[i])
+    for i in data.wt_11:
+        mv = _mov_avg(data.wt_11[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax5.plot(ptx,
                  pt,
-                 style[list(data.rtt_11.keys()).index(i)],
+                 style[list(data.wt_11.keys()).index(i)],
                  linewidth=2,
                  )
     ax5.set_title('EDF + Wound Wait')
@@ -143,15 +143,15 @@ def eleven_four():
 
 def sixteen_four():
     ax6.grid(True)
-    for i in data.rtt_16:
-        mv = _mov_avg(data.rtt_16[i])
+    for i in data.wt_16:
+        mv = _mov_avg(data.wt_16[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax6.plot(ptx,
                  pt,
-                 style[list(data.rtt_16.keys()).index(i)],
+                 style[list(data.wt_16.keys()).index(i)],
                  linewidth=2,
                  )
     ax6.set_title('EDF + Wait Die')
@@ -162,15 +162,15 @@ def sixteen_four():
 
 def one_five():
     ax7.grid(True)
-    for i in data.rtt_1_5:
-        mv = _mov_avg(data.rtt_1_5[i])
+    for i in data.wt_1_5:
+        mv = _mov_avg(data.wt_1_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax7.plot(ptx,
                  pt,
-                 style[list(data.rtt_1_5.keys()).index(i)],
+                 style[list(data.wt_1_5.keys()).index(i)],
                  linewidth=2,
                  )
     # ax7.set_ylabel('Moving RTT')
@@ -182,15 +182,15 @@ def one_five():
 
 def three_five():
     ax8.grid(True)
-    for i in data.rtt_3_5:
-        mv = _mov_avg(data.rtt_3_5[i])
+    for i in data.wt_3_5:
+        mv = _mov_avg(data.wt_3_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax8.plot(ptx,
                  pt,
-                 style[list(data.rtt_3_5.keys()).index(i)],
+                 style[list(data.wt_3_5.keys()).index(i)],
                  linewidth=2,
                  )
     ax8.set_xlabel('Time (seconds)')
@@ -200,15 +200,15 @@ def three_five():
 
 def five_five():
     ax9.grid(True)
-    for i in data.rtt_5_5:
-        mv = _mov_avg(data.rtt_5_5[i])
+    for i in data.wt_5_5:
+        mv = _mov_avg(data.wt_5_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax9.plot(ptx,
                  pt,
-                 style[list(data.rtt_5_5.keys()).index(i)],
+                 style[list(data.wt_5_5.keys()).index(i)],
                  linewidth=2,
                  )
     ax9.set_xlabel('Time (seconds)')
@@ -218,15 +218,15 @@ def five_five():
 
 def eight_five():
     ax10.grid(True)
-    for i in data.rtt_8_5:
-        mv = _mov_avg(data.rtt_8_5[i])
+    for i in data.wt_8_5:
+        mv = _mov_avg(data.wt_8_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax10.plot(ptx,
                   pt,
-                  style[list(data.rtt_8_5.keys()).index(i)],
+                  style[list(data.wt_8_5.keys()).index(i)],
                   linewidth=2,
                   )
     ax10.set_xlabel('Time (seconds)')
@@ -236,15 +236,15 @@ def eight_five():
 
 def eleven_five():
     ax11.grid(True)
-    for i in data.rtt_11_5:
-        mv = _mov_avg(data.rtt_11_5[i])
+    for i in data.wt_11_5:
+        mv = _mov_avg(data.wt_11_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax11.plot(ptx,
                   pt,
-                  style[list(data.rtt_11_5.keys()).index(i)],
+                  style[list(data.wt_11_5.keys()).index(i)],
                   linewidth=2,
                   )
     ax11.set_xlabel('Time (seconds)')
@@ -254,15 +254,15 @@ def eleven_five():
 
 def sixteen_five():
     ax12.grid(True)
-    for i in data.rtt_16_5:
-        mv = _mov_avg(data.rtt_16_5[i])
+    for i in data.wt_16_5:
+        mv = _mov_avg(data.wt_16_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax12.plot(ptx,
                   pt,
-                  style[list(data.rtt_16_5.keys()).index(i)],
+                  style[list(data.wt_16_5.keys()).index(i)],
                   linewidth=2,
                   )
     ax12.set_xlabel('Time (seconds)')
@@ -272,15 +272,15 @@ def sixteen_five():
 
 def one_six():
     ax13.grid(True)
-    for i in data.rtt_1_6:
-        mv = _mov_avg(data.rtt_1_6[i])
+    for i in data.wt_1_6:
+        mv = _mov_avg(data.wt_1_6[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax13.plot(ptx,
                   pt,
-                  style[list(data.rtt_1_6.keys()).index(i)],
+                  style[list(data.wt_1_6.keys()).index(i)],
                   linewidth=2,
                   )
     # ax13.set_ylabel('Moving RTT')
@@ -292,15 +292,15 @@ def one_six():
 
 def three_six():
     ax14.grid(True)
-    for i in data.rtt_3_6:
-        mv = _mov_avg(data.rtt_3_6[i])
+    for i in data.wt_3_6:
+        mv = _mov_avg(data.wt_3_6[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax14.plot(ptx,
                   pt,
-                  style[list(data.rtt_3_6.keys()).index(i)],
+                  style[list(data.wt_3_6.keys()).index(i)],
                   linewidth=2,
                   )
     ax14.set_xlabel('Time (seconds)')
@@ -310,15 +310,15 @@ def three_six():
 
 def five_six():
     ax15.grid(True)
-    for i in data.rtt_5_6:
-        mv = _mov_avg(data.rtt_5_6[i])
+    for i in data.wt_5_6:
+        mv = _mov_avg(data.wt_5_6[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax15.plot(ptx,
                   pt,
-                  style[list(data.rtt_5_6.keys()).index(i)],
+                  style[list(data.wt_5_6.keys()).index(i)],
                   linewidth=2,
                   )
     ax15.set_xlabel('Time (seconds)')
@@ -328,15 +328,15 @@ def five_six():
 
 def eight_six():
     ax16.grid(True)
-    for i in data.rtt_8_6:
-        mv = _mov_avg(data.rtt_8_6[i])
+    for i in data.wt_8_6:
+        mv = _mov_avg(data.wt_8_6[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax16.plot(ptx,
                   pt,
-                  style[list(data.rtt_8_6.keys()).index(i)],
+                  style[list(data.wt_8_6.keys()).index(i)],
                   linewidth=2,
                   )
     ax16.set_xlabel('Time (seconds)')
@@ -346,15 +346,15 @@ def eight_six():
 
 def eleven_six():
     ax17.grid(True)
-    for i in data.rtt_11_6:
-        mv = _mov_avg(data.rtt_11_6[i])
+    for i in data.wt_11_6:
+        mv = _mov_avg(data.wt_11_6[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax17.plot(ptx,
                   pt,
-                  style[list(data.rtt_11_6.keys()).index(i)],
+                  style[list(data.wt_11_6.keys()).index(i)],
                   linewidth=2,
                   )
     ax17.set_xlabel('Time (seconds)')
@@ -364,15 +364,15 @@ def eleven_six():
 
 def sixteen_six():
     ax18.grid(True)
-    for i in data.rtt_16_6:
-        mv = _mov_avg(data.rtt_16_6[i])
+    for i in data.wt_16_6:
+        mv = _mov_avg(data.wt_16_6[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax18.plot(ptx,
                   pt,
-                  style[list(data.rtt_16_6.keys()).index(i)],
+                  style[list(data.wt_16_6.keys()).index(i)],
                   linewidth=2,
                   )
     ax18.set_xlabel('Time (seconds)')
@@ -382,15 +382,15 @@ def sixteen_six():
 
 def one_seven():
     ax19.grid(True)
-    for i in rd.rtt_1_7:
-        mv = _mov_avg(rd.rtt_1_7[i])
+    for i in rd.wt_1_7:
+        mv = _mov_avg(rd.wt_1_7[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax19.plot(ptx,
                   pt,
-                  style[list(rd.rtt_1_7.keys()).index(i)],
+                  style[list(rd.wt_1_7.keys()).index(i)],
                   linewidth=2,
                   )
     # ax19.set_ylabel('Moving RTT')
@@ -402,15 +402,15 @@ def one_seven():
 
 def three_seven():
     ax20.grid(True)
-    for i in rd.rtt_3_7:
-        mv = _mov_avg(rd.rtt_3_7[i])
+    for i in rd.wt_3_7:
+        mv = _mov_avg(rd.wt_3_7[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax20.plot(ptx,
                   pt,
-                  style[list(rd.rtt_3_7.keys()).index(i)],
+                  style[list(rd.wt_3_7.keys()).index(i)],
                   linewidth=2,
                   )
     ax20.set_xlabel('Time (seconds)')
@@ -420,15 +420,15 @@ def three_seven():
 
 def five_seven():
     ax21.grid(True)
-    for i in rd.rtt_5_7:
-        mv = _mov_avg(rd.rtt_5_7[i])
+    for i in rd.wt_5_7:
+        mv = _mov_avg(rd.wt_5_7[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax21.plot(ptx,
                   pt,
-                  style[list(rd.rtt_5_7.keys()).index(i)],
+                  style[list(rd.wt_5_7.keys()).index(i)],
                   linewidth=2,
                   )
     ax21.set_xlabel('Time (seconds)')
@@ -438,15 +438,15 @@ def five_seven():
 
 def eight_seven():
     ax22.grid(True)
-    for i in rd.rtt_8_7:
-        mv = _mov_avg(rd.rtt_8_7[i])
+    for i in rd.wt_8_7:
+        mv = _mov_avg(rd.wt_8_7[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax22.plot(ptx,
                   pt,
-                  style[list(rd.rtt_8_7.keys()).index(i)],
+                  style[list(rd.wt_8_7.keys()).index(i)],
                   linewidth=2,
                   )
     ax22.set_xlabel('Time (seconds)')
@@ -456,15 +456,15 @@ def eight_seven():
 
 def eleven_seven():
     ax23.grid(True)
-    for i in rd.rtt_11_7:
-        mv = _mov_avg(rd.rtt_11_7[i])
+    for i in rd.wt_11_7:
+        mv = _mov_avg(rd.wt_11_7[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax23.plot(ptx,
                   pt,
-                  style[list(rd.rtt_11_7.keys()).index(i)],
+                  style[list(rd.wt_11_7.keys()).index(i)],
                   linewidth=2,
                   )
     ax23.set_xlabel('Time (seconds)')
@@ -474,15 +474,15 @@ def eleven_seven():
 
 def sixteen_seven():
     ax24.grid(True)
-    for i in rd.rtt_16_7:
-        mv = _mov_avg(rd.rtt_16_7[i])
+    for i in rd.wt_16_7:
+        mv = _mov_avg(rd.wt_16_7[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         ptx = [mv.index(i) for i in pt]
         ax24.plot(ptx,
                   pt,
-                  style[list(rd.rtt_16_7.keys()).index(i)],
+                  style[list(rd.wt_16_7.keys()).index(i)],
                   linewidth=2,
                   )
     ax24.set_xlabel('Time (seconds)')
@@ -515,7 +515,7 @@ def plot_graphs():
     eight_seven()
     eleven_seven()
     sixteen_seven()
-    fig.suptitle('MEC RTT Performance During Deadlock Experiment')
+    fig.suptitle('MEC Waiting Time Convergence During Deadlock Experiment')
     plt.show()
 
 
