@@ -671,9 +671,9 @@ def start_loop():
                     if len(compare_result[0]) > 0:
                         cooperative_mec(compare_result[0], 1)
                     _send_back = execute(compare_result[1])
-                    _loc = t_loc
+                    _loc += t_loc
                     if len(_send_back) > 0:            # do only when there is a task to send back
-                        _loc = t_loc - len(_send_back)
+                        _loc -= len(_send_back)
                 receive_executed_task()
                 show_graphs()                           # shows graph plots
                 time.sleep(3)
