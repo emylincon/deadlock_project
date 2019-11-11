@@ -75,13 +75,15 @@ _loc = 0              # used to keep a count of tasks executed locally
 _inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
 deadlock = [0]          # keeps count of how many deadlock is resolved
 _pos = 0
+
+"""
 fig = plt.figure()
 ax1 = fig.add_subplot(221)
 ax2 = fig.add_subplot(222)
 ax3 = fig.add_subplot(223)
 ax4 = fig.add_subplot(224)
 ax5 = fig.add_subplot(338)
-
+"""
 
 def _mov_avg(a1):
     ma1=[] # moving average list
