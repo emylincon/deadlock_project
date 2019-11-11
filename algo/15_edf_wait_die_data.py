@@ -14,7 +14,7 @@ import datetime as dt
 import os
 import getpass as gp
 import psutil
-from drawnow import *
+#from drawnow import *
 from matplotlib import pyplot as plt
 import data
 
