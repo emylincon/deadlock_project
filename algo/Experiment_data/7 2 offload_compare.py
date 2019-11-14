@@ -31,9 +31,9 @@ ax24 = fig.add_subplot(4, 6, 24)
 
 
 def one_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec1, data.off_cloud1, data.loc1]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec1 + data.off_cloud1, data.loc1]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -48,9 +48,9 @@ def one_four():
 
 
 def three_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3, data.off_cloud3, data.loc3]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec3 + data.off_cloud3, data.loc3]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -64,9 +64,9 @@ def three_four():
 
 
 def five_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5, data.off_cloud5, data.loc5]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec5 + data.off_cloud5, data.loc5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -80,9 +80,9 @@ def five_four():
 
 
 def eight_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8, data.off_cloud8, data.loc8]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec8 + data.off_cloud8, data.loc8]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -96,9 +96,9 @@ def eight_four():
 
 
 def eleven_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec11, data.off_cloud11, data.loc11]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec11 + data.off_cloud11, data.loc11]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -112,9 +112,9 @@ def eleven_four():
 
 
 def sixteen_four():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec16, data.off_cloud16, data.loc16]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec16 + data.off_cloud16, data.loc16]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -128,9 +128,9 @@ def sixteen_four():
 
 
 def one_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec1_5, data.off_cloud1_5, data.loc1_5]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec1_5 + data.off_cloud1_5, data.loc1_5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -145,9 +145,9 @@ def one_five():
 
 
 def three_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3_5, data.off_cloud3_5, data.loc3_5]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec3_6 + data.off_cloud3_6, data.loc3_6]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -161,9 +161,9 @@ def three_five():
 
 
 def five_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5_5, data.off_cloud5_5, data.loc5_5]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec5_5 + data.off_cloud5_5, data.loc5_5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -177,9 +177,9 @@ def five_five():
 
 
 def eight_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8_5, data.off_cloud8_5, data.loc8_5]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec8_6 + data.off_cloud8_6, data.loc8_6]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -193,9 +193,9 @@ def eight_five():
 
 
 def eleven_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec11_5, data.off_cloud11_5, data.loc11_5]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec11_6 + data.off_cloud11_6, data.loc11_6]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -209,9 +209,9 @@ def eleven_five():
 
 
 def sixteen_five():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec16_5, data.off_cloud16_5, data.loc16_5]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [rd.off_mec16_7 + rd.off_cloud16_7, rd.loc16_7]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -225,9 +225,9 @@ def sixteen_five():
 
 
 def one_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec1_6, data.off_cloud1_6, data.loc1_6]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [rd.off_mec1_7 + rd.off_cloud1_7, rd.loc1_7]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -242,9 +242,9 @@ def one_six():
 
 
 def three_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec3_6, data.off_cloud3_6, data.loc3_6]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [rd.off_mec3_7 + rd.off_cloud3_7, rd.loc3_7]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -258,9 +258,9 @@ def three_six():
 
 
 def five_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec5_6, data.off_cloud5_6, data.loc5_6]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [rd.off_mec5_7 + rd.off_cloud5_7, rd.loc5_7]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -274,9 +274,9 @@ def five_six():
 
 
 def eight_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec8_6, data.off_cloud8_6, data.loc8_6]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec8_5 + data.off_cloud8_5, data.loc8_5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -290,9 +290,9 @@ def eight_six():
 
 
 def eleven_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec11_6, data.off_cloud11_6, data.loc11_6]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [rd.off_mec11_7 + rd.off_cloud11_7, rd.loc11_7]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -306,9 +306,9 @@ def eleven_six():
 
 
 def sixteen_six():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [data.off_mec16_6, data.off_cloud16_6, data.loc16_6]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec16_6 + data.off_cloud16_6, data.loc16_6]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -322,9 +322,9 @@ def sixteen_six():
 
 
 def one_seven():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [rd.off_mec1_7, rd.off_cloud1_7, rd.loc1_7]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec1_6 + data.off_cloud1_6, data.loc1_6]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -339,9 +339,9 @@ def one_seven():
 
 
 def three_seven():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [rd.off_mec3_7, rd.off_cloud3_7, rd.loc3_7]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec3_5 + data.off_cloud3_5, data.loc3_5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -355,9 +355,9 @@ def three_seven():
 
 
 def five_seven():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [rd.off_mec5_7, rd.off_cloud5_7, rd.loc5_7]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec5_5 + data.off_cloud5_5, data.loc5_5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -371,9 +371,9 @@ def five_seven():
 
 
 def eight_seven():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [rd.off_mec8_7, rd.off_cloud8_7, rd.loc8_7]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [rd.off_mec8_7 + rd.off_cloud8_7, rd.loc8_7]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -387,9 +387,9 @@ def eight_seven():
 
 
 def eleven_seven():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [rd.off_mec11_7, rd.off_cloud11_7, rd.loc11_7]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec11_5 + data.off_cloud11_5, data.loc11_5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
@@ -403,9 +403,9 @@ def eleven_seven():
 
 
 def sixteen_seven():
-    keys = ['MEC', 'Cloud', 'Local']
-    val = [rd.off_mec16_7, rd.off_cloud16_7, rd.loc16_7]
-    cols = ['r', 'g', 'b']
+    keys = ['offload', 'Local']
+    val = [data.off_mec16_5 + data.off_cloud16_5, data.loc16_5]
+    cols = ['r', 'g']
     explode = []
     for i in val:
         if i == max(val):
