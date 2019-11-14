@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import data
 import cpu_redo as cp
 import cpu6_redo as cp6
-import redo_data as rd
+import data_for_1cpu as d1cpu
 
 fig = plt.figure()
 ax1 = fig.add_subplot(141)
@@ -42,8 +42,8 @@ def four_mec():
 
 def five_mec():
     ax2.grid(True)
-    #ax2.plot(list(range(500)), _mov_avg(data.cpu_1_5), linewidth=2, label='RMS + Bankers')
-    ax2.plot(list(range(500)), _mov_avg(cp.cpu_1_5), linewidth=2, label='RMS + Bankers')
+    ax2.plot(list(range(500)), _mov_avg(d1cpu.cpu_1_5), linewidth=2, label='RMS + Bankers')
+    #ax2.plot(list(range(500)), _mov_avg(cp.cpu_1_5), linewidth=2, label='RMS + Bankers')
     ax2.plot(list(range(500)), _mov_avg(data.cpu_3_5), linewidth=2, label='EDF + Bankers')
     ax2.plot(list(range(500)), _mov_avg(data.cpu_5_5), linewidth=2, label='RMS + wound wait')
     ax2.plot(list(range(500)), _mov_avg(data.cpu_8_5), linewidth=2, label='RMS + wait die')
@@ -59,8 +59,8 @@ def five_mec():
 
 def six_mec():
     ax3.grid(True)
-    #ax3.plot(list(range(500)), _mov_avg(data.cpu_1_6), linewidth=2, label='RMS + Bankers')
-    ax3.plot(list(range(500)), _mov_avg(cp6.cpu_1_6), linewidth=2, label='RMS + Bankers')
+    ax3.plot(list(range(500)), _mov_avg(d1cpu.cpu_1_6), linewidth=2, label='RMS + Bankers')
+    #ax3.plot(list(range(500)), _mov_avg(cp6.cpu_1_6), linewidth=2, label='RMS + Bankers')
     ax3.plot(list(range(500)), _mov_avg(data.cpu_3_6), linewidth=2, label='EDF + Bankers')
     ax3.plot(list(range(500)), _mov_avg(data.cpu_5_6), linewidth=2, label='RMS + wound wait')
     ax3.plot(list(range(500)), _mov_avg(data.cpu_8_6), linewidth=2, label='RMS + wait die')
@@ -76,12 +76,12 @@ def six_mec():
 
 def seven_mec():
     ax4.grid(True)
-    ax4.plot(list(range(500)), _mov_avg(rd.cpu_1_7), linewidth=2, label='RMS + Bankers')
-    ax4.plot(list(range(500)), _mov_avg(rd.cpu_3_7), linewidth=2, label='EDF + Bankers')
-    ax4.plot(list(range(500)), _mov_avg(rd.cpu_5_7), linewidth=2, label='RMS + wound wait')
-    ax4.plot(list(range(500)), _mov_avg(rd.cpu_8_7), linewidth=2, label='RMS + wait die')
-    ax4.plot(list(range(500)), _mov_avg(rd.cpu_11_7), linewidth=2, label='EDF + wound wait')
-    ax4.plot(list(range(500)), _mov_avg(rd.cpu_16_7), linewidth=2, label='EDF + wait die')
+    ax4.plot(list(range(500)), _mov_avg(d1cpu.cpu_1_7), linewidth=2, label='RMS + Bankers')
+    ax4.plot(list(range(500)), _mov_avg(d1cpu.cpu_3_7), linewidth=2, label='EDF + Bankers')
+    ax4.plot(list(range(500)), _mov_avg(d1cpu.cpu_5_7), linewidth=2, label='RMS + wound wait')
+    ax4.plot(list(range(500)), _mov_avg(d1cpu.cpu_8_7), linewidth=2, label='RMS + wait die')
+    ax4.plot(list(range(500)), _mov_avg(d1cpu.cpu_11_7), linewidth=2, label='EDF + wound wait')
+    ax4.plot(list(range(500)), _mov_avg(d1cpu.cpu_16_7), linewidth=2, label='EDF + wait die')
 
     ax4.set_title('Moving CPU Utilization for 7 MEC Set-up')
     ax4.set_ylabel('Moving CPU')
