@@ -12,7 +12,7 @@ ax3 = fig.add_subplot(413)
 ax4 = fig.add_subplot(414)
 
 
-width = 0.30
+width = 0.31
 
 
 def percent(value, total):
