@@ -114,3 +114,15 @@ sudo bash setup.sh
 
 ###### GNS3 Homogeneous Architecture 
 ![gns3 architecture](img/homogenous_arch.png)
+
+
+##### Algorithms implemented
+* RMS + Bankers
+* EDF + Bankers
+* RMS + Wound Wait
+* RMS + Wait Die
+* EDF + Wound Wait
+* EDF + Wait Die
+
+
+[Evolution of bankers algorithm](http://algorithm-wiki.org/wiki2/index.php?title=Banker%27s_algorithm)
