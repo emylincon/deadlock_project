@@ -113,8 +113,10 @@ sudo bash setup.sh
 * for any of these to be used, it has to be renamed to `data.py` and moved to the directory `deadlock_project/algo`
 
 ###### GNS3 Homogeneous Architecture 
-![gns3 architecture](img/homogenous_arch.png)
+![gns3 architecture](img/arch_homo.png)
 
+###### SDN Architecture
+![SDN architecture](img/homo_sdn.PNG)
 
 ##### Algorithms implemented
 * RMS + Bankers
