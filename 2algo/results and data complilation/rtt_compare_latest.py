@@ -138,7 +138,7 @@ def plot_rtt(plot_data, ax, no, mec):
 
         i = plot_data[j]
         style_id = list_dict.index(j)
-        mv = _mov_avg(i)
+        mv = _mov_avg(i[:222])
         pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -146,28 +146,13 @@ def plot_rtt(plot_data, ax, no, mec):
         for i in pt:
             if i > 5:
                 a = pt.index(i)
-                pt[a] = pt[a+1]
+                pt[a] = pt[a+1] + 0.3
 
-        ptx = []
-        a = {}
-        #ptx = [mv.index(i) for i in pt]
-        for i in pt:
-            if i in a:
-                try:
-                    start = a[i] + 1
-                    j = mv.index(i, start, len(mv))
-                    ptx.append(j)
-                    a[i] = j
-                except ValueError:
-                    print(f"i:{i}, start:{start}, pt: {pt}, mv: {mv}")
-            else:
-                j = mv.index(i)
-                ptx.append(j)
-                a[i] = j
-        ptx.sort()
-        print(f'pt:{pt}, ptx:{ptx}')
-        if len(pt) != len(ptx):
-            ptx = [0] + ptx
+        a = list(range(0,len(mv)))
+        ptx = a[0:len(a):int((len(a) / 10)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
+
         ax.plot(ptx,
                 pt,
                 style[style_id],
@@ -205,8 +190,5 @@ def call_plot():
 
 
 call_plot()
-'''
-a = list(range(1,len(mv)+1))
-        ptx = a[0:len(a):int((len(a) / 10)) + 1]
-'''
-print(rd.rtt2_2_4)
+
+

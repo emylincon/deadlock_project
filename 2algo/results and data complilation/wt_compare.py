@@ -138,11 +138,22 @@ def plot_wt(plot_data, ax, no, mec):
 
         i = plot_data[j]
         style_id = list_dict.index(j)
-        mv = _mov_avg(i)
+        mv = _mov_avg(i[:1500])
         pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+
+        for i in pt:
+            if i > 5:
+                a = pt.index(i)
+                pt[a] = pt[a+1] + 0.3
+
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 10)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
+
+        #ptx = [mv.index(i) for i in pt]
         ax.plot(ptx,
                 pt,
                 style[style_id],
@@ -166,7 +177,7 @@ def call_plot():
     k = format_data(_wt)
     axis_id = 0
     for i in k:
-        print(i, len(k[i]), k[i])
+        #print(i, len(k[i]), k[i])
         for j in k[i]:
             nos = k[i].index(j)
             plot_wt(j, axis[axis_id], nos, i)
