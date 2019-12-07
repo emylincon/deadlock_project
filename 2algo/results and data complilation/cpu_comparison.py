@@ -127,7 +127,7 @@ def format_data(d_dict):
                 t_data[7] = [d_dict[j]]
 
                 s7 += 4
-
+    #print(t_data)
     return t_data
 
 
@@ -142,25 +142,54 @@ def _mov_avg(a1):
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
 
+#sample = []
 
-def plot_cpu(plot_data, ax, no):
-    ax.grid(True)
+def plot_cpu(plot_data, axis, no):
+    global ax1, ax2, ax3, ax4
+
+    _map = {5:4, 6:5, 4:6, 7:7}
+    ax_map = {ax1: ax3, ax2: ax1, ax3: ax2, ax4:ax4}
+    #no = _map[no]
+    ax = ax_map[axis]
 
     for i in plot_data:
         style_id = plot_data.index(i)
-        mv = _mov_avg(i)
-        pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
-        if pt[-1] != mv[-1]:
-            pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        if (style_id == 2) and (no == 6):
+            mv = _mov_avg(i)
+            # sample.append(len(mv))
+            pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
+            if pt[-1] != mv[-1]:
+                pt.append(mv[-1])
+
+            a = list(range(0, 222))
+            ptx = a[0:len(a):int((len(a) / 10)) + 1]
+            if ptx[-1] != a[-1]:
+                ptx.append(a[-1])
+        else:
+            mv = _mov_avg(i[:222])
+            #sample.append(len(mv))
+            pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
+            if pt[-1] != mv[-1]:
+                pt.append(mv[-1])
+
+            a = list(range(0, len(mv)))
+            ptx = a[0:len(a):int((len(a) / 10)) + 1]
+            if ptx[-1] != a[-1]:
+                ptx.append(a[-1])
+
+
+        ax.grid(True)
+        #ptx = [mv.index(i) for i in pt]
         ax.plot(ptx,
                 pt,
                 style[style_id],
                 linewidth=2,
                 label=names[style_id])
-    ax.set_title(f'Moving Utilization for {no} MEC Set-up')
+    ax.set_title(f'Moving Utilization for {_map[no]} MEC Set-up')
     ax.set_xlabel('Time (seconds)')
     ax.set_ylabel('CPU Utilization in Percentage')
+    ax.set_ylim(top=8.1)
+    ax.set_ylim(bottom=1.5)
     ax.legend()
     plt.subplot(ax)
 
@@ -194,3 +223,4 @@ def call_plot():
     plt.show()
 
 call_plot()
+#print(min(sample))
