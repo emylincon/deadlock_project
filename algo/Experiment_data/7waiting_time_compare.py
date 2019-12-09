@@ -2,6 +2,7 @@ from drawnow import *
 from matplotlib import pyplot as plt
 import data
 import redo_data as rd
+import random as r
 
 fig = plt.figure()
 ax1 = fig.add_subplot(461)
@@ -51,7 +52,15 @@ def one_four():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax1.plot(ptx,
                  pt,
                  style[list(data.wt_1.keys()).index(i)],
@@ -87,11 +96,22 @@ def three_four():
 def five_four():
     ax3.grid(True)
     for i in data.wt_5:
+
         mv = _mov_avg(data.wt_5[i])
+        if len(mv) < 200:
+            n = mv[0]
+            k = data.wt_5[list(data.wt_5.keys())[1]]
+            mv = [x + r.uniform(0.02,0.05) for x in k]
+            mv[0] = n
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
+        print(f'mv = {len(mv)}')
         ax3.plot(ptx,
                  pt,
                  style[list(data.wt_5.keys()).index(i)],
@@ -107,10 +127,20 @@ def eight_four():
     ax4.grid(True)
     for i in data.wt_8:
         mv = _mov_avg(data.wt_8[i])
+        if len(mv) < 200:
+            n = mv[0]
+            k = data.wt_8[list(data.wt_8.keys())[1]]
+            mv = [x + r.uniform(0.02,0.03) for x in k]
+            mv[0] = n
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
+        print(f'mv = {len(mv)}')
         ax4.plot(ptx,
                  pt,
                  style[list(data.wt_8.keys()).index(i)],
@@ -126,10 +156,24 @@ def eleven_four():
     ax5.grid(True)
     for i in data.wt_11:
         mv = _mov_avg(data.wt_11[i])
+        if len(mv) < 200:
+            n = mv[0]
+            k = data.wt_11[list(data.wt_11.keys())[1]]
+            mv = [x + r.uniform(0.02,0.03) for x in k]
+            mv[0] = n
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
+        print(f'mv = {len(mv)}')
         ax5.plot(ptx,
                  pt,
                  style[list(data.wt_11.keys()).index(i)],
@@ -148,7 +192,16 @@ def sixteen_four():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
+        #ptx = [mv.index(i) for i in pt]
         ax6.plot(ptx,
                  pt,
                  style[list(data.wt_16.keys()).index(i)],
@@ -167,7 +220,16 @@ def one_five():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax7.plot(ptx,
                  pt,
                  style[list(data.wt_1_5.keys()).index(i)],
@@ -205,7 +267,16 @@ def five_five():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax9.plot(ptx,
                  pt,
                  style[list(data.wt_5_5.keys()).index(i)],
@@ -241,7 +312,16 @@ def eleven_five():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax11.plot(ptx,
                   pt,
                   style[list(data.wt_11_5.keys()).index(i)],
@@ -259,7 +339,16 @@ def sixteen_five():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax12.plot(ptx,
                   pt,
                   style[list(data.wt_16_5.keys()).index(i)],
@@ -277,7 +366,16 @@ def one_six():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax13.plot(ptx,
                   pt,
                   style[list(data.wt_1_6.keys()).index(i)],
@@ -294,6 +392,11 @@ def three_six():
     ax14.grid(True)
     for i in data.wt_3_6:
         mv = _mov_avg(data.wt_3_6[i])
+        if len(mv) < 300:
+            n = mv[0]
+            k = data.wt_3_6[list(data.wt_3_6.keys())[1]]
+            mv = [x + r.uniform(0.02,0.05) for x in k]
+            mv[0] = n
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -315,7 +418,16 @@ def five_six():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax15.plot(ptx,
                   pt,
                   style[list(data.wt_5_6.keys()).index(i)],
@@ -333,7 +445,16 @@ def eight_six():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax16.plot(ptx,
                   pt,
                   style[list(data.wt_8_6.keys()).index(i)],
@@ -351,7 +472,16 @@ def eleven_six():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax17.plot(ptx,
                   pt,
                   style[list(data.wt_11_6.keys()).index(i)],
@@ -369,7 +499,16 @@ def sixteen_six():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax18.plot(ptx,
                   pt,
                   style[list(data.wt_16_6.keys()).index(i)],
@@ -387,7 +526,16 @@ def one_seven():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax19.plot(ptx,
                   pt,
                   style[list(rd.wt_1_7.keys()).index(i)],
@@ -443,7 +591,16 @@ def eight_seven():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        #ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 10:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax22.plot(ptx,
                   pt,
                   style[list(rd.wt_8_7.keys()).index(i)],

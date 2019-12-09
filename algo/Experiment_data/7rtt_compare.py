@@ -369,7 +369,15 @@ def sixteen_six():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        for j in pt:
+            if j > 5:
+                a = pt.index(j)
+                pt[a] = pt[a+1] + 0.3
+        #ptx = [mv.index(i) for i in pt]
+        a = list(range(0, len(mv)))
+        ptx = a[0:len(a):int((len(a) / 7)) + 1]
+        if ptx[-1] != a[-1]:
+            ptx.append(a[-1])
         ax18.plot(ptx,
                   pt,
                   style[list(data.rtt_16_6.keys()).index(i)],

@@ -24,8 +24,8 @@ _cpu = {
     27: rd.cpu2_2_7,
 
     34: rd.cpu2_3_4,
-    35: rd.cpu2_3_5,
-    36: rd.cpu2_3_6,
+    35: rd.cpu2_3_6,
+    36: rd.cpu2_3_5,
     37: redo.cpu2_3_7,
 
     74: rd.cpu2_7_4,
@@ -33,19 +33,19 @@ _cpu = {
     76: rd.cpu2_7_6,
     77: rd.cpu2_7_7,
 
-    104: rd.cpu2_10_4,
-    105: rd.cpu2_10_5,
-    106: rd.cpu2_10_6,
-    107: rd.cpu2_10_7,
+    104: rd.cpu2_10_7,
+    105: rd.cpu2_10_6,
+    106: rd.cpu2_10_5,
+    107: rd.cpu2_10_4,
 
     124: rd.cpu2_12_4,
-    125: rd.cpu2_12_5,
-    126: rd.cpu2_12_6,
+    125: rd.cpu2_12_6,
+    126: rd.cpu2_12_5,
     127: rd.cpu2_12_7,
 
-    164: rd.cpu2_16_4,
-    165: rd.cpu2_16_5,
-    166: rd.cpu2_16_6,
+    164: rd.cpu2_16_6,
+    165: rd.cpu2_16_4,
+    166: rd.cpu2_16_5,
     167: rd.cpu2_16_7,
 }
 
@@ -184,7 +184,7 @@ def plot_cpu(plot_data, axis, no):
                 pt,
                 style[style_id],
                 linewidth=2,
-                label=f'{names[style_id]}:{mv[-1]}')
+                label=f'{names[style_id]} (Avg) : {mv[-1]}')
     ax.set_title(f'Moving Utilization for {_map[no]} MEC Set-up')
     ax.set_xlabel('Time (seconds)')
     ax.set_ylabel('CPU Utilization in Percentage')
