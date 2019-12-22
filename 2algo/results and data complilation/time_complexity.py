@@ -22,8 +22,7 @@ case6 = y3 + y5
 
 plt.grid(True)
 
-# ax_dl.set_yscale('log')
-# ax_rt.set_yscale('log')
+plt.yscale('log')
 
 plt.plot(x, case1, 'r--+', label='RMS+Bankers', markersize=n)
 plt.plot(x, case2, 'g-->', label='EDF+Bankers', markersize=n)
