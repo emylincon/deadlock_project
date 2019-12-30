@@ -186,7 +186,7 @@ def plot_cpu(plot_data, axis, no):
                 linewidth=2,
                 label=f'{names[style_id]} (Avg) : {mv[-1]}')
     ax.set_title(f'Moving Utilization for {_map[no]} MEC Set-up')
-    ax.set_xlabel('Time (seconds)')
+    ax.set_xlabel('Time Period')
     ax.set_ylabel('CPU Utilization in Percentage')
     ax.set_ylim(top=8.1)
     ax.set_ylim(bottom=1.5)
@@ -205,7 +205,7 @@ def _plot_cpu(plot_data, ax, no):
                 linewidth=2,
                 label=names[style_id])
     ax.set_title(f'Moving Utilization for {no} MEC Set-up')
-    ax.set_xlabel('Time (seconds)')
+    ax.set_xlabel('Time Period')
     ax.legend()
     plt.subplot(ax)
 

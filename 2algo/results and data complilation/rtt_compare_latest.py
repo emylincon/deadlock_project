@@ -160,7 +160,7 @@ def plot_rtt(plot_data, ax, no, mec):
                 label=j)
     if mec == 4:
         ax.set_title(names[no])
-    ax.set_xlabel('Time (seconds)')
+    ax.set_xlabel('Time Period')
     if ax in ax_list:
         ax.set_ylabel(f'{ax_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
     # ax.set_ylabel('RTT ')
@@ -184,7 +184,7 @@ def call_plot():
 
         #plot_rtt(k[i], axis[i], i)
 
-    fig.suptitle('MEC RTT Utilization During Deadlock Experiment')
+    fig.suptitle('MEC RTT During Deadlock Experiment')
     # plt.subplots_adjust(wspace=0.3, hspace=0.2)
     plt.show()
 

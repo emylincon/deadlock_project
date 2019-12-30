@@ -161,10 +161,11 @@ def plot_wt(plot_data, ax, no, mec):
                 label=j)
     if mec == 4:
         ax.set_title(names[no])
-    ax.set_xlabel('Time (seconds)')
+    ax.set_xlabel('Time Period')
     if ax in ax_list:
+        #ax.set_ylabel('Time Period')
         ax.set_ylabel(f'{ax_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
-    # ax.set_ylabel('wt ')
+
     # ax.legend()
     plt.subplot(ax)
 
