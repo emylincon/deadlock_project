@@ -76,9 +76,9 @@ def four_mec():
     '''
 
     ax1.set_title('Moving CPU Utilization for 4 MEC Set-up')
-    ax1.set_ylabel('Moving CPU')
+    ax1.set_ylabel('Moving CPU %')
     ax1.set_ylim(top=30)
-    ax1.set_xlabel('Time (seconds)')
+    ax1.set_xlabel('Time Period')
     ax1.legend()
     plt.subplot(ax1)
 
@@ -107,9 +107,9 @@ def five_mec():
     '''
 
     ax3.set_title('Moving CPU Utilization for 6 MEC Set-up')
-    ax3.set_ylabel('Moving CPU')
+    ax3.set_ylabel('Moving CPU %')
     ax3.set_ylim(top=30)
-    ax3.set_xlabel('Time (seconds)')
+    ax3.set_xlabel('Time Period')
     ax3.legend()
     plt.subplot(ax3)
 
@@ -136,9 +136,9 @@ def six_mec():
     ax3.plot(list(range(500)), _mov_avg(data.cpu_16_6), linewidth=2, label='EDF + wait die')
     '''
     ax2.set_title('Moving CPU Utilization for 5 MEC Set-up')
-    ax2.set_ylabel('Moving CPU')
+    ax2.set_ylabel('Moving CPU %')
     ax2.set_ylim(top=30)
-    ax2.set_xlabel('Time (seconds)')
+    ax2.set_xlabel('Time Period')
     ax2.legend()
     plt.subplot(ax2)
 
@@ -164,9 +164,9 @@ def seven_mec():
     ax4.plot(list(range(500)), _mov_avg(d1cpu.cpu_16_7), linewidth=2, label='EDF + wait die')
     '''
     ax4.set_title('Moving CPU Utilization for 7 MEC Set-up')
-    ax4.set_ylabel('Moving CPU')
+    ax4.set_ylabel('Moving CPU %')
     ax4.set_ylim(top=30)
-    ax4.set_xlabel('Time (seconds)')
+    ax4.set_xlabel('Time Period')
     ax4.legend()
     plt.subplot(ax4)
 
