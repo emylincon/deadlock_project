@@ -28,7 +28,6 @@ ax22 = fig.add_subplot(4, 6, 22)
 ax23 = fig.add_subplot(4, 6, 23)
 ax24 = fig.add_subplot(4, 6, 24)
 
-
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c-.s']
 names = ('RMS+Bankers',
          'EDF+Bankers',
@@ -43,15 +42,15 @@ algo_dict = {'RMS+Bankers': r'$ALG_1$',
              'EDF+wound wait': r'$ALG_5$',
              'EDF+wait die': r'$ALG_6$'}
 font = {'family': 'serif',
-        'color':  'black',
+        'color': 'black',
         'weight': 'medium',
         'size': 16,
         }
 font1 = {'family': 'serif',
-        'color':  'black',
-        'weight': 'medium',
-        'size': 12,
-        }
+         'color': 'black',
+         'weight': 'medium',
+         'size': 12,
+         }
 _rtt = {
     24: rd.rtt2_2_4,
     25: rd.rtt2_2_5,
@@ -163,9 +162,9 @@ def plot_rtt(plot_data, ax, no, mec):
         for i in pt:
             if i > 5:
                 a = pt.index(i)
-                pt[a] = pt[a+1] + 0.3
+                pt[a] = pt[a + 1] + 0.3
 
-        a = list(range(0,len(mv)))
+        a = list(range(0, len(mv)))
         ptx = a[0:len(a):int((len(a) / 10)) + 1]
         if ptx[-1] != a[-1]:
             ptx.append(a[-1])
@@ -182,11 +181,11 @@ def plot_rtt(plot_data, ax, no, mec):
         ax.set_ylabel('RTT (ms)', fontdict=font1)
 
     # ax.set_ylabel('RTT ')
-    #ax.legend()
+    # ax.legend()
     axx = ax.twinx()
-    #axx.yaxis.set_label_position("right")
-    #axx.yaxis.tick_right()
-    #axx.set_axis_off()
+    # axx.yaxis.set_label_position("right")
+    # axx.yaxis.tick_right()
+    # axx.set_axis_off()
     axx.set_yticklabels([])
     axx.set_yticks([])
     if ax in axx_list:
@@ -201,19 +200,17 @@ def call_plot():
     k = format_data(_rtt)
     axis_id = 0
     for i in k:
-        #print(i, len(k[i]), k[i])
+        # print(i, len(k[i]), k[i])
         for j in k[i]:
             nos = k[i].index(j)
             plot_rtt(j, axis[axis_id], nos, i)
             axis_id += 1
 
-        #plot_rtt(k[i], axis[i], i)
+        # plot_rtt(k[i], axis[i], i)
 
-    #fig.suptitle('MEC RTT During Deadlock Experiment')
+    # fig.suptitle('MEC RTT During Deadlock Experiment')
     # plt.subplots_adjust(wspace=0.3, hspace=0.2)
     plt.show()
 
 
 call_plot()
-
-
