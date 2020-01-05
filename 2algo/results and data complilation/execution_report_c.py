@@ -291,16 +291,27 @@ def percent(value, total):
 
 def plot_offloaded_remote(data_list, ax, _id_):
     # data_list =  [off_mec, off_cloud, loc, inward_mec]
-    ax_list = {ax1: 4, ax7: 5, ax13: 6, ax19: 7}
+    ax_list = (ax1, ax7, ax13, ax19)
+    axx_list = {ax6: 4, ax12: 5, ax18: 6, ax24: 7}
     title = [ax1, ax2, ax3, ax4, ax5, ax6]
-    names = ('RMS + Bankers',
-             'EDF + Bankers',
-             'RMS + wound wait',
-             'RMS + wait die',
-             'EDF + wound wait',
-             'EDF + wait die')
+    names = ('RMS+Bankers',
+             'EDF+Bankers',
+             'RMS+wound wait',
+             'RMS+wait die',
+             'EDF+wound wait',
+             'EDF+wait die')
+    algo_dict = {'RMS+Bankers': r'$ALG_1$',
+                 'EDF+Bankers': r'$ALG_2$',
+                 'RMS+wound wait': r'$ALG_3$',
+                 'RMS+wait die': r'$ALG_4$',
+                 'EDF+wound wait': r'$ALG_5$',
+                 'EDF+wait die': r'$ALG_6$'}
+    font = {
+        'weight': 'medium',
+        'size': 15,
+    }
 
-    keys = ['off-mec', 'Local', 'Cloud']     # , 'O-In']
+    keys = ['Off-mec', 'Local', 'Cloud']     # , 'O-In']
     total = sum(data_list)
 
     val = [percent(data_list[0], total),
@@ -311,20 +322,33 @@ def plot_offloaded_remote(data_list, ax, _id_):
 
     values = data_list
     # print(values)
+    axx = ax.twinx()
+    # axx.yaxis.set_label_position("right")
+    # axx.yaxis.tick_right()
+    # axx.set_axis_off()
+    axx.set_yticklabels([])
+    axx.set_yticks([])
+    if ax in axx_list:
+        axx.set_ylabel(f'{axx_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
     for i in values:
         j = values.index(i)
         # print(j)
         ax.text(j - 0.1, values[j], '{}%'.format(val[j]), rotation=0,
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax.set_xticks(ypos)
-    ax.set_xticklabels(keys)
+    ax.set_xticklabels(keys, fontdict={'weight': 'medium', 'size': 12})
     ax.bar(ypos, values, align='center', color=cols, alpha=0.3)
+
     if ax in ax_list:
-        ax.set_ylabel(f'{ax_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
+        ax.set_ylabel('No of Processes', fontdict={'weight': 'medium', 'size': 12})
+
+    # ax.set_ylabel('RTT ')
+    # ax.legend()
+
 
     if ax in title:
-        ax.set_title(names[_id_])
-    plt.subplot(ax)
+        ax.set_title(algo_dict[names[_id_]], fontdict=font)
+    #plt.subplot(ax)
 
 
 def plot_av_times():
@@ -342,7 +366,7 @@ def plot_av_times():
             data_plot = _data[i][j]
             plot_offloaded_remote(data_plot, axes[no], j)
             no += 1
-    fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
+    #fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
     plt.subplots_adjust(wspace=0.3, hspace=0.2)
     plt.show()
 
