@@ -13,11 +13,11 @@ ax4 = fig.add_subplot(144)
 
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c--+']
 algo_dict = {'RMS+Bankers': r'$ALG_1$',
-                 'EDF+Bankers': r'$ALG_2$',
-                 'RMS+wound wait': r'$ALG_3$',
-                 'RMS+wait die': r'$ALG_4$',
-                 'EDF+wound wait': r'$ALG_5$',
-                 'EDF+wait die': r'$ALG_6$'}
+             'EDF+Bankers': r'$ALG_2$',
+             'RMS+wound wait': r'$ALG_3$',
+             'RMS+wait die': r'$ALG_4$',
+             'EDF+wound wait': r'$ALG_5$',
+             'EDF+wait die': r'$ALG_6$'}
 
 
 def _mov_avg(a1):
@@ -67,11 +67,11 @@ def four_mec():
     for i in _list:
         get_x_y(data=i, ax=ax1, _id=_list.index(i), name=labels[_list.index(i)])
 
-    ax1.set_title('Moving CPU Utilization for 4 MEC Set-up', fontdict={'weight': 'medium', "size":14})
+    ax1.set_title('Moving CPU Utilization for 4 MEC Set-up', fontdict={'weight': 'medium', "size": 14})
     ax1.set_ylabel('Moving CPU %', fontdict={'weight': 'medium', 'size': 13})
     ax1.set_ylim(top=30)
     ax1.set_xlabel('Time Period', fontdict={'weight': 'medium', 'size': 13})
-    ax1.legend(prop={"size":14})
+    ax1.legend(prop={"size": 14})
     plt.subplot(ax1)
 
 
@@ -83,11 +83,11 @@ def five_mec():
     for i in _list:
         get_x_y(data=i, ax=ax3, _id=_list.index(i), name=labels[_list.index(i)])
 
-    ax3.set_title('Moving CPU Utilization for 6 MEC Set-up', fontdict={'weight': 'medium', "size":14})
+    ax3.set_title('Moving CPU Utilization for 6 MEC Set-up', fontdict={'weight': 'medium', "size": 14})
     ax3.set_ylabel('Moving CPU %', fontdict={'weight': 'medium', 'size': 13})
     ax3.set_ylim(top=30)
     ax3.set_xlabel('Time Period', fontdict={'weight': 'medium', 'size': 13})
-    ax3.legend(prop={"size":14})
+    ax3.legend(prop={"size": 14})
     plt.subplot(ax3)
 
 
@@ -99,11 +99,11 @@ def six_mec():
     for i in _list:
         get_x_y(data=i, ax=ax2, _id=_list.index(i), name=labels[_list.index(i)])
 
-    ax2.set_title('Moving CPU Utilization for 5 MEC Set-up', fontdict={'weight': 'medium', "size":14})
+    ax2.set_title('Moving CPU Utilization for 5 MEC Set-up', fontdict={'weight': 'medium', "size": 14})
     ax2.set_ylabel('Moving CPU %', fontdict={'weight': 'medium', 'size': 13})
     ax2.set_ylim(top=30)
     ax2.set_xlabel('Time Period', fontdict={'weight': 'medium', 'size': 13})
-    ax2.legend(prop={"size":14})
+    ax2.legend(prop={"size": 14})
     plt.subplot(ax2)
 
 
@@ -115,11 +115,11 @@ def seven_mec():
     for i in _list:
         get_x_y(data=i, ax=ax4, _id=_list.index(i), name=labels[_list.index(i)])
 
-    ax4.set_title('Moving CPU Utilization for 7 MEC Set-up',  fontdict={'weight': 'medium', "size":14})
+    ax4.set_title('Moving CPU Utilization for 7 MEC Set-up', fontdict={'weight': 'medium', "size": 14})
     ax4.set_ylabel('Moving CPU %', fontdict={'weight': 'medium', 'size': 13})
     ax4.set_ylim(top=30)
     ax4.set_xlabel('Time Period', fontdict={'weight': 'medium', 'size': 13})
-    ax4.legend(prop={"size":14})
+    ax4.legend(prop={"size": 14})
     plt.subplot(ax4)
 
 
@@ -128,7 +128,7 @@ def plot_graphs():
     five_mec()
     six_mec()
     seven_mec()
-    #fig.suptitle('MEC CPU Utilization During Homogeneous Deadlock Experiment')
+    # fig.suptitle('MEC CPU Utilization During Homogeneous Deadlock Experiment')
     plt.show()
 
 
