@@ -101,10 +101,15 @@ def histogram(timely, untimely, ax, no):
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax.legend((p1[0], p2[0]), ('UP', 'TP'), prop={"size":16})
     # ax.set_ylabel('\n'.join(wrap(f'Plot for {no} MECs', 8))).set_rotation(0)
-    ax.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
+    ax.set_ylabel("No of Processes", fontsize=15)
     for label in ax.get_xticklabels():
         label.set_fontsize(16)
     ax.xaxis.set_tick_params(labelsize=16)
+    #ax.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
+    axx = ax.twinx()
+    axx.set_yticklabels([])
+    axx.set_yticks([])
+    axx.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
 
 
 def format_data():
