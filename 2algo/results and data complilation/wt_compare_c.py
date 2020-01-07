@@ -180,7 +180,7 @@ def plot_wt(plot_data, ax, no, mec):
         ax.set_title(algo_dict[names[no]], fontdict=font)
     ax.set_xlabel('Time Period', fontdict=font1)
     if ax in ax_list:
-        ax.set_ylabel('RTT (ms)', fontdict=font1)
+        ax.set_ylabel('WT (ms)', fontdict=font1)
 
     # ax.set_ylabel('RTT ')
     # ax.legend()
