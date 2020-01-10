@@ -45,12 +45,12 @@ algo_dict = {'RMS+Bankers': r'$ALG_1$',
              'EDF+wait die': r'$ALG_6$'}
 font = {'family': 'serif',
         'color': 'black',
-        'weight': 'medium',
+        'weight': 'bold',
         'size': 16,
         }
 font1 = {
          'color': 'black',
-         'weight': 'medium',
+         'weight': 'bold',
          'size': 14,
          }
 
@@ -104,11 +104,13 @@ def plot_rtt(plot_data, ax, no, mec):
 
     # ax.set_ylabel('RTT ')
     # ax.legend()
+    ax.set_ylim(top=4.2)
+    ax.set_ylim(bottom=0.5)
     axx = ax.twinx()
     axx.set_yticklabels([])
     axx.set_yticks([])
     if ax in axx_list:
-        axx.set_ylabel(f'{axx_list[ax]} MECs', rotation=0, fontsize=15, labelpad=30)
+        axx.set_ylabel(f'{axx_list[ax]} MECs', rotation=0, fontdict=font, labelpad=38)
 
 
 def call_plot():
