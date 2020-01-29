@@ -65,16 +65,18 @@ def _mov_avg(a1):
         ma1.append(avg1)  # cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
-
+avg = []
 
 def plot_rtt(plot_data, ax, no, mec):
     ax.grid(True)
     ax_list = (ax1, ax7, ax13, ax19)
     axx_list = {ax6: 4, ax12: 5, ax18: 6, ax24: 7}
     list_dict = list(plot_data.keys())
+    data = []
     for j in plot_data:
 
         i = plot_data[j]
+        data.append(i[-1])
         style_id = list_dict.index(j)
         mv = _mov_avg(i)
         pt = mv[0:len(mv):int((len(mv) / 10)) + 1]
@@ -96,6 +98,9 @@ def plot_rtt(plot_data, ax, no, mec):
                 style[style_id],
                 linewidth=2,
                 label=j)
+    avg_set = avg_rtt(data)
+    avg.append(avg_set)
+    #print(avg_set)
     if mec == 4:
         ax.set_title(algo_dict[names[no]], fontdict=font)
     ax.set_xlabel('Time Period', fontdict=font1)
@@ -139,4 +144,19 @@ def call_plot():
     plt.show()
 
 
+def avg_rtt(data):
+    return sum(data)/len(data)
+
+
 call_plot()
+
+
+def cal_mec_avg():
+    n = 10
+    print('*'*n + 'Average RTT for Algorithms' + '*'*n )
+    for i in range(6):
+        a = avg[i:len(avg)+1:6]
+        print(f'{algo_dict[names[i]]}: ', sum(a)/len(a))
+
+
+cal_mec_avg()
