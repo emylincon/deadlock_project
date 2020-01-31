@@ -152,6 +152,8 @@ call_plot()
 
 
 def cal_mec_avg():
+    for i in avg:
+        print(round(i, 3))
     n = 10
     print('*'*n + 'Average RTT for Algorithms' + '*'*n )
     for i in range(6):
