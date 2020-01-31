@@ -2,6 +2,7 @@ from drawnow import *
 from matplotlib import pyplot as plt
 import data
 import redo_data as rd
+from numpy import mean
 import random as r
 
 fig = plt.figure()
@@ -47,8 +48,10 @@ def _mov_avg(a1):
 
 def one_four():
     ax1.grid(True)
+    data_ = []
     for i in data.wt_1:
         mv = _mov_avg(data.wt_1[i])
+        data_.append(data.wt_1[i][-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -66,6 +69,7 @@ def one_four():
                  style[list(data.wt_1.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_), 3))
     ax1.set_title(r'$ALG_1$')
     # ax1.set_ylabel('Moving WT')
     ax1.set_xlabel(r'Time Period')
@@ -76,8 +80,10 @@ def one_four():
 
 def three_four():
     ax2.grid(True)
+    data_ = []
     for i in data.wt_3:
         mv = _mov_avg(data.wt_3[i])
+        data_.append(data.wt_1[i][-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -87,6 +93,7 @@ def three_four():
                  style[list(data.wt_3.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_),3))
     ax2.set_title(r'$ALG_2$')
     ax2.set_xlabel('Time Period')
     # ax2.legend()
@@ -95,6 +102,7 @@ def three_four():
 
 def five_four():
     ax3.grid(True)
+    data_ = []
     for i in data.wt_5:
 
         mv = _mov_avg(data.wt_5[i])
@@ -104,6 +112,7 @@ def five_four():
             mv = [x + r.uniform(0.02, 0.05) for x in k]
             mv[0] = n
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        data_.append(mv[-1])
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         # ptx = [mv.index(i) for i in pt]
@@ -111,12 +120,13 @@ def five_four():
         ptx = a[0:len(a):int((len(a) / 7)) + 1]
         if ptx[-1] != a[-1]:
             ptx.append(a[-1])
-        print(f'mv = {len(mv)}')
+        #print(f'mv = {len(mv)}')
         ax3.plot(ptx,
                  pt,
                  style[list(data.wt_5.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_),3))
     ax3.set_title(r'$ALG_3$')
     ax3.set_xlabel('Time Period')
     # ax3.legend()
@@ -125,6 +135,7 @@ def five_four():
 
 def eight_four():
     ax4.grid(True)
+    data_ = []
     for i in data.wt_8:
         mv = _mov_avg(data.wt_8[i])
         if len(mv) < 200:
@@ -132,6 +143,7 @@ def eight_four():
             k = data.wt_8[list(data.wt_8.keys())[1]]
             mv = [x + r.uniform(0.02, 0.03) for x in k]
             mv[0] = n
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -140,12 +152,13 @@ def eight_four():
         ptx = a[0:len(a):int((len(a) / 7)) + 1]
         if ptx[-1] != a[-1]:
             ptx.append(a[-1])
-        print(f'mv = {len(mv)}')
+        #print(f'mv = {len(mv)}')
         ax4.plot(ptx,
                  pt,
                  style[list(data.wt_8.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_),3))
     ax4.set_title(r'$ALG_4$')
     ax4.set_xlabel('Time Period')
     # ax4.legend()
@@ -154,6 +167,7 @@ def eight_four():
 
 def eleven_four():
     ax5.grid(True)
+    data_ = []
     for i in data.wt_11:
         mv = _mov_avg(data.wt_11[i])
         if len(mv) < 200:
@@ -161,6 +175,7 @@ def eleven_four():
             k = data.wt_11[list(data.wt_11.keys())[1]]
             mv = [x + r.uniform(0.02, 0.03) for x in k]
             mv[0] = n
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -173,12 +188,13 @@ def eleven_four():
         ptx = a[0:len(a):int((len(a) / 7)) + 1]
         if ptx[-1] != a[-1]:
             ptx.append(a[-1])
-        print(f'mv = {len(mv)}')
+        #print(f'mv = {len(mv)}')
         ax5.plot(ptx,
                  pt,
                  style[list(data.wt_11.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_),3))
     ax5.set_title(r'$ALG_5$')
     ax5.set_xlabel('Time Period')
     # ax5.legend()
@@ -187,6 +203,7 @@ def eleven_four():
 
 def sixteen_four():
     ax6.grid(True)
+    data_ = []
     for i in data.wt_16:
         mv = _mov_avg(data.wt_16[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
@@ -198,6 +215,7 @@ def sixteen_four():
                 pt[a] = pt[a + 1] + 0.3
         # ptx = [mv.index(i) for i in pt]
         a = list(range(0, len(mv)))
+        data_.append(mv[-1])
         ptx = a[0:len(a):int((len(a) / 7)) + 1]
         if ptx[-1] != a[-1]:
             ptx.append(a[-1])
@@ -207,6 +225,7 @@ def sixteen_four():
                  style[list(data.wt_16.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_),3))
     ax6.set_title(r'$ALG_6$')
     ax6.set_xlabel('Time Period')
     # ax6.legend()
@@ -215,6 +234,7 @@ def sixteen_four():
 
 def one_five():
     ax7.grid(True)
+    data_ = []
     for i in data.wt_1_5:
         mv = _mov_avg(data.wt_1_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
@@ -226,6 +246,7 @@ def one_five():
                 a = pt.index(j)
                 pt[a] = pt[a + 1] + 0.3
         # ptx = [mv.index(i) for i in pt]
+        data_.append(mv[-1])
         a = list(range(0, len(mv)))
         ptx = a[0:len(a):int((len(a) / 7)) + 1]
         if ptx[-1] != a[-1]:
@@ -236,6 +257,7 @@ def one_five():
                  linewidth=2,
                  )
     # ax7.set_ylabel('Moving WT')
+    print(round(mean(data_),3))
     ax7.set_xlabel('Time Period')
     ax7.set_ylabel(f'WT (ms)', fontsize=14)
     # ax7.legend()
@@ -244,8 +266,10 @@ def one_five():
 
 def three_five():
     ax8.grid(True)
+    data_ = []
     for i in data.wt_3_5:
         mv = _mov_avg(data.wt_3_5[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -255,6 +279,7 @@ def three_five():
                  style[list(data.wt_3_5.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_),3))
     ax8.set_xlabel('Time Period')
     # ax8.legend()
     plt.subplot(ax8)
@@ -262,12 +287,14 @@ def three_five():
 
 def five_five():
     ax9.grid(True)
+    data_ = []
     for i in data.wt_5_5:
         mv = _mov_avg(data.wt_5_5[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         # ptx = [mv.index(i) for i in pt]
+        data_.append(mv[-1])
         for j in pt:
             if j > 10:
                 a = pt.index(j)
@@ -282,6 +309,7 @@ def five_five():
                  style[list(data.wt_5_5.keys()).index(i)],
                  linewidth=2,
                  )
+    print(round(mean(data_),3))
     ax9.set_xlabel('Time Period')
     # ax9.legend()
     plt.subplot(ax9)
@@ -289,8 +317,10 @@ def five_five():
 
 def eight_five():
     ax10.grid(True)
+    data_ = []
     for i in data.wt_8_5:
         mv = _mov_avg(data.wt_8_5[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -300,6 +330,7 @@ def eight_five():
                   style[list(data.wt_8_5.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax10.set_xlabel('Time Period')
     # ax10.legend()
     plt.subplot(ax10)
@@ -307,8 +338,10 @@ def eight_five():
 
 def eleven_five():
     ax11.grid(True)
+    data_ = []
     for i in data.wt_11_5:
         mv = _mov_avg(data.wt_11_5[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -327,6 +360,7 @@ def eleven_five():
                   style[list(data.wt_11_5.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax11.set_xlabel('Time Period')
     # ax11.legend()
     plt.subplot(ax11)
@@ -334,8 +368,10 @@ def eleven_five():
 
 def sixteen_five():
     ax12.grid(True)
+    data_ = []
     for i in data.wt_16_5:
         mv = _mov_avg(data.wt_16_5[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -354,6 +390,7 @@ def sixteen_five():
                   style[list(data.wt_16_5.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax12.set_xlabel('Time Period')
     # ax12.legend()
     plt.subplot(ax12)
@@ -361,8 +398,10 @@ def sixteen_five():
 
 def one_six():
     ax13.grid(True)
+    data_ = []
     for i in data.wt_1_6:
         mv = _mov_avg(data.wt_1_6[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -382,6 +421,7 @@ def one_six():
                   linewidth=2,
                   )
     # ax13.set_ylabel('Moving WT')
+    print(round(mean(data_),3))
     ax13.set_xlabel('Time Period')
     ax13.set_ylabel(f'WT (ms)', fontsize=14)
     # ax13.legend()
@@ -390,6 +430,7 @@ def one_six():
 
 def three_six():
     ax14.grid(True)
+    data_ = []
     for i in data.wt_3_6:
         mv = _mov_avg(data.wt_3_6[i])
         if len(mv) < 300:
@@ -397,6 +438,7 @@ def three_six():
             k = data.wt_3_6[list(data.wt_3_6.keys())[1]]
             mv = [x + r.uniform(0.02, 0.05) for x in k]
             mv[0] = n
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -406,6 +448,7 @@ def three_six():
                   style[list(data.wt_3_6.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax14.set_xlabel('Time Period', fontdict={'size':14})
     # ax14.legend()
     plt.subplot(ax14)
@@ -413,8 +456,10 @@ def three_six():
 
 def five_six():
     ax15.grid(True)
+    data_ = []
     for i in data.wt_5_6:
         mv = _mov_avg(data.wt_5_6[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -433,6 +478,7 @@ def five_six():
                   style[list(data.wt_5_6.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax15.set_xlabel('Time Period', fontdict={'size':14})
     # ax15.legend()
     plt.subplot(ax15)
@@ -440,8 +486,10 @@ def five_six():
 
 def eight_six():
     ax16.grid(True)
+    data_ = []
     for i in data.wt_8_6:
         mv = _mov_avg(data.wt_8_6[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -460,6 +508,7 @@ def eight_six():
                   style[list(data.wt_8_6.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax16.set_xlabel('Time Period', fontdict={'size':14})
     # ax16.legend()
     plt.subplot(ax16)
@@ -467,9 +516,11 @@ def eight_six():
 
 def eleven_six():
     ax17.grid(True)
+    data_ = []
     for i in data.wt_11_6:
         mv = _mov_avg(data.wt_11_6[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+        data_.append(mv[-1])
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
         # ptx = [mv.index(i) for i in pt]
@@ -487,6 +538,7 @@ def eleven_six():
                   style[list(data.wt_11_6.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax17.set_xlabel('Time Period', fontdict={'size':14})
     # ax17.legend()
     plt.subplot(ax17)
@@ -494,8 +546,10 @@ def eleven_six():
 
 def sixteen_six():
     ax18.grid(True)
+    data_ = []
     for i in data.wt_16_6:
         mv = _mov_avg(data.wt_16_6[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -514,6 +568,7 @@ def sixteen_six():
                   style[list(data.wt_16_6.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax18.set_xlabel('Time Period', fontdict={'size':14})
     # ax18.legend()
     plt.subplot(ax18)
@@ -521,8 +576,10 @@ def sixteen_six():
 
 def one_seven():
     ax19.grid(True)
+    data_ = []
     for i in rd.wt_1_7:
         mv = _mov_avg(rd.wt_1_7[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -541,6 +598,7 @@ def one_seven():
                   style[list(rd.wt_1_7.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     # ax19.set_ylabel('Moving WT')
     ax19.set_xlabel('Time Period', fontdict={'size':14})
     ax19.set_ylabel(f'WT (ms)', fontsize=14)
@@ -550,8 +608,10 @@ def one_seven():
 
 def three_seven():
     ax20.grid(True)
+    data_ = []
     for i in rd.wt_3_7:
         mv = _mov_avg(rd.wt_3_7[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -561,6 +621,7 @@ def three_seven():
                   style[list(rd.wt_3_7.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax20.set_xlabel('Time Period', fontdict={'size':14})
     # ax20.legend()
     plt.subplot(ax20)
@@ -568,8 +629,10 @@ def three_seven():
 
 def five_seven():
     ax21.grid(True)
+    data_ = []
     for i in rd.wt_5_7:
         mv = _mov_avg(rd.wt_5_7[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -579,6 +642,7 @@ def five_seven():
                   style[list(rd.wt_5_7.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax21.set_xlabel('Time Period', fontdict={'size':14})
     # ax21.legend()
     plt.subplot(ax21)
@@ -586,8 +650,10 @@ def five_seven():
 
 def eight_seven():
     ax22.grid(True)
+    data_ = []
     for i in rd.wt_8_7:
         mv = _mov_avg(rd.wt_8_7[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -606,6 +672,7 @@ def eight_seven():
                   style[list(rd.wt_8_7.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax22.set_xlabel('Time Period', fontdict={'size':14})
     # ax22.legend()
     plt.subplot(ax22)
@@ -613,8 +680,10 @@ def eight_seven():
 
 def eleven_seven():
     ax23.grid(True)
+    data_ = []
     for i in rd.wt_11_7:
         mv = _mov_avg(rd.wt_11_7[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -624,6 +693,7 @@ def eleven_seven():
                   style[list(rd.wt_11_7.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax23.set_xlabel('Time Period', fontdict={'size':14})
     # ax23.legend()
     plt.subplot(ax23)
@@ -631,8 +701,10 @@ def eleven_seven():
 
 def sixteen_seven():
     ax24.grid(True)
+    data_ = []
     for i in rd.wt_16_7:
         mv = _mov_avg(rd.wt_16_7[i])
+        data_.append(mv[-1])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
@@ -642,6 +714,7 @@ def sixteen_seven():
                   style[list(rd.wt_16_7.keys()).index(i)],
                   linewidth=2,
                   )
+    print(round(mean(data_),3))
     ax24.set_xlabel('Time Period', fontdict={'size':14})
     # ax24.legend()
     plt.subplot(ax24)
