@@ -22,7 +22,7 @@ port = 65000        # The port used by the server
 hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
 server_address = ('', 10000)
-record = []  # records the task list and execution and waiting time and host sent
+record = []  # [({tasks}, {waiting time}), hostname] records the task list and execution and waiting time and host sent
 
 # Create the socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
