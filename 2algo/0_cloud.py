@@ -208,7 +208,7 @@ def execute(local):
     print('\nExecuting :', local)
     for i in local:
         j = i.split('_')[0]
-        time.sleep((t_time[j]) / 5)  # cloud executes tasks in less time than MEC
+        time.sleep((t_time[j]) / 10)  # cloud executes tasks in less time than MEC
         print('####### Executed: ', i)
         _client.publish(j.split('.')[1], 'c {}'.format(i.split('*')[0]))
         # send_client(i, cloud_register[i.split('.')[1]])
@@ -236,7 +236,7 @@ def run_me():
         while True:
             try:
                 if len(received_task_queue[0]) == 0:
-                    time.sleep(2)
+                    time.sleep(0.0001)
                 elif len(received_task_queue[0]) <= 2:
                     shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
@@ -248,7 +248,7 @@ def run_me():
                         del received_task_queue[1][t]
                         shared_resource_lock.release()
 
-                    time.sleep(2)
+                    time.sleep(0.0001)
                 else:
                     shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
