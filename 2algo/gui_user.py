@@ -25,6 +25,7 @@ server_address = ('', 10000)
 record = []  # [({tasks}, {waiting time}), hostname] records the task list and execution and waiting time and host sent
 
 # Create the socket
+'''
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Bind to the server address
 sock.bind(server_address)
@@ -33,7 +34,7 @@ sock.bind(server_address)
 group = socket.inet_aton(multicast_group)
 mreq = struct.pack('4sL', group, socket.INADDR_ANY)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
+'''
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
           't3': {'wcet': 2, 'period': 10, 'deadline': 8},
@@ -151,8 +152,8 @@ def get_tasks():
 
 
 def waiting_time_init():
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
-              tasks}  # t_time = {'ti': [execution_time, latency], ..}
+    t_time = {i: [round((r.uniform(0.4, 0.8)/1000), 7), round((tasks[i]['period']) / (tasks[i]['wcet'])/2, 4)] for i in
+              tasks}  # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
 
     return t_time
 
@@ -297,10 +298,10 @@ def send_result(host_, data):
 
         un = 'mec'
         pw = 'password'
-        port = 22
+        port_ = 22
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
+        c.connect(host_, port_, un, pw)
         for i in data:
             cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
 
