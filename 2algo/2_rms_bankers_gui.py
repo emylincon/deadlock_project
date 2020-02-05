@@ -217,7 +217,7 @@ def plot_wait_time():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             np.append(pt, mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        ptx = [np.where(mv==i)[0][0] for i in pt]
         ax1.plot(ptx,
                  pt,
                  style[list(hosts.values()).index(i)],
