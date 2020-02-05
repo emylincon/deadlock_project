@@ -236,7 +236,7 @@ def run_me():
         while True:
             try:
                 if len(received_task_queue[0]) == 0:
-                    time.sleep(0.0001)
+                    time.sleep(0.00001)
                 elif len(received_task_queue[0]) <= 2:
                     shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
@@ -248,7 +248,7 @@ def run_me():
                         del received_task_queue[1][t]
                         shared_resource_lock.release()
 
-                    time.sleep(0.0001)
+                    time.sleep(0.00001)
                 else:
                     shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
