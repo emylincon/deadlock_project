@@ -419,11 +419,11 @@ def calc_wait_time(list_seq):
     time_dic = {}
     for i in list_seq:
         j = i.split('_')[0]
-        time_dic[i] = round(t_time[j][0] + pre, 3)
+        time_dic[i] = round(t_time[j][0] + pre, 7)
         pre += t_time[j][0]
-    # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)
-    send_message('wt {} {}'.format(ip_address(), str(w_send)))  # Broadcasting waiting time to cooperative MECs
+    # waiting time = total waiting time ÷ amt of tasks average waiting time might be too tight
+    w_send = round(time_dic[list(time_dic.keys())[-1]]/len(time_dic), 7)
+    send_message('wt {} {}'.format(ip_address(), str(w_send)))   # multi-casting waiting time to cooperative MECs
     return time_dic
 
 
@@ -441,6 +441,7 @@ def compare_local_mec(list_seq):
     return execute_mec, execute_locally
 
 
+# ma1 = list_name and a1 = new item; finds and returns the new average if a new item is added
 def calculate_mov_avg(ma1, a1):
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
@@ -452,7 +453,7 @@ def calculate_mov_avg(ma1, a1):
     avg1 = ((_count - 1) * avg1 + a1) / _count
     # ma1.append(avg1) #cumulative average formula
     # μ_n=((n-1) μ_(n-1)  + x_n)/n
-    return round(avg1, 4)
+    return round(avg1, 7)
 
 
 def send_message(mg):
@@ -505,8 +506,8 @@ def receive_message():                 # used for multi-cast message exchange am
 
                 if split_data[1] != host_ip:
 
-                    w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(
-                        address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
+                    w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + (get_rtt(
+                        address[0])/1000))  # calcuate moving average of mec wait time => w_time = wait time + rtt
 
                     if split_data[1] in mec_waiting_time:
                         mec_waiting_time[split_data[1]].append(w_time)
@@ -550,7 +551,7 @@ def cooperative_mec(mec_list):
                 # SENDS TASK TO MEC FOR EXECUTION
 
                 mec_waiting_time[_host].append(
-                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
+                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 7))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 _client.publish(cloud_ip, str([j, t_time[j][0]]))
@@ -566,7 +567,7 @@ def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:      # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
-        time.sleep(offloaded_task[1][j]/2)
+        time.sleep(offloaded_task[1][j])  # execution time is in milliseconds
         # print('j task: ', j)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
@@ -576,8 +577,8 @@ def execute(local):
 
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0]/2)
-        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
+        time.sleep(t_time[j][0])                 # execution time is in milliseconds
+        print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
         elif j.split('.')[1] == node_id:
@@ -622,7 +623,7 @@ def call_execute_re_offload():
         else:
             if len(reoffload_list[0]) == 1:
                 t = reoffload_list[0][-1]
-                time.sleep(reoffload_list[1][t]/2)
+                time.sleep(reoffload_list[1][t])
                 shared_resource_lock.acquire()
                 reoffload_list[0].remove(t)
                 del reoffload_list[1][t]
@@ -637,7 +638,7 @@ def call_execute_re_offload():
                     del reoffload_list[1][i]
                     shared_resource_lock.release()
 
-        time.sleep(1)
+        time.sleep(0.0001)
 
 
 def send_email(msg):
@@ -756,7 +757,7 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(1)
+                    time.sleep(0.0001)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=3):
