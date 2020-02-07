@@ -157,7 +157,7 @@ def waiting_time_init():
               tasks}  # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
     # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
     '''
-    t_time = {i: [round((r.uniform(0.4, 0.8) / 1000), 7), round(r.uniform(1.2, 2.0), 5)] for i in tasks}
+    t_time = {i: [round((r.uniform(0.4, 0.8) / 1000), 7), round(r.uniform(1.2, 3.0), 5)] for i in tasks}
     return t_time
 
 
