@@ -369,7 +369,7 @@ def on_message(message_client, userdata, msg):
     elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
-        received_time.append(time)
+        received_time.append(time.time())
 
     else:
         print('data: ', data)
