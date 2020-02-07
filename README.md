@@ -67,6 +67,7 @@ run any of the desired algorithm
 
 
 ###### Clients:
+* if the dns does not work for the client in ubuntu 18 run `sudo bash client_dns.sh`
 * each client(o_gui_user.py) have a prepared data they have to read and run from {user3, user4 and user5}
 * each correspond to a respective client node
 * the corresponding python file have to be renamed to record.py in the user node.
