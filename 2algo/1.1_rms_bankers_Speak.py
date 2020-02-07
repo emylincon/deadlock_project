@@ -68,6 +68,7 @@ _time = []
 _pos = 0
 # received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
 received_task_queue = []   # [(task_list,wait_time), ....]
+received_time = []
 thread_record = []
 port = 65000
 _port_ = 64000
@@ -217,6 +218,7 @@ def on_message(message_client, userdata, msg):
     elif data[0] == 't':     # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
+        received_time.append(time)
     '''
     else:
         print('data: ', data)
@@ -439,16 +441,24 @@ def calc_wait_time(list_seq):
 
 
 def compare_local_mec(list_seq):
-    time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
-    print('local vs MEC comparison: ', time_compare_dict)
+    global received_time
     execute_mec = []
     execute_locally = []
-    for i in time_compare_dict:
-        if time_compare_dict[i]:
+    # time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
+    # print('local vs MEC comparison: ', time_compare_dict)
+    #
+    # for i in time_compare_dict:
+    #     if time_compare_dict[i]:
+    #         execute_locally.append(i)
+    #     else:
+    #         execute_mec.append(i)
+    diff = time.time() - received_time.pop(0)
+    for i in list_seq:
+        t_time[i.split('_')[0]][1]-=diff
+        if t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
-
     return execute_mec, execute_locally
 
 
@@ -544,7 +554,7 @@ def receive_message():
                     w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + (get_rtt(
                         address[0])/1000))  # calcuate moving average of mec wait time => w_time = wait time + rtt
 
-                    if split_data[1] in mec_waiting_time:
+                    if (split_data[1] in mec_waiting_time) and (mec_waiting_time[split_data[1]][-1] != w_time):
                         mec_waiting_time[split_data[1]].append(w_time)
                     else:
                         mec_waiting_time[split_data[1]] = [w_time]
