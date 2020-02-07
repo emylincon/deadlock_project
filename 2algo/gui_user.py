@@ -152,12 +152,11 @@ def get_tasks():
 
 
 def waiting_time_init():
-    '''
-    t_time = {i: [round((r.uniform(0.4, 0.8)/1000), 7), round((tasks[i]['period']) / (tasks[i]['wcet'])/10, 4)] for i in
-              tasks}  # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
-    # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
-    '''
-    t_time = {i: [round((r.uniform(0.4, 0.8) / 1000), 7), round(r.uniform(1.2, 3.0), 5)] for i in tasks}
+
+    # t_time = {i: [round((r.uniform(0.4, 0.8)/1000), 7), round((tasks[i]['period']) / (tasks[i]['wcet'])/10, 4)] for i in
+    #           tasks}  # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
+    # # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
+    t_time = {i: [round((r.uniform(0.04, 0.08) / 1000), 7), round(r.uniform(1.2, 3.0), 5)] for i in tasks}
     return t_time
 
 
