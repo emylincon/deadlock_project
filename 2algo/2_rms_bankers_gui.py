@@ -669,7 +669,7 @@ def receive_message():
                 if split_data[1] != host_ip:
                     # calcuate moving average of mec wait time => w_time = wait time + rtt
                     w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + (get_rtt(address[0])/1000))
-                    if (split_data[1] in mec_waiting_time) and (mec_waiting_time[split_data[1]][-1] != w_time):
+                    if (split_data[1] in mec_waiting_time) and (mec_waiting_time[split_data[1]][-10:] != [w_time]*10):
                         mec_waiting_time[split_data[1]].append(w_time)
                     else:
                         mec_waiting_time[split_data[1]] = [w_time]
