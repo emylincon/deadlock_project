@@ -155,8 +155,8 @@ def waiting_time_init():
 
     # t_time = {i: [round((r.uniform(0.4, 0.8)/1000), 7), round((tasks[i]['period']) / (tasks[i]['wcet'])/10, 4)] for i in
     #           tasks}  # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
-    # # t_time = {'ti': [execution_time(ms), latency(ms)], ..}
-    t_time = {i: [round((r.uniform(0.04, 0.08) / 1000), 7), round(r.uniform(1.0, 1.9), 5)] for i in tasks}
+    # # t_time = {'ti': [execution_time(ms), latency(ms)], ..} #0.04 0.08
+    t_time = {i: [round((r.uniform(0.07, 0.13) / 1000), 7), round(r.uniform(1.0, 1.9), 5)] for i in tasks}
     return t_time
 
 
