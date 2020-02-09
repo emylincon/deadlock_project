@@ -223,6 +223,10 @@ def plot_wait_time():
         if ptx[-1] != p[-1]:
             ptx.append(p[-1])
         # ptx = [np.where(mv==i)[0][0] for i in pt]
+        if len(ptx) > len(pt):
+            ptx = ptx[:-1]
+        elif len(pt) > len(ptx):
+            ptx.append(p[-1])
         ax1.plot(ptx,
                  pt,
                  style[list(hosts.values()).index(i)],
