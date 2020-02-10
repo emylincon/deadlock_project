@@ -611,7 +611,7 @@ def execute(local):
     for i in local:
         j = i.split('_')[0]
         time.sleep(t_time[j][0] / 2)
-        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
+        print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
 
