@@ -70,7 +70,6 @@ deadlock = [1]          # keeps count of how many deadlock is resolved
 _pos = 0
 
 received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
-received_time = []
 _port_ = 64000
 cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
@@ -158,7 +157,6 @@ def plot_offloaded_remote():
             explode.append(0.1)
         else:
             explode.append(0)
-
     ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), 
     startangle=-40, shadow=True, explode=explode, colors=cols)
     '''
@@ -182,7 +180,6 @@ def plot_deadlock():
     '''
     wedges, texts, autotexts = ax5.pie(deadlock, shadow=True, autopct=text,
                                        textprops=dict(rotation_mode='anchor', color="w", ha='left'), colors=cols)
-
     plt.setp(autotexts, size=9, weight="bold")
     '''
     ax5.text(0.5, 0.6, text, rotation=0, size=10,
@@ -213,20 +210,11 @@ def plot_wait_time():
     ax1.grid(True)
 
     for i in mec_waiting_time:
-        # mv = _mov_avg(mec_waiting_time[i])
-        mv = np.array(mec_waiting_time[i])*1000
+        mv = _mov_avg(mec_waiting_time[i])
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
-            np.append(pt, mv[-1])
-        p = list(range(len(mv)))
-        ptx = p[0:len(p):int((len(p) / 7)) + 1]
-        if ptx[-1] != p[-1]:
-            ptx.append(p[-1])
-        # ptx = [np.where(mv==i)[0][0] for i in pt]
-        if len(ptx) > len(pt):
-            ptx = ptx[:-1]
-        elif len(pt) > len(ptx):
-            ptx.append(p[-1])
+            pt.append(mv[-1])
+        ptx = [mv.index(i) for i in pt]
         ax1.plot(ptx,
                  pt,
                  style[list(hosts.values()).index(i)],
@@ -377,7 +365,6 @@ def on_message(message_client, userdata, msg):
     elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
-        received_time.append(time.time())
 
     else:
         print('data: ', data)
@@ -584,39 +571,32 @@ def calc_wait_time(list_seq):
     pre = 0
     time_dic = {}
     for i in list_seq:
-        j = i.split('_')[0]
-        time_dic[i] = round(t_time[j][0] + pre, 7)
+        j = i.split('_')[0]           # i = 't5_3_3', j = 't5_3'
+        time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
-    # waiting time = total waiting time ÷ amt of tasks average waiting time might be too tight
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/len(time_dic), 7)
-    send_message('wt {} {}'.format(ip_address(), str(w_send)))   # multi-casting waiting time to cooperative MECs
+    # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)
+
+    send_message('wt {} {}'.format(ip_address(), str(w_send)))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
 def compare_local_mec(list_seq):
-    global received_time
+    time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
+    print('local vs MEC comparison: ', time_compare_dict)
     execute_mec = []
     execute_locally = []
-    # time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
-    # print('local vs MEC comparison: ', time_compare_dict)
-    #
-    # for i in time_compare_dict:
-    #     if time_compare_dict[i]:
-    #         execute_locally.append(i)
-    #     else:
-    #         execute_mec.append(i)
-    diff = time.time() - received_time.pop(0)
-    for i in list_seq:
-        t_time[i.split('_')[0]][1]-=diff
-        if t_time[i.split('_')[0]][1] > list_seq[i]:
+    for i in time_compare_dict:
+        if time_compare_dict[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
+
     return execute_mec, execute_locally
 
 
-# ma1 = list_name and a1 = new item; finds and returns the new average if a new item is added
 def calculate_mov_avg(ma1, a1):
+
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
         avg1 = mec_waiting_time[ma1][-1]
@@ -627,7 +607,7 @@ def calculate_mov_avg(ma1, a1):
     avg1 = ((_count - 1) * avg1 + a1) / _count
     # ma1.append(avg1) #cumulative average formula
     # μ_n=((n-1) μ_(n-1)  + x_n)/n
-    return round(avg1, 7)
+    return round(avg1, 4)
 
 
 def send_message(mg):
@@ -676,8 +656,8 @@ def receive_message():
                 split_data = _d.split()
                 if split_data[1] != host_ip:
                     # calcuate moving average of mec wait time => w_time = wait time + rtt
-                    w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + (get_rtt(address[0])/1000))
-                    if (split_data[1] in mec_waiting_time) and (mec_waiting_time[split_data[1]][-10:] != [w_time]*5):
+                    w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(address[0]))
+                    if split_data[1] in mec_waiting_time:
                         mec_waiting_time[split_data[1]].append(w_time)
                     else:
                         mec_waiting_time[split_data[1]] = [w_time]
@@ -720,7 +700,7 @@ def cooperative_mec(mec_list):
                 # SENDS TASK TO MEC FOR EXECUTION
 
                 mec_waiting_time[_host].append(
-                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 7))  # adds a new average waiting time
+                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 _client.publish(cloud_ip, str([j, t_time[j][0]]))
@@ -736,7 +716,7 @@ def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:
         j = i.split('_')[0]
-        time.sleep(offloaded_task[1][j])
+        time.sleep(offloaded_task[1][j]/2)
         # print('j task: ', j)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
@@ -747,8 +727,8 @@ def execute(local):
     # send = []
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0])                 # execution time is in milliseconds
-        print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
+        time.sleep(t_time[j][0]/2)
+        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
             # send.append(j)
@@ -795,7 +775,7 @@ def call_execute_re_offload():
         else:
             if len(reoffload_list[0]) == 1:
                 t = reoffload_list[0][-1]
-                time.sleep(reoffload_list[1][t])
+                time.sleep(reoffload_list[1][t]/2)
                 shared_resource_lock.acquire()
                 reoffload_list[0].remove(t)
                 del reoffload_list[1][t]
@@ -810,7 +790,7 @@ def call_execute_re_offload():
                     del reoffload_list[1][i]
                     shared_resource_lock.release()
 
-        time.sleep(0.0001)
+        time.sleep(1)
 
 
 def send_offloaded_task_mec(msg):
@@ -912,7 +892,7 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(.0001)
+                    time.sleep(.5)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=3):

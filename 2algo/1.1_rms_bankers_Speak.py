@@ -22,7 +22,6 @@ import smtplib
 import config
 import paramiko
 
-
 hosts = {}  # {hostname: ip}
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
@@ -49,30 +48,29 @@ allocation = {
     't5': [0, 0, 2]
 }
 
-_cpu = []             # cpu plot list
-prev_t = 0            # variable for cpu util
-_off_mec = 0          # used to keep a count of tasks offloaded from local mec to another mec
-_off_cloud = 0        # used to keep a count of tasks offloaded to cloud
-_loc = 0              # used to keep a count of tasks executed locally
-_inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
-deadlock = [1]          # keeps count of how many deadlock is resolved
-mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
+_cpu = []  # cpu plot list
+prev_t = 0  # variable for cpu util
+_off_mec = 0  # used to keep a count of tasks offloaded from local mec to another mec
+_off_cloud = 0  # used to keep a count of tasks offloaded to cloud
+_loc = 0  # used to keep a count of tasks executed locally
+_inward_mec = 0  # used to keep a count of tasks offloaded from another mec to local mec
+deadlock = [1]  # keeps count of how many deadlock is resolved
+mec_waiting_time = {}  # {ip : [moving (waiting time + rtt)]}
 memory = []
-mec_rtt = {}               # {ip: [RTT]}
+mec_rtt = {}  # {ip: [RTT]}
 
-offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
-reoffload_list = [[], {}]   # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
-discovering = 0            # if discovering == 0 update host
+offload_register = {}  # {task: host_ip} to keep track of tasks sent to mec for offload
+reoffload_list = [[], {}]  # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
+discovering = 0  # if discovering == 0 update host
 test = []
 _time = []
 _pos = 0
 # received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
-received_task_queue = []   # [(task_list,wait_time), ....]
-received_time = []
+received_task_queue = []  # [(task_list,wait_time), ....]
 thread_record = []
 port = 65000
 _port_ = 64000
-cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
+cloud_register = {}  # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
 stop = 0
 t_track = 1
@@ -178,7 +176,7 @@ def get_time():
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
 
-    return round(rtt/1000, 7)
+    return round(rtt, 4)
 
 
 def gcd(a, b):
@@ -209,20 +207,19 @@ def on_connect(connect_client, userdata, flags, rc):
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
     data = str(msg.payload, 'utf-8')
-    if data[0] == 'c':       # receive from cloud
+    if data[0] == 'c':  # receive from cloud
         data = data[2:]
         received_task = ast.literal_eval(data)
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
 
-    elif data[0] == 't':     # receive from client
+    elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
-        received_time.append(time.time())
     '''
     else:
         print('data: ', data)
-    
+
     elif data[0] == 't':
         print('send: ', data[2:])
     '''
@@ -237,7 +234,7 @@ def connect_to_broker():
     password = 'password'
     broker_ip = 'localhost'
     broker_port_no = 1883
-    topic = 'mec'     # topic used to exchange mec details to clients
+    topic = 'mec'  # topic used to exchange mec details to clients
 
     _client = mqtt.Client()
     _client.on_connect = on_connect
@@ -259,7 +256,7 @@ def load_tasks():
     return lcm_period
 
 
-def scheduler(_lcm_):               # RMS algorithm
+def scheduler(_lcm_):  # RMS algorithm
     queue = list(tasks.keys())  # initialize task queue
     schedule = []
     rms = []
@@ -315,7 +312,7 @@ def scheduler(_lcm_):               # RMS algorithm
 
 
 # generate execution sequence  using banker's algorithm
-def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
+def is_safe(processes, avail, _need_, allot, p):  # bankers algorithm
     need = [_need_[i] for i in _need_]
     _allot_ = [allot[i] for i in allot]
     # tasks to offload if exit
@@ -410,7 +407,6 @@ def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
 
 
 def get_exec_seq(pro):
-
     # Number of processes
     p = len(pro)
 
@@ -432,39 +428,29 @@ def calc_wait_time(list_seq):
     time_dic = {}
     for i in list_seq:
         j = i.split('_')[0]
-        time_dic[i] = round(t_time[j][0] + pre, 7)
+        time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
-    # waiting time = total waiting time ÷ amt of tasks average waiting time might be too tight
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/len(time_dic), 7)
-    send_message('wt {} {}'.format(ip_address(), str(w_send)))   # multi-casting waiting time to cooperative MECs
+    # waiting time = total waiting time ÷ 2 average waiting time might be too tight
+    w_send = round(time_dic[list(time_dic.keys())[-1]] / 2, 3)
+    send_message('wt {} {}'.format(ip_address(), str(w_send)))  # multi-casting waiting time to cooperative MECs
     return time_dic
 
 
 def compare_local_mec(list_seq):
-    global received_time
+    time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
+    print('local vs MEC comparison: ', time_compare_dict)
     execute_mec = []
     execute_locally = []
-    # time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
-    # print('local vs MEC comparison: ', time_compare_dict)
-    #
-    # for i in time_compare_dict:
-    #     if time_compare_dict[i]:
-    #         execute_locally.append(i)
-    #     else:
-    #         execute_mec.append(i)
-    diff = time.time() - received_time.pop(0)
-    for i in list_seq:
-        t_time[i.split('_')[0]][1]-=diff
-        if t_time[i.split('_')[0]][1] > list_seq[i]:
+    for i in time_compare_dict:
+        if time_compare_dict[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
+
     return execute_mec, execute_locally
 
 
-# ma1 = list_name and a1 = new item; finds and returns the new average if a new item is added
 def calculate_mov_avg(ma1, a1):
-
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
         avg1 = mec_waiting_time[ma1][-1]
@@ -475,7 +461,7 @@ def calculate_mov_avg(ma1, a1):
     avg1 = ((_count - 1) * avg1 + a1) / _count
     # ma1.append(avg1) #cumulative average formula
     # μ_n=((n-1) μ_(n-1)  + x_n)/n
-    return round(avg1, 7)
+    return round(avg1, 4)
 
 
 def algo_id():
@@ -551,10 +537,10 @@ def receive_message():
             elif _d[:2] == 'wt':
                 split_data = _d.split()
                 if split_data[1] != host_ip:
-                    w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + (get_rtt(
-                        address[0])/1000))  # calcuate moving average of mec wait time => w_time = wait time + rtt
+                    w_time = calculate_mov_avg(split_data[1], float(split_data[2]) + get_rtt(
+                        address[0]))  # calcuate moving average of mec wait time => w_time = wait time + rtt
 
-                    if (split_data[1] in mec_waiting_time) and (mec_waiting_time[split_data[1]][-10:] != [w_time]*5):
+                    if split_data[1] in mec_waiting_time:
                         mec_waiting_time[split_data[1]].append(w_time)
                     else:
                         mec_waiting_time[split_data[1]] = [w_time]
@@ -599,7 +585,7 @@ def cooperative_mec(mec_list):
                 # SENDS TASK TO MEC FOR EXECUTION
 
                 mec_waiting_time[_host].append(
-                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 7))  # adds a new average waiting time
+                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 _client.publish(cloud_ip, str([j, t_time[j][0]]))
@@ -615,7 +601,7 @@ def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
     for i in exec_list:
         j = i.split('_')[0]
-        time.sleep(offloaded_task[1][j])     # execution time is in milliseconds
+        time.sleep(offloaded_task[1][j] / 2)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
 
 
@@ -624,8 +610,8 @@ def execute(local):
 
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0])           # execution time is in milliseconds
-        print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
+        time.sleep(t_time[j][0] / 2)
+        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
 
@@ -635,7 +621,7 @@ def execute(local):
     print('============== EXECUTION DONE ===============')
 
 
-def receive_offloaded_task_mec():    # run as a thread
+def receive_offloaded_task_mec():  # run as a thread
     global _inward_mec
     global t_track
 
@@ -647,7 +633,7 @@ def receive_offloaded_task_mec():    # run as a thread
             data, address = sock2.recvfrom(1024)
             if len(data.decode()) > 0:
                 da = data.decode().split(' ')
-                if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
+                if (address[0] not in ip_set) and da[0] == node_id:  # send back to client
                     # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
                     _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
                 elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
@@ -671,7 +657,7 @@ def call_execute_re_offload():
         else:
             if len(reoffload_list[0]) == 1:
                 t = reoffload_list[0][-1]
-                time.sleep(reoffload_list[1][t])
+                time.sleep(reoffload_list[1][t] / 2)
                 shared_resource_lock.acquire()
                 reoffload_list[0].remove(t)
                 del reoffload_list[1][t]
@@ -686,11 +672,10 @@ def call_execute_re_offload():
                     del reoffload_list[1][i]
                     shared_resource_lock.release()
 
-        time.sleep(0.0001)
+        time.sleep(1)
 
 
 def send_email(msg):
-
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
@@ -732,7 +717,6 @@ def send_result(host_, data):
 
 
 def mec_id(client_ip):
-
     _id = client_ip.split('.')[-1]
     if len(_id) == 1:
         return '00' + _id
@@ -809,7 +793,7 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(.0001)
+                    time.sleep(1)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=3):
