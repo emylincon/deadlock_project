@@ -135,7 +135,7 @@ def get_tasks():
 
 
 def waiting_time_init():
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
+    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round(r.uniform(3, 5), 3)] for i in
               tasks}  # t_time = {'ti': [execution_time, latency], ..}
 
     return t_time
@@ -337,7 +337,8 @@ def main():
                 i = 0
                 while len(host_req) > 0:
                     seq = i
-                    rand_host = hosts[gosh_dist(len(hosts))]      # randomly selecting a host to send task to
+                    _hosts = list(host_req)
+                    rand_host = _hosts[gosh_dist(len(_hosts))]      # randomly selecting a host to send task to
                     _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks => ({tasks}, {waiting time})
                     record.append([_tasks_list, host_dict[rand_host]])
