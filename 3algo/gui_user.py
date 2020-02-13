@@ -390,7 +390,7 @@ def main():
             if x == 'y':
                 for i in range(len(_data_)):
                     seq = i
-                    rand_host = hosts[int(_data_[i])]      # randomly selecting a host to send task to
+                    rand_host = hosts[int(_data_[i])-1]      # host selection using generated gausian distribution
                     _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks => ({tasks}, {waiting time})
 
