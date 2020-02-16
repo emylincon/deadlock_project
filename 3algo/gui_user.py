@@ -349,12 +349,12 @@ def name_task(task_list, node_id, seq_no):
 
 
 def split_list(data, _id_):
-    host_sp = {3: 1, 4: 2, 5: 3}
-    if _id_ == 3:
-        return data[:600]
+    # host_sp = {3: 1, 4: 2, 5: 3}
     if _id_ == 4:
-        return data[600:1200]
+        return data[:600]
     if _id_ == 5:
+        return data[600:1200]
+    if _id_ == 6:
         return data[1200:]
 
 
