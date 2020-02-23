@@ -62,7 +62,7 @@ filename = {2: 'rms+bankers',
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
-total_task_sent = 0
+
 
 
 def auto_value(no):
@@ -348,9 +348,15 @@ def client_id(client_ip):
     else:
         return _id
 
-
+total_task_sent = 0
+total_split_task = 0
+task_dist = {1:0,2:0,3:0}
 def task_details(tasks):
-    pass
+    global task_dist, total_task_sent, total_split_task
+    total_task_sent += len(tasks)
+    for task in tasks:
+        total_split_task += tasks[task]['wcet']
+        task_dist[tasks[task]['wcet']] += 1
 
 
 def name_task(task_list, node_id, seq_no):
@@ -358,6 +364,11 @@ def name_task(task_list, node_id, seq_no):
     # returns task list and waiting_time with proper identification
     return {i + '.' + str(node_id) + '.' + client_id_ + '.' + str(seq_no): task_list[0][i] for i in task_list[0]}, \
            {k + '.' + str(node_id) + '.' + client_id_ + '.' + str(seq_no): task_list[1][k] for k in task_list[1]}
+
+
+def namestr(obj):
+    namespace = globals()
+    return [name for name in namespace if namespace[name] is obj]
 
 
 def main():
@@ -394,7 +405,7 @@ def main():
                     rand_host = ho[i[1]]      # randomly selecting a host to send task to
                     # _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
-                    print(_tasks_list[0])
+                    task_details(_tasks_list[0])
                     # record.append([_tasks_list, rand_host])
                     for task in _tasks_list[0]:
                         if seq not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
@@ -413,8 +424,13 @@ def main():
 
                 cmd = 'echo  "{}" >> data.py'.format(result)
                 os.system(cmd)
+                task_doc = f"{namestr(total_task_sent)[0]} = {total_task_sent}\n{namestr(total_split_task)[0]} = " \
+                           f"{total_split_task} \n{namestr(task_dist)} = {task_dist}"
+                cmd = f'echo {task_doc} >> task.py'
+                os.system(cmd)
                 send_result(ho['osboxes-0'], result)
                 send_email(result)
+                send_email(task_doc)
 
                 task_client.loop_stop()
                 print('done')
