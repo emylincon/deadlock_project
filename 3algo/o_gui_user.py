@@ -62,6 +62,7 @@ filename = {2: 'rms+bankers',
 
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
+total_task_sent = 0
 
 
 def auto_value(no):
@@ -348,6 +349,10 @@ def client_id(client_ip):
         return _id
 
 
+def task_details(tasks):
+    pass
+
+
 def name_task(task_list, node_id, seq_no):
     # naming nomenclature of tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
     # returns task list and waiting_time with proper identification
@@ -389,7 +394,7 @@ def main():
                     rand_host = ho[i[1]]      # randomly selecting a host to send task to
                     # _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
-
+                    print(_tasks_list[0])
                     # record.append([_tasks_list, rand_host])
                     for task in _tasks_list[0]:
                         if seq not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
