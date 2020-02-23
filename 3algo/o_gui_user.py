@@ -101,7 +101,7 @@ def plot_performance():
     ax1.set_xticklabels(name)
     ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
     ax1.set_title('Task execution Time record')
-    dis = 'Seq: {}\nTotal Tasks: {}'.format(seq, total)
+    dis = 'Seq: {}\nTotal Tasks: {}\ntotal: {}'.format(seq, total, total_split_task)
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
 
     ax1.text(1, auto_value(tasks_executed_on_time), dis, size=10, rotation=0,
