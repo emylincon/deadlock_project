@@ -193,6 +193,7 @@ def on_connect_task(connect_client, userdata, flags, rc):
     connect_client.subscribe(task_topic)
 
 
+tshoot = []
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_receive_task(message_client, userdata, msg):
     global tasks_executed_on_time
@@ -227,6 +228,8 @@ def on_receive_task(message_client, userdata, msg):
                 tasks_executed_on_time += 1
             else:
                 tasks_not_executed_on_time += 1
+        else:
+            tshoot.append(received_task)
 
 
 def receive_mec_start():
@@ -252,51 +255,6 @@ def ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     return s.getsockname()[0]
-
-
-def receive_data(_con, _addr):
-    global tasks_executed_on_time
-    global tasks_not_executed_on_time
-
-    with _con:
-        while True:
-            try:
-                data = _con.recv(1024)
-                # print(_addr[0], ': ', data.decode())
-                if len(data) > 0:
-                    received_task = ast.literal_eval(data.decode())
-                    # print('task_record: {}'.format(task_record))
-                    # print('r: {}'.format(received_task))
-                    for i in received_task:
-                        tk = i.split('_')[0]
-                        # print('tk: {}'.format(tk))
-                        k = task_record[int(tk.split('.')[-1])][tk]
-                        if len(k) < 3:
-                            a = received_task[i]
-                            k.append(dt.datetime(int(a[0]), int(a[1]),
-                                                 int(a[2]), int(a[3]),
-                                                 int(a[4]), int(a[5]),
-                                                 int(a[6])))
-                            p = float(str(k[2] - k[1]).split(':')[-1])
-                            if p < k[0]:
-                                tasks_executed_on_time += 1
-                            else:
-                                tasks_not_executed_on_time += 1
-                        elif len(k) == 3:
-                            a = received_task[i]
-                            t = dt.datetime(int(a[0]), int(a[1]),
-                                            int(a[2]), int(a[3]),
-                                            int(a[4]), int(a[5]),
-                                            int(a[6]))
-                            p = float(str(t - k[1]).split(':')[-1])
-                            if p < k[0]:
-                                tasks_executed_on_time += 1
-                            else:
-                                tasks_not_executed_on_time += 1
-
-            except KeyboardInterrupt:
-                print('Receive Tasks Terminated')
-                break
 
 
 def get_hostname():
@@ -425,14 +383,15 @@ def main():
                 cmd = 'echo  "{}" >> data.py'.format(result)
                 os.system(cmd)
                 task_doc = f"{namestr(total_task_sent)[0]} = {total_task_sent}\n{namestr(total_split_task)[0]} = " \
-                           f"{total_split_task} \n{namestr(task_dist)} = {task_dist}"
-                cmd = f'echo {task_doc} >> task.py'
+                           f"{total_split_task} \n{namestr(task_dist)[0]} = {task_dist}"
+                cmd = f'echo "{task_doc}" >> task.py'
                 os.system(cmd)
                 send_result(ho['osboxes-0'], result)
                 send_email(result)
                 send_email(task_doc)
 
                 task_client.loop_stop()
+                print(f"tshoot: {tshoot}")
                 print('done')
                 time.sleep(1)
                 break
