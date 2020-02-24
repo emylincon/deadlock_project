@@ -1,9 +1,7 @@
 from data import timely as t
-from data import diff as d
 import matplotlib.pyplot as plt
 import numpy as np
 from textwrap import wrap
-
 
 fig = plt.figure()
 ax1 = fig.add_subplot(411)
@@ -12,10 +10,18 @@ ax3 = fig.add_subplot(413)
 ax4 = fig.add_subplot(414)
 width = 0.35
 title = {2}
-timely_dict = {2: {4: [d.timely4_2_4, d.timely5_2_4, d.timely6_2_4],
-                   5: [d.timely4_2_5, d.timely5_2_5, d.timely6_2_5],
-                   6: [d.timely4_2_6, d.timely5_2_6, d.timely6_2_6],
-                   7: [d.timely4_2_7, d.timely5_2_7, d.timely6_2_7]},
+
+algo_dict = {'RMS + Bankers': r'$ALG_1$',
+             'EDF + Bankers': r'$ALG_2$',
+             'RMS + wound wait': r'$ALG_3$',
+             'RMS + wait die': r'$ALG_4$',
+             'EDF + wound wait': r'$ALG_5$',
+             'EDF + wait die': r'$ALG_6$'}
+
+timely_dict = {2: {4: [t.timely4_2_4, t.timely5_2_4, t.timely6_2_4],
+                   5: [t.timely4_2_5, t.timely5_2_5, t.timely6_2_5],
+                   6: [t.timely4_2_6, t.timely5_2_6, t.timely6_2_6],
+                   7: [t.timely4_2_7, t.timely5_2_7, t.timely6_2_7]},
                3: {4: [t.timely4_3_4, t.timely5_3_4, t.timely6_3_4],
                    5: [t.timely4_3_5, t.timely5_3_5, t.timely6_3_5],
                    6: [t.timely4_3_6, t.timely5_3_6, t.timely6_3_6],
@@ -38,10 +44,10 @@ timely_dict = {2: {4: [d.timely4_2_4, d.timely5_2_4, d.timely6_2_4],
                     7: [t.timely4_16_7, t.timely5_16_7, t.timely6_16_7]}
                }
 
-untimely_dict = {2: {4: [d.untimely4_2_4, d.untimely5_2_4, d.untimely6_2_4],
-                     5: [d.untimely4_2_5, d.untimely5_2_5, d.untimely6_2_5],
-                     6: [d.untimely4_2_6, d.untimely5_2_6, d.untimely6_2_6],
-                     7: [d.untimely4_2_7, d.untimely5_2_7, d.untimely6_2_7]},
+untimely_dict = {2: {4: [t.untimely4_2_4, t.untimely5_2_4, t.untimely6_2_4],
+                     5: [t.untimely4_2_5, t.untimely5_2_5, t.untimely6_2_5],
+                     6: [t.untimely4_2_6, t.untimely5_2_6, t.untimely6_2_6],
+                     7: [t.untimely4_2_7, t.untimely5_2_7, t.untimely6_2_7]},
                  3: {4: [t.untimely4_3_4, t.untimely5_3_4, t.untimely6_3_4],
                      5: [t.untimely4_3_5, t.untimely5_3_5, t.untimely6_3_5],
                      6: [t.untimely4_3_6, t.untimely5_3_6, t.untimely6_3_6],
@@ -106,12 +112,7 @@ def histogram(timely, untimely, ax, no):
     p1 = ax.bar(ind, untimely, width, color='r', alpha=0.4)
     p2 = ax.bar(ind, timely, width, color='g', bottom=untimely, alpha=0.4)
     ax.set_xticks(ind)
-    ax.set_xticklabels(('RMS + Bankers',
-                        'EDF + Bankers',
-                        'RMS + wound wait',
-                        'RMS + wait die',
-                        'EDF + wound wait',
-                        'EDF + wait die'))
+    ax.set_xticklabels(algo_dict.values())
     for i in timely:
         j = timely.index(i)
         total = i + untimely[j]
@@ -119,9 +120,17 @@ def histogram(timely, untimely, ax, no):
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.), ))
         ax.text(j, untimely[j], '{}%'.format(percent(untimely[j], total)), rotation=0,
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
-    ax.legend((p1[0], p2[0]), ('Untimely', 'Timely'))
+    ax.legend((p1[0], p2[0]), ('UP', 'TP'), prop={"size":16})
     # ax.set_ylabel('\n'.join(wrap(f'Plot for {no} MECs', 8))).set_rotation(0)
-    ax.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
+    ax.set_ylabel("No of Processes", fontsize=15)
+    for label in ax.get_xticklabels():
+        label.set_fontsize(16)
+    ax.xaxis.set_tick_params(labelsize=16)
+    #ax.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
+    axx = ax.twinx()
+    axx.set_yticklabels([])
+    axx.set_yticks([])
+    axx.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
 
 
 def plot_av_times():
@@ -130,8 +139,9 @@ def plot_av_times():
     # print(_data)
     for i in axes:
         histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
-    fig.suptitle('MEC CPU Utilization During Deadlock Experiment')
+    #fig.suptitle('MEC Execution ratio Deadlock Experiment')
     plt.show()
+
 
 total_data()
 plot_av_times()
