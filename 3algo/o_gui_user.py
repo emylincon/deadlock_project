@@ -64,7 +64,6 @@ fig = plt.figure()
 ax1 = fig.add_subplot(111)
 
 
-
 def auto_value(no):
     if no < 5:
         return no
