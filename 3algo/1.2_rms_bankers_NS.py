@@ -209,6 +209,7 @@ def on_message(message_client, userdata, msg):
         received_task = ast.literal_eval(data)
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
+        cooperate['cloud'] += 1
 
     elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
@@ -601,6 +602,7 @@ def execute(local):
     print('============== EXECUTION DONE ===============')
 
 
+cooperate = {'mec': 0, 'cloud':0}
 def receive_offloaded_task_mec():    # run as a thread
     global _inward_mec
     global t_track
@@ -617,6 +619,7 @@ def receive_offloaded_task_mec():    # run as a thread
                     # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
                     _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
                     count_task_sent(da[1])
+                    cooperate['mec'] += 1
                 elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
                     _received = ast.literal_eval(da[2] + da[3])
                     shared_resource_lock.acquire()
@@ -785,7 +788,8 @@ def start_loop():
                                  f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
                                  f"\nloc{_id_}_2_{mec_no} = {_loc} " \
                                  f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}" \
-                                 f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
+                                 f"\ntask_received = {total_received_task} \nsent_t = {clients_record}" \
+                                 f"\ncooperate = {cooperate}"
                         list_result = [
                             f"wt{_id_}_2_{mec_no} = {mec_waiting_time} ",
                             f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
@@ -794,6 +798,7 @@ def start_loop():
                             f"\nloc{_id_}_2_{mec_no} = {_loc} ",
                             f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}",
                             f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
+                            f"\ncooperate = {cooperate}"
                         ]
                         for i in list_result:
                             cmd = 'echo "{}" >> data.py'.format(i)
