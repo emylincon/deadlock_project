@@ -212,7 +212,6 @@ def execute(local):
         print('####### Executed: ', i)
         _topic = j.split('.')[1]
         _payload = 'c {}'.format(i.split('*')[0])
-        print("topic: {},   payload: {}".format(_topic, _payload))
         _client.publish(topic=_topic, payload=_payload)
         # send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')
@@ -235,7 +234,6 @@ def run_me():
     receive.start()
     m = input('Start (Y/N): ').lower()
     if m == 'y':
-        _client.publish(topic='101', payload='c t3.101.115.598')
         print('\n============* Cloud Server Active *==============\n')
         while True:
             try:

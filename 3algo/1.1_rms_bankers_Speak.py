@@ -207,18 +207,12 @@ def on_connect(connect_client, userdata, flags, rc):
 
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
-    print('NODE ID and Message ID ', msg.topic, node_id)
     data = str(msg.payload, 'utf-8')
-    print(f'received: {data}')
-    print(data[0], data[0] == 'c')
     if data[0] == 'c':  # receive from cloud
-        print('entered')
         received_task = data[2:]
-
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()}))
         cooperate['cloud'] += 1
-        print('yes')
 
     elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
