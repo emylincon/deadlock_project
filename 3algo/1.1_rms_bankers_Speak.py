@@ -247,6 +247,21 @@ def connect_to_broker():
     _client.loop_forever()
 
 
+def task_time_map(seq, process):
+    exe_seq = []
+    capacity_sum = 0
+    for job in process:
+        capacity_sum += process[job]['wcet']
+    while capacity_sum > 0:
+        for job in seq:
+            if process[job]['wcet'] > 0:
+                exe_seq.append(job)
+                process[job]['wcet'] -= 1
+                capacity_sum -= 1
+
+    return exe_seq
+
+
 def load_tasks():
     global tasks
 
@@ -254,22 +269,22 @@ def load_tasks():
 
     lcm_period = lcm(period_list)
     # insert idle task
-    tasks['idle'] = {'wcet': lcm_period, 'period': lcm_period + 1}
-    return lcm_period
+    s_task = {**tasks, 'idle': {'wcet': lcm_period, 'period': lcm_period + 1}}
+    return lcm_period, s_task
 
 
 total_received_task = 0
-def scheduler(_lcm_):  # RMS algorithm
+def scheduler(_lcm_, s_tasks):  # RMS algorithm
     global total_received_task
-    queue = list(tasks.keys())  # initialize task queue
+    queue = list(s_tasks.keys())  # initialize task queue
     schedule = []
     rms = []
     curr = ''  # current task
     prev = ''  # previous task
     tmp = {}
-    for task in tasks.keys():
+    for task in s_tasks.keys():
         tmp[task] = {}  # temporary data for each task
-        tmp[task]['deadline'] = tasks[task]['period']
+        tmp[task]['deadline'] = s_tasks[task]['period']
         tmp[task]['executed'] = 0
 
     # start scheduling...
@@ -278,11 +293,11 @@ def scheduler(_lcm_):  # RMS algorithm
         # insert new tasks into the queue
         for t in tmp.keys():
             if _time_ == tmp[t]['deadline']:
-                if tasks[t]['wcet'] > tmp[t]['executed']:
+                if s_tasks[t]['wcet'] > tmp[t]['executed']:
                     # print('Scheduling Failed at %d' % time)
                     exit(1)
                 else:
-                    tmp[t]['deadline'] += tasks[t]['period']
+                    tmp[t]['deadline'] += s_tasks[t]['period']
                     tmp[t]['executed'] = 0
                     queue.append(t)
         # select next task to be scheduled
@@ -295,7 +310,7 @@ def scheduler(_lcm_):  # RMS algorithm
         # print(time, queue, curr)
 
         # dequeue the execution-completed task
-        if tmp[curr]['executed'] == tasks[curr]['wcet']:
+        if tmp[curr]['executed'] == s_tasks[curr]['wcet']:
             for i in range(len(queue)):
                 if curr == queue[i]:
                     del queue[i]
@@ -311,6 +326,8 @@ def scheduler(_lcm_):  # RMS algorithm
             if curr != 'idle':
                 rms.append(curr)
         prev = curr
+    process = {task:{'wcet': tasks[task]['wcet']} for task in tasks}
+    rms = task_time_map(seq=rms, process=process)
     total_received_task += len(rms)
     return rms
 
@@ -730,6 +747,7 @@ def send_result(host_, data):
         for i in data:
             cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
             stdin, stdout, stderr = c.exec_command(cmd)
+        c.close()
     except Exception as e:
         print(e)
 
@@ -793,8 +811,8 @@ def start_loop():
                     print('EDF List of Processes: ', tasks, '\n')
 
                     print('\n========= Running Deadlock Algorithm ===========')
-                    a = load_tasks()
-                    list_seq = get_exec_seq(scheduler(a))
+                    lcm_result, task_load = load_tasks()
+                    list_seq = get_exec_seq(scheduler(lcm_result, task_load))
                     if len(list_seq) > 0:  # do only when there is a task in safe sequence
                         wait_list = calc_wait_time(list_seq)
                         print('\nWaiting Time List: ', wait_list)
@@ -836,9 +854,20 @@ def start_loop():
                             f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
                             f"\ncooperate = {cooperate}"
                         ]
+                        cmd = f"echo '' > {_id_}_2_{mec_no}datal.py"
+                        os.system(cmd)
+                        cmd = f"echo '' > {_id_}_2_{mec_no}datap.py"
+                        os.system(cmd)
+                        file_ = open(f'{_id_}_2_{mec_no}datap.py', 'w')
                         for i in list_result:
-                            cmd = 'echo "{}" >> data.py'.format(i)
+                            cmd = f'echo "{i}" >> {_id_}_2_{mec_no}datal.py'
+                            file_.write(i)
                             os.system(cmd)
+                        file_.close()
+                        sp.run(["scp", f"{_id_}_2_{mec_no}datap.py", f"mec@{hosts['osboxes-0']}:/home/mec/result/python"])
+                        sp.run(
+                            ["scp", f"{_id_}_2_{mec_no}datal.py", f"mec@{hosts['osboxes-0']}:/home/mec/result/linux"])
+
                         send_result(hosts['osboxes-0'], list_result)
                         send_email(result)
                         stop += 1
