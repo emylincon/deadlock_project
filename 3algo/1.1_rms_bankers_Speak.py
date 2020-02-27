@@ -216,6 +216,7 @@ def on_message(message_client, userdata, msg):
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()}))
         cooperate['cloud'] += 1
+        print('yes')
 
     elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
