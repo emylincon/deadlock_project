@@ -210,7 +210,9 @@ def on_message(message_client, userdata, msg):
     print('NODE ID and Message ID ', msg.topic, node_id)
     data = str(msg.payload, 'utf-8')
     print(f'received: {data}')
+    print(data[0], data[0] == 'c')
     if data[0] == 'c':  # receive from cloud
+        print('entered')
         data = data[2:]
         received_task = ast.literal_eval(data)
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
