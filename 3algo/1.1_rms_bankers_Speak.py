@@ -213,8 +213,8 @@ def on_message(message_client, userdata, msg):
     print(data[0], data[0] == 'c')
     if data[0] == 'c':  # receive from cloud
         print('entered')
-        data = data[2:]
-        received_task = ast.literal_eval(data)
+        received_task = data[2:]
+
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()}))
         cooperate['cloud'] += 1
