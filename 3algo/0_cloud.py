@@ -235,6 +235,7 @@ def run_me():
     receive.start()
     m = input('Start (Y/N): ').lower()
     if m == 'y':
+        _client.publish(topic='101', payload='c t3.101.115.598')
         print('\n============* Cloud Server Active *==============\n')
         while True:
             try:
