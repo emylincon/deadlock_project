@@ -515,6 +515,7 @@ def send_message(mg):
             ho['speaker'] = host_ip
             smg = mg + ' ' + str(ho)
             sock1.sendto(str.encode(smg), _multicast_group)
+            send_message('client')
             # print('\n===**====**==update message sent===**======**=========')
         elif mg == 'client':
             ho = hosts.copy()
