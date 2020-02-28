@@ -407,8 +407,6 @@ def task_time_map(seq, process):
 
 
 def load_tasks():
-    global tasks
-
     period_list = [tasks[i]['period'] for i in tasks]
 
     lcm_period = lcm(period_list)

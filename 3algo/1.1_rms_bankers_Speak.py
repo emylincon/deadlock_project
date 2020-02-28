@@ -263,8 +263,6 @@ def task_time_map(seq, process):
 
 
 def load_tasks():
-    global tasks
-
     period_list = [tasks[i]['period'] for i in tasks]
 
     lcm_period = lcm(period_list)
@@ -274,6 +272,8 @@ def load_tasks():
 
 
 total_received_task = 0
+
+
 def scheduler(_lcm_, s_tasks):  # RMS algorithm
     global total_received_task
     queue = list(s_tasks.keys())  # initialize task queue
@@ -326,7 +326,7 @@ def scheduler(_lcm_, s_tasks):  # RMS algorithm
             if curr != 'idle':
                 rms.append(curr)
         prev = curr
-    process = {task:{'wcet': tasks[task]['wcet']} for task in tasks}
+    process = {task: {'wcet': tasks[task]['wcet']} for task in tasks}
     rms = task_time_map(seq=rms, process=process)
     total_received_task += len(rms)
     return rms
@@ -463,7 +463,7 @@ def compare_local_mec(list_seq):
     execute_locally = []
     diff = time.time() - received_time.pop(0)
     for i in list_seq:
-        t_time[i.split('_')[0]][1]-=diff
+        t_time[i.split('_')[0]][1] -= diff
         if t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
@@ -627,8 +627,10 @@ def execute_re_offloaded_task(offloaded_task):
 
 
 clients_record = {}
+
+
 def count_task_sent(task):
-    global  clients_record
+    global clients_record
     c_id = task.split('.')[2]
     if c_id in clients_record:
         clients_record[c_id] += 1
@@ -653,7 +655,9 @@ def execute(local):
     print('============== EXECUTION DONE ===============')
 
 
-cooperate = {'mec': 0, 'cloud':0}
+cooperate = {'mec': 0, 'cloud': 0}
+
+
 def receive_offloaded_task_mec():  # run as a thread
     global _inward_mec
     global t_track
@@ -864,7 +868,8 @@ def start_loop():
                             file_.write(i)
                             os.system(cmd)
                         file_.close()
-                        sp.run(["scp", f"{_id_}_2_{mec_no}datap.py", f"mec@{hosts['osboxes-0']}:/home/mec/result/python"])
+                        sp.run(
+                            ["scp", f"{_id_}_2_{mec_no}datap.py", f"mec@{hosts['osboxes-0']}:/home/mec/result/python"])
                         sp.run(
                             ["scp", f"{_id_}_2_{mec_no}datal.py", f"mec@{hosts['osboxes-0']}:/home/mec/result/linux"])
 
