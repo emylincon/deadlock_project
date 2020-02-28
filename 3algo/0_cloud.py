@@ -175,7 +175,7 @@ def isSafe(processes, avail, need, allot):
 
     return safeSeq
 
-
+log = []
 def get_safe_seq(pro):
     global P
     global R
@@ -201,6 +201,10 @@ def get_safe_seq(pro):
     # print('max_matrix:', maxm)
 
     # Check system is in safe state or not
+    safe_seq = isSafe(processes, avail, n_need, allot)
+    if len(safe_seq) > len(pro):
+        print('e*'*5+'seq: {}, pro: {}'.format(safe_seq,pro)+'*e'*5)
+        log.append((safe_seq, pro))
     return isSafe(processes, avail, n_need, allot)
 
 
@@ -266,7 +270,7 @@ def run_me():
                     time.sleep(2)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                os.system('echo "cannot = {}" >> cannot.py'.format(cannot))
+                os.system('echo "cannot = {} \nlog = {}" >> cannot.py'.format(cannot, log))
                 _client.loop_stop()
                 break
     else:
