@@ -358,8 +358,7 @@ def on_connect(connect_client, userdata, flags, rc):
 def on_message(message_client, userdata, msg):
     data = str(msg.payload, 'utf-8')
     if data[0] == 'c':
-        data = data[2:]
-        received_task = ast.literal_eval(data)
+        received_task = data[2:]
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
         cooperate['cloud'] += 1
