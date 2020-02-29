@@ -731,9 +731,12 @@ def cooperative_mec(mec_list):
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
 
+mismatch = []
 def execute_re_offloaded_task(offloaded_task):
     exec_list = get_exec_seq(offloaded_task[0])
-    for i in exec_list:
+    if len(offloaded_task[0]) > exec_list:
+        mismatch.append((exec_list, offloaded_task[0]))
+    for i in exec_list:      # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j]/2)
         # print('j task: ', j)
@@ -877,6 +880,41 @@ def run_me():
     start_loop()
 
 
+def save_and_email():
+    _id_ = get_hostname()[-1]
+    result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
+             f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
+             f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} " \
+             f"\noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
+             f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
+             f"\nloc{_id_}_2_{mec_no} = {_loc} " \
+             f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}" \
+             f"\ntask_received = {total_received_task} \nsent_t = {clients_record}" \
+             f"\ncooperate = {cooperate} \nmismatch = {mismatch}"
+    list_result = [
+        f"wt{_id_}_2_{mec_no} = {mec_waiting_time} ",
+        f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
+        f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} ",
+        f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}",
+        f"\nloc{_id_}_2_{mec_no} = {_loc} ",
+        f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}",
+        f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
+        f"\ncooperate = {cooperate} \nmismatch = {mismatch}"
+    ]
+    cmd = f"echo '' > /home/mec/result/linux/{_id_}_2_{mec_no}datal.py"
+    os.system(cmd)
+    cmd = f"echo '' > /home/mec/result/python/{_id_}_2_{mec_no}datap.py"
+    os.system(cmd)
+    file_ = open(f'{_id_}_2_{mec_no}datap.py', 'w')
+    for i in list_result:
+        cmd = f'echo "{i}" >> {_id_}_2_{mec_no}datal.py'
+        file_.write(i)
+        os.system(cmd)
+    file_.close()
+
+    send_email(result)
+
+
 def start_loop():
     global _loc
     global tasks
@@ -930,38 +968,7 @@ def start_loop():
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=3):
                         print('terminating programme 5 mins elapsed')
-                        _id_ = get_hostname()[-1]
-                        result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
-                                 f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
-                                 f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} " \
-                                 f"\noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
-                                 f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
-                                 f"\nloc{_id_}_2_{mec_no} = {_loc} " \
-                                 f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}" \
-                                 f"\ntask_received = {total_received_task} \nsent_t = {clients_record}" \
-                                 f"\ncooperate = {cooperate}"
-                        list_result = [
-                            f"wt{_id_}_2_{mec_no} = {mec_waiting_time} ",
-                            f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
-                            f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} ",
-                            f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}",
-                            f"\nloc{_id_}_2_{mec_no} = {_loc} ",
-                            f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}",
-                            f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
-                            f"\ncooperate = {cooperate}"
-                        ]
-                        cmd = f"echo '' > /home/mec/result/linux/{_id_}_2_{mec_no}datal.py"
-                        os.system(cmd)
-                        cmd = f"echo '' > /home/mec/result/python/{_id_}_2_{mec_no}datap.py"
-                        os.system(cmd)
-                        file_ = open(f'{_id_}_2_{mec_no}datap.py', 'w')
-                        for i in list_result:
-                            cmd = f'echo "{i}" >> {_id_}_2_{mec_no}datal.py'
-                            file_.write(i)
-                            os.system(cmd)
-                        file_.close()
-
-                        send_email(result)
+                        save_and_email()
                         stop += 1
                         '''
                         for i in thread_record:
@@ -974,31 +981,7 @@ def start_loop():
                         break
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                _id_ = get_hostname()[-1]
-                result = f"wt{_id_}_2_{mec_no} = {mec_waiting_time} " \
-                         f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
-                         f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
-                         f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
-                         f"\nloc{_id_}_2_{mec_no} = {_loc} " \
-                         f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}" \
-                         f"\ntask_received = {total_received_task} \nsent_t = {clients_record}" \
-                         f"\ncooperate = {cooperate}"
-                list_result = [
-                    f"wt{_id_}_2_{mec_no} = {mec_waiting_time} ",
-                    f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
-                    f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} ",
-                    f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}",
-                    f"\nloc{_id_}_2_{mec_no} = {_loc} ",
-                    f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}",
-                    f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
-                    f"\ncooperate = {cooperate}"
-                ]
-                for i in list_result:
-                    cmd = 'echo "{}" >> data.py'.format(i)
-                    os.system(cmd)
-                    os.system('echo "{}" >> /home/mec/result/data.py'.format(i))
-
-                send_email(result)
+                save_and_email()
                 stop += 1
                 '''
                 for i in thread_record:
