@@ -746,16 +746,16 @@ def cooperative_mec(mec_list):
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
 
-mismatch = []
+outward_mec = 0
 def execute_re_offloaded_task(offloaded_task):
+    global outward_mec
     exec_list = get_exec_seq(offloaded_task[0])
-    if len(offloaded_task[0]) > exec_list:
-        mismatch.append((exec_list, offloaded_task[0]))
     for i in exec_list:      # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j]/2)
         # print('j task: ', j)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
+        outward_mec += 1
 
 
 clients_record = {}
@@ -769,16 +769,16 @@ def count_task_sent(task):
 
 
 def execute(local):
+    global outward_mec
     print('\nExecuting :', local)
 
-    # send = []
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0]/2)
+        time.sleep(t_time[j][0] / 2)
         print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
         if j.split('.')[1] != node_id:
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
-            # send.append(j)
+            outward_mec += 1
         elif j.split('.')[1] == node_id:
             # send_client({j: get_time()}, send_back_host)
             _client.publish(j.split('.')[2], str({j: get_time()}))
@@ -820,21 +820,22 @@ def receive_offloaded_task_mec():    # run as a thread
 
 
 def call_execute_re_offload():
-    global reoffload_list
+    global reoffload_list, outward_mec
 
     while True:
         if stop == 1:
-            print('Stopped: call_executed_re_offload()')
+            print('Stopped: call_execute_re_offload()')
             break
         else:
             if len(reoffload_list[0]) == 1:
                 t = reoffload_list[0][-1]
-                time.sleep(reoffload_list[1][t]/2)
+                time.sleep(reoffload_list[1][t] / 2)
                 shared_resource_lock.acquire()
                 reoffload_list[0].remove(t)
                 del reoffload_list[1][t]
                 shared_resource_lock.release()
                 send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
+                outward_mec += 1
             elif len(reoffload_list[0]) > 1:
                 o = reoffload_list.copy()
                 execute_re_offloaded_task(o)
@@ -908,7 +909,8 @@ def save_and_email():
              f"\nloc{_id_}_2_{mec_no} = {_loc} " \
              f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}" \
              f"\ntask_received = {total_received_task} \nsent_t = {clients_record}" \
-             f"\ncooperate = {cooperate} \nmismatch = {mismatch}"
+             f"\ncooperate = {cooperate} \ntask_record = {task_record}" \
+             f"\noutward_mec = {outward_mec}"
     list_result = [
         f"wt{_id_}_2_{mec_no} = {mec_waiting_time} ",
         f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
@@ -917,7 +919,7 @@ def save_and_email():
         f"\nloc{_id_}_2_{mec_no} = {_loc} ",
         f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}",
         f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
-        f"\ncooperate = {cooperate} \nmismatch = {mismatch}"
+        f"\ncooperate = {cooperate} \ntask_record = {task_record} \noutward_mec = {outward_mec}"
     ]
     cmd = f"echo '' > /home/mec/result/linux/{_id_}_2_{mec_no}datal.py"
     os.system(cmd)
