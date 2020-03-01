@@ -6,7 +6,8 @@ import socket
 import threading
 from threading import Thread
 import paho.mqtt.client as mqtt
-
+import config
+import smtplib
 # deadlock project
 _tasks = {'t1': {'wcet': 1, 'period': 3, 'deadline': 3},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
@@ -217,8 +218,25 @@ def execute(local):
         _topic = j.split('.')[1]
         _payload = 'c {}'.format(i.split('*')[0])
         _client.publish(topic=_topic, payload=_payload)
+        counter['sent'] += 1
         # send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')
+
+
+def send_email(msg):
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com')
+        server.ehlo()
+        server.login(config.email_address, config.password)
+        subject = 'Deadlock results rms+bankers cloud'
+        # msg = 'Attendance done for {}'.format(_timer)
+        _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
+        server.sendmail(config.email_address, config.send_email, _message)
+        server.quit()
+        print("Email sent!")
+    except Exception as e:
+        print(e)
 
 
 def ip_address():
@@ -226,7 +244,7 @@ def ip_address():
     s.connect(("8.8.8.8", 80))
     return s.getsockname()[0]
 
-
+counter = {'recv': 0, 'sent': 0}
 def run_me():
     global tasks
     global t_time
@@ -247,6 +265,7 @@ def run_me():
                     shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
                     shared_resource_lock.release()
+                    counter['recv'] += len(tasks)
                     execute(received_task_queue[0])
                     for t in tasks:
                         shared_resource_lock.acquire()
@@ -259,6 +278,7 @@ def run_me():
                     shared_resource_lock.acquire()
                     tasks, t_time = received_task_queue
                     shared_resource_lock.release()
+                    counter['recv'] += len(tasks)
                     print('\nRunning Bankers Algorithm')
                     list_seq = get_safe_seq(tasks)
                     execute(list_seq)
@@ -272,6 +292,8 @@ def run_me():
                 print('\nProgramme Terminated')
                 os.system('echo "cannot = {} \nlog = {}" >> cannot.py'.format(cannot, log))
                 _client.loop_stop()
+                mail = "counter = {}".format(counter)
+                send_email(mail)
                 break
     else:
         print('\nProgramme Terminated')
