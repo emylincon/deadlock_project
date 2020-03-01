@@ -78,6 +78,8 @@ memory = []
 stop = 0
 t_track = 1
 shared_resource_lock = threading.Lock()
+task_record = []     # keeps record of task reoffloaded
+task_id = 0          # id for each task reoffloaded
 
 fig = plt.figure()
 ax1 = fig.add_subplot(231)
@@ -360,9 +362,12 @@ def on_message(message_client, userdata, msg):
     if data[0] == 'c':    # receive task from cloud
         received_task = data[2:]
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
-        _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
-        cooperate['cloud'] += 1
-        count_task_sent(received_task)
+        if received_task in task_record:
+            task_record.remove(received_task)
+            received_task = '.'.join(received_task.split('.')[:-1])
+            _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()}))
+            cooperate['cloud'] += 1
+            count_task_sent(received_task)
 
     elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
@@ -695,12 +700,16 @@ def mec_comparison():
 def cooperative_mec(mec_list):
     global _off_cloud
     global _off_mec
+    global task_id, task_record
 
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
             # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
-            _client.publish(cloud_ip, str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
+            _send_task = f"{i.split('_')[0]}.{task_id}"
+            _client.publish(cloud_ip, str([_send_task, t_time[i.split('_')[0]][0]]))
+            task_record.append(_send_task)
+            task_id += 1
             _off_cloud += 1
             # cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
@@ -714,16 +723,21 @@ def cooperative_mec(mec_list):
                 send = 'true'
             # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
             if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':
-                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
+                _send_task = f"{j}.{task_id}"
+                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [_send_task, t_time[j][0]]))
+                task_record.append(_send_task)
+                task_id += 1
                 _off_mec += 1
-
                 # SENDS TASK TO MEC FOR EXECUTION
 
                 mec_waiting_time[_host].append(
                     round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
-                _client.publish(cloud_ip, str([j, t_time[j][0]]))
+                _send_task = f"{j}.{task_id}"
+                _client.publish(cloud_ip, str([_send_task, t_time[j][0]]))
+                task_record.append(_send_task)
+                task_id += 1
                 _off_cloud += 1
                 # send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
 
@@ -788,9 +802,12 @@ def receive_offloaded_task_mec():    # run as a thread
                 da = data.decode().split(' ')
                 if (address[0] not in ip_set) and da[0] == node_id:  # send back to client
                     # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
-                    _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
-                    count_task_sent(da[1])
-                    cooperate['mec'] += 1
+                    if da[1] in task_record:
+                        task_record.remove(da[1])
+                        task_new = '.'.join(da[1].split('.')[:-1])
+                        _client.publish(da[1].split('.')[2], str({task_new: get_time()}))
+                        count_task_sent(da[1])
+                        cooperate['mec'] += 1
                 elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
                     _received = ast.literal_eval(da[2] + da[3])
                     shared_resource_lock.acquire()
@@ -967,7 +984,7 @@ def start_loop():
                     time.sleep(.5)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(minutes=3):
+                    if delta > dt.timedelta(minutes=6):
                         print('terminating programme 5 mins elapsed')
                         save_and_email()
                         stop += 1
