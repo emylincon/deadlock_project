@@ -217,7 +217,7 @@ def execute(local):
         print('####### Executed: ', i)
         _topic = j.split('.')[1]
         _payload = 'c {}'.format(i.split('*')[0])
-        _client.publish(topic=_topic, payload=_payload)
+        _client.publish(topic=_topic, payload=_payload, qos=2)
         counter['sent'] += 1
         # send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')

@@ -203,7 +203,7 @@ def gosh_dist(_range):
 def on_connect(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(node_id)
+    connect_client.subscribe(node_id, qos=2)
     connect_client.subscribe('mec')
 
 
