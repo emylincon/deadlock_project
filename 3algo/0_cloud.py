@@ -47,7 +47,7 @@ shared_resource_lock = threading.Lock()
 def on_connect(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(topic)
+    connect_client.subscribe(topic, qos=2)
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -176,7 +176,7 @@ def isSafe(processes, avail, need, allot):
 
     return safeSeq
 
-log = []
+
 def get_safe_seq(pro):
     global P
     global R
@@ -203,9 +203,6 @@ def get_safe_seq(pro):
 
     # Check system is in safe state or not
     safe_seq = isSafe(processes, avail, n_need, allot)
-    if len(safe_seq) > len(pro):
-        print('e*'*5+'seq: {}, pro: {}'.format(safe_seq,pro)+'*e'*5)
-        log.append((safe_seq, pro))
     return isSafe(processes, avail, n_need, allot)
 
 
@@ -290,7 +287,7 @@ def run_me():
                     time.sleep(2)
             except KeyboardInterrupt:
                 print('\nProgramme Terminated')
-                os.system('echo "cannot = {} \nlog = {}" >> cannot.py'.format(cannot, log))
+                os.system('echo "cannot = {} \n" >> cannot.py'.format(cannot))
                 _client.loop_stop()
                 mail = "counter = {}".format(counter)
                 send_email(mail)

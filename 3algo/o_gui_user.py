@@ -147,7 +147,7 @@ def waiting_time_init():
 def on_connect(connect_client, userdata, flags, rc):
     print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(topic)
+    connect_client.subscribe(topic, qos=2)
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -189,10 +189,10 @@ def get_mec_details():
 def on_connect_task(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(task_topic)
+    connect_client.subscribe(task_topic, qos=2)
 
 
-tshoot = []
+
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_receive_task(message_client, userdata, msg):
     global tasks_executed_on_time
@@ -227,8 +227,6 @@ def on_receive_task(message_client, userdata, msg):
                 tasks_executed_on_time += 1
             else:
                 tasks_not_executed_on_time += 1
-        else:
-            tshoot.append(received_task)
 
 
 def receive_mec_start():
@@ -288,7 +286,7 @@ def send_result(host_, data):
 
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect(host_, port, un, pw)
-        cmd = ('echo "{}" >> /home/mec/result/data.py'.format(data))  # task share : host ip task
+        cmd = ('echo "{}" >> /home/mec/result/client_data.py'.format(data))  # task share : host ip task
 
         stdin, stdout, stderr = c.exec_command(cmd)
     except Exception as e:
@@ -370,7 +368,7 @@ def main():
                         else:
                             task_record[seq][task] = [_tasks_list[1][task][1], get_time()]
                     # client(_tasks_list, rand_host)
-                    task_client.publish(client_id(rand_host), "t {}".format(_tasks_list))
+                    task_client.publish(client_id(rand_host), "t {}".format(_tasks_list), qos=2)
                     print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
                     drawnow(plot_performance)
                     time.sleep(3)
@@ -390,7 +388,6 @@ def main():
                 send_email(task_doc)
 
                 task_client.loop_stop()
-                print(f"tshoot: {tshoot}")
                 print('done')
                 time.sleep(1)
                 break
