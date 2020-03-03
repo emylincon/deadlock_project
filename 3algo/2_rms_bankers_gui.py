@@ -925,9 +925,21 @@ def save_and_email():
     os.system(cmd)
     cmd = f"echo '' > /home/mec/result/python/{_id_}_2_{mec_no}datap.py"
     os.system(cmd)
-    file_ = open(f'{_id_}_2_{mec_no}datap.py', 'w')
+    path_ = 'data/raw/'
+    if os.path.exists(path_):
+        cmd = f"echo '' > {path_}{_id_}_2_{mec_no}datal.py"
+        os.system(cmd)
+        cmd = f"echo '' > {path_}{_id_}_2_{mec_no}datap.py"
+        os.system(cmd)
+    else:
+        os.mkdir(path_)
+        cmd = f"echo '' > {path_}{_id_}_2_{mec_no}datal.py"
+        os.system(cmd)
+        cmd = f"echo '' > {path_}{_id_}_2_{mec_no}datap.py"
+        os.system(cmd)
+    file_ = open(f'{path_}{_id_}_2_{mec_no}datap.py', 'w')
     for i in list_result:
-        cmd = f'echo "{i}" >> {_id_}_2_{mec_no}datal.py'
+        cmd = f'echo "{i}" >> {path_}{_id_}_2_{mec_no}datal.py'
         file_.write(i)
         os.system(cmd)
     file_.close()
