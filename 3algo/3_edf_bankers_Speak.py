@@ -911,7 +911,7 @@ def start_loop():
                     time.sleep(.5)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(minutes=3):
+                    if delta > dt.timedelta(minutes=6):
                         print('terminating programme 3 mins elapsed')
                         save_and_abort()
                         break
