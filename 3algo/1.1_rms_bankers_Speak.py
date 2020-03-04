@@ -829,8 +829,9 @@ def save_and_email():
         f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}",
         f"\nloc{_id_}_2_{mec_no} = {_loc} ",
         f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}",
-        f"\ntask_received = {total_received_task} \nsent_t = {clients_record}",
-        f"\ncooperate = {cooperate} \ntask_record = {task_record} \noutward_mec = {outward_mec}"
+        f"\ntask_received{_id_}_2_{mec_no} = {total_received_task} \nsent_t{_id_}_2_{mec_no} = {clients_record}",
+        f"\ncooperate{_id_}_2_{mec_no} = {cooperate} \ntask_record{_id_}_2_{mec_no} = {task_record} "
+        f"\noutward_mec{_id_}_2_{mec_no} = {outward_mec}"
     ]
     path_ = 'data/raw/'
     if os.path.exists(path_):
