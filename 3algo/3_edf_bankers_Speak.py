@@ -908,7 +908,7 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(.5)
+                    time.sleep(1)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=6):
