@@ -139,7 +139,7 @@ def get_tasks():
 def waiting_time_init():
     # t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
     #           tasks}  # t_time = {'ti': [execution_time, latency], ..}
-    t_time = {i: [round(r.uniform(0.1, 0.4), 3), round(r.uniform(3, 7), 3)] for i in
+    t_time = {i: [round(r.uniform(0.1, 0.4), 3), round(r.uniform(2, 5.2), 3)] for i in
               tasks}  # t_time = {'ti': [execution_time, latency], ..}
 
     return t_time
