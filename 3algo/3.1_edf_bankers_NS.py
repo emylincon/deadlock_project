@@ -811,7 +811,7 @@ def save_and_abort():
     if len(task_record) > 0:
         for _task_ in task_record:
             task_new = '.'.join(_task_.split('.')[:-1])
-            _client.publish(task_new.split('.')[2], task_new, qos=2)
+            _client.publish(task_new.split('.')[2], str({task_new: get_time()}), qos=2)
     stop += 1
     '''
     for i in thread_record:
