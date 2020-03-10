@@ -404,6 +404,7 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
+                print('MEC: ', ho['osboxes-0'])
                 result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
                          f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
                          f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}" \
