@@ -49,7 +49,7 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
             )
 '''
 thread_record = []
-task_record = {}    # records tasks start time and finish time {seq_no:{task:[duration, start_time,finish_time]}}
+task_record = {}  # records tasks start time and finish time {seq_no:{task:[duration, start_time,finish_time]}}
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
@@ -86,12 +86,12 @@ def plot_performance():
     ypos = ([0, 1])
     total = tasks_executed_on_time + tasks_not_executed_on_time
     if tasks_executed_on_time > 0:
-        timely = round((tasks_executed_on_time/total)*100, 2)
+        timely = round((tasks_executed_on_time / total) * 100, 2)
     else:
         timely = 0
 
     if tasks_not_executed_on_time > 0:
-        untimely = round((tasks_not_executed_on_time/total)*100, 2)
+        untimely = round((tasks_not_executed_on_time / total) * 100, 2)
     else:
         untimely = 0
 
@@ -104,7 +104,7 @@ def plot_performance():
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
 
     ax1.text(1, auto_value(tasks_executed_on_time), dis, size=10, rotation=0,
-             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.7, 0.7), fc=(1., 0.8, 0.8),))
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.7, 0.7), fc=(1., 0.8, 0.8), ))
     ax1.text(-0.1, tasks_executed_on_time, '{}, {}%'.format(tasks_executed_on_time, timely), size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax1.text(0.99, tasks_not_executed_on_time, '{}, {}%'.format(tasks_not_executed_on_time, untimely),
@@ -125,7 +125,7 @@ def gosh_dist(_range):
 
 # Callback Function on Connection with MQTT Server
 def on_connect(connect_client, userdata, flags, rc):
-    print("Connected with Code :" +str(rc))
+    print("Connected with Code :" + str(rc))
     # Subscribe Topic from here
     connect_client.subscribe(topic, qos=2)
 
@@ -138,7 +138,7 @@ def on_message(message_client, userdata, msg):
 
     # print the message received from the subscribed topic
     details = str(msg.payload, 'utf-8')[2:].split('_')
-    ho = ast.literal_eval(details[0])                             # {hostname: ip}
+    ho = ast.literal_eval(details[0])  # {hostname: ip}
     algo_id = int(details[1])
     hosts = list(ho.values())
     # print('hosts: ', hosts)
@@ -170,7 +170,6 @@ def on_connect_task(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
     connect_client.subscribe(task_topic, qos=2)
-
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -241,7 +240,6 @@ def get_hostname():
 
 
 def send_email(msg):
-
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
@@ -274,7 +272,6 @@ def send_result(host_, data):
 
 
 def client_id(client_ip):
-
     _id = client_ip.split('.')[-1]
     if len(_id) == 1:
         return '00' + _id
@@ -283,9 +280,12 @@ def client_id(client_ip):
     else:
         return _id
 
+
 total_task_sent = 0
 total_split_task = 0
-task_dist = {1:0,2:0,3:0}
+task_dist = {1: 0, 2: 0, 3: 0}
+
+
 def task_details(tasks):
     global task_dist, total_task_sent, total_split_task
     total_task_sent += len(tasks)
@@ -337,12 +337,12 @@ def main():
                 for j in range(len(_data_)):
                     seq = j
                     i = _data_[j]
-                    rand_host = ho[i[1]]      # randomly selecting a host to send task to
+                    rand_host = ho[i[1]]  # randomly selecting a host to send task to
                     _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
                     task_details(_tasks_list[0])
                     # record.append([_tasks_list, rand_host])
                     for task in _tasks_list[0]:
-                        if seq not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
+                        if seq not in task_record:  # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
                             task_record[seq] = {task: [_tasks_list[1][task][1], get_time()]}
                         else:
                             task_record[seq][task] = [_tasks_list[1][task][1], get_time()]
