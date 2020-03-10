@@ -848,7 +848,7 @@ def start_loop():
                     info = received_task_queue.pop(0)
                     tasks, t_time = info
 
-                    print('EDF List of Processes: ', tasks, '\n')
+                    print('RMS List of Processes: ', tasks, '\n')
 
                     print('\n========= Running Deadlock Algorithm ===========')
                     lcm_result, task_load = load_tasks()
