@@ -423,17 +423,16 @@ def main():
                 ]
                 path_ = 'data/raw/'
                 if os.path.exists(path_):
-                    cmd = f"echo '' > {get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
+                    cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
                     os.system(cmd)
                 else:
                     os.mkdir(path_)
-                    cmd = f"echo '' > {get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
+                    cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
                     os.system(cmd)
                 for i in list_result:
-                    cmd = f'echo "{i}" >> {get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py'
+                    cmd = f'echo "{i}" >> {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py'
                     os.system(cmd)
 
-                os.system(cmd)
                 sp.run(
                     ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py",
                      f"mec@{ho['osboxes-0']}:/home/mec/result/python"])
