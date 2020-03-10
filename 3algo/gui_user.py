@@ -152,9 +152,10 @@ def get_tasks():
 
 
 def waiting_time_init():
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
-              tasks}  # t_time = {'ti': [execution_time, latency], ..}
-
+    # t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
+    #           tasks}  # t_time = {'ti': [execution_time, latency], ..}
+    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round(r.uniform(3,7), 3)] for i in
+              tasks}
     return t_time
 
 
@@ -306,6 +307,7 @@ def send_result(host_, data):
             cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
 
             stdin, stdout, stderr = c.exec_command(cmd)
+        c.close()
     except Exception as e:
         print(e)
 
@@ -319,26 +321,6 @@ def client_id(client_ip):
         return '0' + _id
     else:
         return _id
-
-
-def send_task(_task, _host):
-    global port
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((_host, port))
-        s.sendall(str.encode(str(_task)))
-    port = 65000
-
-
-def client(t, h):    # t = tasks, h = host ip
-    global port
-
-    try:
-        send_task(t, h)
-    except ConnectionRefusedError:
-        port += 10
-        client(t, h)
-    except KeyboardInterrupt:
-        print('Programme Terminated')
 
 
 def name_task(task_list, node_id, seq_no):
