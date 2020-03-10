@@ -123,28 +123,6 @@ def gosh_dist(_range):
     return ((23 ** r.randrange(1, 1331)) % r.randrange(1, 1777)) % _range
 
 
-def get_tasks():
-    global tasks
-
-    tasks = {}
-    _t = r.randrange(2, 4)
-    while len(tasks) < _t:
-        a = list(_tasks.keys())[gosh_dist(5)]
-        tasks[a] = _tasks[a]
-
-    _t_time = waiting_time_init()
-    return tasks, _t_time
-
-
-def waiting_time_init():
-    # t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
-    #           tasks}  # t_time = {'ti': [execution_time, latency], ..} .7, 1.8| .5, 1.3
-    t_time = {i: [round(r.uniform(0.1, 0.4), 3), round(r.uniform(.0, 0.0), 3)] for i in
-              tasks}  # t_time = {'ti': [execution_time, latency], ..}
-
-    return t_time
-
-
 # Callback Function on Connection with MQTT Server
 def on_connect(connect_client, userdata, flags, rc):
     print("Connected with Code :" +str(rc))
@@ -360,7 +338,6 @@ def main():
                     seq = j
                     i = _data_[j]
                     rand_host = ho[i[1]]      # randomly selecting a host to send task to
-                    # _task_ = get_tasks()                 # tasks, waiting time
                     _tasks_list = i[0]  # id's tasks => ({tasks}, {waiting time})
                     task_details(_tasks_list[0])
                     # record.append([_tasks_list, rand_host])
