@@ -17,10 +17,9 @@ import config
 import paramiko
 import distribution as dst
 
+port = 65000  # The port used by the server
 
-port = 65000        # The port used by the server
-
-#hosts = {}  # {hostname: ip}
+# hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
 server_address = ('', 10000)
 record = []  # [({tasks}, {waiting time}), hostname] records the task list and execution and waiting time and host sent
@@ -64,7 +63,7 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
             )
 '''
 thread_record = []
-task_record = {}    # records tasks start time and finish time {seq_no:{task:[duration, start_time,finish_time]}}
+task_record = {}  # records tasks start time and finish time {seq_no:{task:[duration, start_time,finish_time]}}
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
@@ -101,12 +100,12 @@ def plot_performance():
     ypos = ([0, 1])
     total = tasks_executed_on_time + tasks_not_executed_on_time
     if tasks_executed_on_time > 0:
-        timely = round((tasks_executed_on_time/total)*100, 2)
+        timely = round((tasks_executed_on_time / total) * 100, 2)
     else:
         timely = 0
 
     if tasks_not_executed_on_time > 0:
-        untimely = round((tasks_not_executed_on_time/total)*100, 2)
+        untimely = round((tasks_not_executed_on_time / total) * 100, 2)
     else:
         untimely = 0
 
@@ -115,11 +114,11 @@ def plot_performance():
     ax1.set_xticklabels(name)
     ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
     ax1.set_title('Task execution Time record')
-    dis = 'Seq: {}\nTotal Tasks: {}'.format(seq, total)
+    dis = 'Seq: {}\nTotal Tasks: {}\ntotal: {}'.format(seq, total, total_split_task)
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
 
     ax1.text(1, auto_value(tasks_executed_on_time), dis, size=10, rotation=0,
-             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.7, 0.7), fc=(1., 0.8, 0.8),))
+             ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.7, 0.7), fc=(1., 0.8, 0.8), ))
     ax1.text(-0.1, tasks_executed_on_time, '{}, {}%'.format(tasks_executed_on_time, timely), size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax1.text(0.99, tasks_not_executed_on_time, '{}, {}%'.format(tasks_not_executed_on_time, untimely),
@@ -154,14 +153,14 @@ def get_tasks():
 def waiting_time_init():
     # t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
     #           tasks}  # t_time = {'ti': [execution_time, latency], ..}
-    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round(r.uniform(2,4.5), 3)] for i in
+    t_time = {i: [round(r.uniform(0.4, 0.8), 3), round(r.uniform(1.5, 4), 3)] for i in
               tasks}
     return t_time
 
 
 # Callback Function on Connection with MQTT Server
 def on_connect(connect_client, userdata, flags, rc):
-    print("Connected with Code :" +str(rc))
+    print("Connected with Code :" + str(rc))
     # Subscribe Topic from here
     connect_client.subscribe(topic)
 
@@ -278,7 +277,6 @@ def get_hostname():
 
 
 def send_email(msg):
-
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
@@ -304,7 +302,7 @@ def send_result(host_, data):
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect(host_, port, un, pw)
         for i in data:
-            cmd = ('echo "{}" >> /home/mec/result/data.py'.format(i))  # task share : host ip task
+            cmd = ('echo "{}" >> /home/mec/result/client_data.py'.format(data))  # task share : host ip task
 
             stdin, stdout, stderr = c.exec_command(cmd)
         c.close()
@@ -313,7 +311,6 @@ def send_result(host_, data):
 
 
 def client_id(client_ip):
-
     _id = client_ip.split('.')[-1]
     if len(_id) == 1:
         return '00' + _id
@@ -323,11 +320,29 @@ def client_id(client_ip):
         return _id
 
 
+total_task_sent = 0
+total_split_task = 0
+task_dist = {1: 0, 2: 0, 3: 0}
+
+
+def task_details(tasks):
+    global task_dist, total_task_sent, total_split_task
+    total_task_sent += len(tasks)
+    for task in tasks:
+        total_split_task += tasks[task]['wcet']
+        task_dist[tasks[task]['wcet']] += 1
+
+
 def name_task(task_list, node_id, seq_no):
     # naming nomenclature of tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
     # returns task list and waiting_time with proper identification
     return {i + '.' + str(node_id) + '.' + client_id_ + '.' + str(seq_no): task_list[0][i] for i in task_list[0]}, \
            {k + '.' + str(node_id) + '.' + client_id_ + '.' + str(seq_no): task_list[1][k] for k in task_list[1]}
+
+
+def namestr(obj):
+    namespace = globals()
+    return [name for name in namespace if namespace[name] is obj]
 
 
 def split_list(data, _id_):
@@ -372,13 +387,13 @@ def main():
             if x == 'y':
                 for i in range(len(_data_)):
                     seq = i
-                    rand_host = hosts[int(_data_[i])-1]      # host selection using generated gausian distribution
-                    _task_ = get_tasks()                 # tasks, waiting time
-                    _tasks_list = name_task(_task_, client_id(rand_host), i)   # id's tasks => ({tasks}, {waiting time})
-
+                    rand_host = hosts[int(_data_[i]) - 1]  # host selection using generated gausian distribution
+                    _task_ = get_tasks()  # tasks, waiting time
+                    _tasks_list = name_task(_task_, client_id(rand_host), i)  # id's tasks => ({tasks}, {waiting time})
+                    task_details(_tasks_list[0])
                     record.append([_tasks_list, host_dict[rand_host]])
                     for task in _tasks_list[0]:
-                        if i not in task_record:   # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
+                        if i not in task_record:  # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
                             task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
                         else:
                             task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
@@ -389,21 +404,43 @@ def main():
                     time.sleep(3)
             elif x == 'stop':
                 print('\nProgramme terminated')
-
                 result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
                          f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
-                         f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}"
+                         f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}" \
+                         f"{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}" \
+                         f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = " \
+                         f"{total_split_task} " \
+                         f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
                 list_result = [
                     f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} ",
                     f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}",
                     f"\nrecord{len(hosts)} = {record} ",
-                    f"\nhost_names{len(hosts)} = {host_dict}"
+                    f"\nhost_names{len(hosts)} = {host_dict}",
+                    f"{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}"
+                    f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = "
+                    f"{total_split_task} "
+                    f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
                 ]
+                path_ = 'data/raw/'
+                if os.path.exists(path_):
+                    cmd = f"echo '' > {get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
+                    os.system(cmd)
+                else:
+                    os.mkdir(path_)
+                    cmd = f"echo '' > {get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
+                    os.system(cmd)
                 for i in list_result:
-                    cmd = 'echo "{}" >> data.py'.format(i)
+                    cmd = f'echo "{i}" >> {get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py'
                     os.system(cmd)
 
-                send_result(ho['osboxes-0'], list_result)
+                os.system(cmd)
+                sp.run(
+                    ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py",
+                     f"mec@{ho['osboxes-0']}:/home/mec/result/python"])
+                sp.run(
+                    ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py",
+                     f"mec@{ho['osboxes-0']}:/home/mec/result/linux"])
+                send_result(ho['osboxes-0'], result)
                 send_email(result)
 
                 task_client.loop_stop()
