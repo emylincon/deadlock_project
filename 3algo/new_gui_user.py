@@ -422,10 +422,10 @@ def main():
                 os.system(cmd)
                 sp.run(
                     ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py",
-                     f"mec@{hosts['osboxes-0']}:/home/mec/result/python"])
+                     f"mec@{ho['osboxes-0']}:/home/mec/result/python"])
                 sp.run(
                     ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py",
-                     f"mec@{hosts['osboxes-0']}:/home/mec/result/linux"])
+                     f"mec@{ho['osboxes-0']}:/home/mec/result/linux"])
                 send_result(ho['osboxes-0'], result)
                 send_email(result)
                 send_email(task_doc)
