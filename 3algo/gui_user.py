@@ -355,6 +355,53 @@ def split_list(data, _id_):
         return data[1200:]
 
 
+def save_data():
+    result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
+             f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
+             f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}" \
+             f"{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}" \
+             f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = " \
+             f"{total_split_task} " \
+             f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
+    list_result = [
+        f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} ",
+        f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}",
+        f"\nrecord{len(hosts)} = {record} ",
+        f"\nhost_names{len(hosts)} = {host_dict}",
+        f"{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}"
+        f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = "
+        f"{total_split_task} "
+        f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
+    ]
+    path_ = 'data/raw/'
+    if os.path.exists(path_):
+        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py"
+        os.system(cmd)
+        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py"
+        os.system(cmd)
+
+    else:
+        os.mkdir(path_)
+        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py"
+        os.system(cmd)
+        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py"
+        os.system(cmd)
+    file_ = open(f'{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py', 'w')
+    for i in list_result:
+        cmd = f'echo "{i}" >> {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py'
+        os.system(cmd)
+        file_.write(i)
+    file_.close()
+    sp.run(
+        ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py",
+         f"mec@{ho['osboxes-0']}:/home/mec/result/python"])
+    sp.run(
+        ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py",
+         f"mec@{ho['osboxes-0']}:/home/mec/result/linux"])
+    # send_result(ho['osboxes-0'], result)
+    send_email(result)
+
+
 def main():
     global record
     global client_id_
@@ -405,43 +452,7 @@ def main():
             elif x == 'stop':
                 print('\nProgramme terminated')
                 print('MEC: ', ho['osboxes-0'])
-                result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
-                         f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
-                         f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}" \
-                         f"{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}" \
-                         f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = " \
-                         f"{total_split_task} " \
-                         f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
-                list_result = [
-                    f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} ",
-                    f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}",
-                    f"\nrecord{len(hosts)} = {record} ",
-                    f"\nhost_names{len(hosts)} = {host_dict}",
-                    f"{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}"
-                    f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = "
-                    f"{total_split_task} "
-                    f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
-                ]
-                path_ = 'data/raw/'
-                if os.path.exists(path_):
-                    cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
-                    os.system(cmd)
-                else:
-                    os.mkdir(path_)
-                    cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py"
-                    os.system(cmd)
-                for i in list_result:
-                    cmd = f'echo "{i}" >> {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py'
-                    os.system(cmd)
-
-                sp.run(
-                    ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py",
-                     f"mec@{ho['osboxes-0']}:/home/mec/result/python"])
-                sp.run(
-                    ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}data.py",
-                     f"mec@{ho['osboxes-0']}:/home/mec/result/linux"])
-                # send_result(ho['osboxes-0'], result)
-                send_email(result)
+                save_data()
 
                 task_client.loop_stop()
                 print('done')
