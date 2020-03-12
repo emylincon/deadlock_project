@@ -375,28 +375,28 @@ def save_data():
     ]
     path_ = 'data/raw/'
     if os.path.exists(path_):
-        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py"
+        cmd = f"echo '' > {path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py"
         os.system(cmd)
-        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py"
+        cmd = f"echo '' > {path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py"
         os.system(cmd)
 
     else:
         os.mkdir(path_)
-        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py"
+        cmd = f"echo '' > {path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py"
         os.system(cmd)
-        cmd = f"echo '' > {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py"
+        cmd = f"echo '' > {path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py"
         os.system(cmd)
-    file_ = open(f'{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py', 'w')
+    file_ = open(f'{path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py', 'w')
     for i in list_result:
-        cmd = f'echo "{i}" >> {path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py'
+        cmd = f'echo "{i}" >> {path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py'
         os.system(cmd)
         file_.write(i)
     file_.close()
     sp.run(
-        ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py",
+        ["scp", f"{path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py",
          f"mec@{ho['osboxes-0']}:/home/mec/result/python"])
     sp.run(
-        ["scp", f"{path_}{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py",
+        ["scp", f"{path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datal.py",
          f"mec@{ho['osboxes-0']}:/home/mec/result/linux"])
     # send_result(ho['osboxes-0'], result)
     send_email(result)
