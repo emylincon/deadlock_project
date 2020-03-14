@@ -872,7 +872,7 @@ def start_loop():
                     time.sleep(1)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(minutes=6):
+                    if delta > dt.timedelta(minutes=4):
                         print('terminating programme 5 mins elapsed')
                         save_and_send()
                         stop += 1
