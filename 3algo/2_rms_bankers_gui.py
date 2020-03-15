@@ -774,17 +774,22 @@ def execute(local):
 
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0] / 2)
+        _t = t_time[j][0] / 2
+        print('time: ', _t, type(_t).__name__)
+        time.sleep(_t)
         print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
         if j.split('.')[1] != node_id:
+            print('execute if: ', j)
             send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
             outward_mec += 1
         elif j.split('.')[1] == node_id:
+            print('execute elif: ', j)
             # send_client({j: get_time()}, send_back_host)
             _client.publish(j.split('.')[2], str({j: get_time()}), qos=2)
             count_task_sent(j)
+        else:
+            print('else execute: ', j)
     print('============== EXECUTION DONE ===============')
-    # return send
 
 
 cooperate = {'mec': 0, 'cloud':0}
