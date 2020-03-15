@@ -637,6 +637,7 @@ def execute(local):
             # send_client({j: get_time()}, send_back_host)
             _client.publish(j.split('.')[2], str({j: get_time()}), qos=2)
             count_task_sent(j)
+            print('ex done')
         else:
             print('else execute: ', j)
     print('============== EXECUTION DONE ===============')
