@@ -221,8 +221,8 @@ def on_message(message_client, userdata, msg):
         received_task_queue.append(received_task)
         received_time.append(time.time())
 
-    else:
-        print('data: ', data)
+    # else:
+    #     print('data: ', data)
 
 
 def connect_to_broker():
@@ -306,9 +306,9 @@ def edf():
     if len(missed) > 0:
         # print('missed deadline: ', missed)
         cooperative_mec(missed)
-    edf = task_time_map(schedule, tasks)
-    total_received_task += len(edf)
-    return edf
+    _edf_ = task_time_map(schedule, tasks)
+    total_received_task += len(_edf_)
+    return _edf_
 
 
 # generate execution sequence

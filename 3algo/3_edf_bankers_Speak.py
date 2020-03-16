@@ -316,9 +316,9 @@ def edf():
     if len(missed) > 0:
         # print('missed deadline: ', missed)
         cooperative_mec(missed)
-    edf = task_time_map(schedule, tasks)
-    total_received_task += len(edf)
-    return edf
+    _edf_ = task_time_map(schedule, tasks)
+    total_received_task += len(_edf_)
+    return _edf_
 
 
 # generate execution sequence  using banker's algorithm
