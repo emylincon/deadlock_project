@@ -153,6 +153,7 @@ def get_tasks():
 def waiting_time_init():
     # t_time = {i: [round(r.uniform(0.4, 0.8), 3), round((tasks[i]['period']) / (tasks[i]['wcet']), 3)] for i in
     #           tasks}  # t_time = {'ti': [execution_time, latency], ..} 0.4 0.8, 1.5, 4 | 1.3, 3.5 |1.25, 3.5| 1.2,3.4
+    # 3.5, 5.8
     t_time = {i: [round(r.uniform(0.1, 0.4), 3), round(r.uniform(3.5, 5.8), 3)] for i in
               tasks}
     return t_time
@@ -162,7 +163,7 @@ def waiting_time_init():
 def on_connect(connect_client, userdata, flags, rc):
     print("Connected with Code :" + str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(topic, )
+    connect_client.subscribe(topic, qos=0)
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -206,7 +207,7 @@ def get_mec_details():
 def on_connect_task(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(task_topic, )
+    connect_client.subscribe(task_topic, qos=0)
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
