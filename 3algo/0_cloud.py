@@ -62,7 +62,7 @@ def on_message(message_client, userdata, msg):
     received_task_queue[1][task] = received_task[1]
     shared_resource_lock.release()
     t_track += 1
-    # cloud_register[received_task[0].split('.')[2]] = _addr[0]
+    # cloud_register[received_task[0].split('.')[2]] = _addr[0]#
 
 
 def connect_to_broker():
