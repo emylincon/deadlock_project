@@ -47,7 +47,7 @@ shared_resource_lock = threading.Lock()
 def on_connect(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(topic, qos=2)
+    connect_client.subscribe(topic, )
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -214,7 +214,7 @@ def execute(local):
         print('####### Executed: ', i)
         _topic = j.split('.')[1]
         _payload = 'c {}'.format(i.split('*')[0])
-        _client.publish(topic=_topic, payload=_payload, qos=2)
+        _client.publish(topic=_topic, payload=_payload, )
         counter['sent'] += 1
         # send_client(i, cloud_register[i.split('.')[1]])
     print('============== EXECUTION DONE ===============')

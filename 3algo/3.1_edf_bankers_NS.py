@@ -212,7 +212,7 @@ def on_message(message_client, userdata, msg):
         if received_task in task_record:
             task_record.remove(received_task)
             received_task = '.'.join(received_task.split('.')[:-1])
-            _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()}), qos=2)
+            _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()}), )
             cooperate['cloud'] += 1
             count_task_sent(received_task)
 
@@ -543,7 +543,7 @@ def cooperative_mec(mec_list):
         if _host == 0:
             # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
             _send_task = f"{i.split('_')[0]}.{task_id}"
-            _client.publish(cloud_ip, str([_send_task, t_time[i.split('_')[0]][0]]), qos=2)
+            _client.publish(cloud_ip, str([_send_task, t_time[i.split('_')[0]][0]]), )
             task_record.append(_send_task)
             task_id += 1
             _off_cloud += 1
@@ -571,7 +571,7 @@ def cooperative_mec(mec_list):
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             else:
                 _send_task = f"{j}.{task_id}"
-                _client.publish(cloud_ip, str([_send_task, t_time[j][0]]), qos=2)
+                _client.publish(cloud_ip, str([_send_task, t_time[j][0]]), )
                 task_record.append(_send_task)
                 task_id += 1
                 _off_cloud += 1
@@ -623,7 +623,7 @@ def execute(local):
         elif j.split('.')[1] == node_id:
             print('execute elif: ', j)
             # send_client({j: get_time()}, send_back_host)
-            _client.publish(j.split('.')[2], str({j: get_time()}), qos=2)
+            _client.publish(j.split('.')[2], str({j: get_time()}), )
             count_task_sent(j)
             print('ex done')
         else:
@@ -652,7 +652,7 @@ def receive_offloaded_task_mec():  # run as a thread
                     if da[1] in task_record:
                         task_record.remove(da[1])
                         task_new = '.'.join(da[1].split('.')[:-1])
-                        _client.publish(da[1].split('.')[2], str({task_new: get_time()}), qos=2)
+                        _client.publish(da[1].split('.')[2], str({task_new: get_time()}), )
                         count_task_sent(da[1])
                         cooperate['mec'] += 1
                 elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
@@ -819,7 +819,7 @@ def save_and_abort():
     if len(task_record) > 0:
         for _task_ in task_record:
             task_new = '.'.join(_task_.split('.')[:-1])
-            _client.publish(task_new.split('.')[2], str({task_new: get_time()}), qos=2)
+            _client.publish(task_new.split('.')[2], str({task_new: get_time()}), )
     stop += 1
     '''
     for i in thread_record:

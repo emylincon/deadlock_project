@@ -127,7 +127,7 @@ def gosh_dist(_range):
 def on_connect(connect_client, userdata, flags, rc):
     print("Connected with Code :" + str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(topic, qos=2)
+    connect_client.subscribe(topic, )
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -169,7 +169,7 @@ def get_mec_details():
 def on_connect_task(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(task_topic, qos=2)
+    connect_client.subscribe(task_topic, )
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -391,7 +391,7 @@ def main():
                         else:
                             task_record[seq][task] = [_tasks_list[1][task][1], get_time()]
                     # client(_tasks_list, rand_host)
-                    task_client.publish(client_id(rand_host), "t {}".format(_tasks_list), qos=2)
+                    task_client.publish(client_id(rand_host), "t {}".format(_tasks_list), )
                     print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
                     drawnow(plot_performance)
                     time.sleep(3)

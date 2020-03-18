@@ -162,7 +162,7 @@ def waiting_time_init():
 def on_connect(connect_client, userdata, flags, rc):
     print("Connected with Code :" + str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(topic, qos=2)
+    connect_client.subscribe(topic, )
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
@@ -206,7 +206,7 @@ def get_mec_details():
 def on_connect_task(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(task_topic, qos=2)
+    connect_client.subscribe(task_topic, )
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
