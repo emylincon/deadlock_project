@@ -1055,7 +1055,7 @@ def initialization():
 def main():
     global algo
 
-    #os.system('clear')
+    os.system('clear')
     print('mec ip: ', ip_address())
     algo = psutil.Process()
     discovering_group()
