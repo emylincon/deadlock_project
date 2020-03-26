@@ -73,7 +73,7 @@ filename = {2: 'rms+bankers',
             10: 'rms+wait_die',
             12: 'edf+wound_wait',
             16: 'edf+wait_die'}
-
+plt.ion()
 fig = plt.figure(frameon=True)
 ax1 = fig.add_subplot(111)
 
