@@ -74,7 +74,7 @@ filename = {2: 'rms+bankers',
             12: 'edf+wound_wait',
             16: 'edf+wait_die'}
 
-fig = plt.figure()
+fig = plt.figure(frameon=True)
 ax1 = fig.add_subplot(111)
 
 
