@@ -75,7 +75,7 @@ filename = {2: 'rms+bankers',
             16: 'edf+wait_die'}
 
 fig = plt.figure(frameon=True)
-ax1 = fig.add_subplot(111)
+ax1 = fig.add_subplot(111).force_focus()
 
 
 def auto_value(no):
