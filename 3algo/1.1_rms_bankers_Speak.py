@@ -619,8 +619,8 @@ def cooperative_mec(mec_list):
                 _off_mec += 1
                 # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(
-                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
+                w_send = calculate_mov_avg(_host, round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 3, 4))
+                mec_waiting_time[_host].append(w_send)  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
             elif send == 'true' and (get_rtt(_host) < get_rtt(cloud_ip)):
                 _send_task = f"{j}.{task_id}"
@@ -629,9 +629,8 @@ def cooperative_mec(mec_list):
                 task_id += 1
                 _off_mec += 1
                 # SENDS TASK TO MEC FOR EXECUTION
-
-                mec_waiting_time[_host].append(
-                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
+                w_send = calculate_mov_avg(_host, round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 3, 4))
+                mec_waiting_time[_host].append(w_send)  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
 
             else:
