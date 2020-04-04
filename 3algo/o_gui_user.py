@@ -9,7 +9,7 @@ import random as r
 import time
 import datetime as dt
 import paho.mqtt.client as mqtt
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from drawnow import *
 import subprocess as sp
 import config
