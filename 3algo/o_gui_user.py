@@ -169,7 +169,7 @@ def get_mec_details():
 def on_connect_task(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(task_topic, )
+    connect_client.subscribe(task_topic, qos=0)
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
