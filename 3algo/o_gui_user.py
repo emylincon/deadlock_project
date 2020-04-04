@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-
+import matplotlib
+matplotlib.use('TkAgg')
 import socket
 import os
 import ast
