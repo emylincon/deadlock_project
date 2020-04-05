@@ -177,9 +177,8 @@ def on_message(message_client, userdata, msg):
     # print the message received from the subscribed topic
     details = str(msg.payload, 'utf-8')[2:].split('_')
     ho = ast.literal_eval(details[0])  # {hostname: ip}
-    print(ho)
     algo_id = int(details[1])
-    hosts = list(ho.values())  # list of Ips
+    hosts = sorted(list(ho.values()))  # list of Ips
     host_dict = dict(zip(list(ho.values()), list(ho.keys())))  # {ip: hostname}
     # print('hosts: ', hosts)
     _client.loop_stop()
