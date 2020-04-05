@@ -692,7 +692,7 @@ def receive_offloaded_task_mec():  # run as a thread
             data, address = sock2.recvfrom(1024)
             if len(data.decode()) > 0:
                 da = data.decode().split(' ')
-                if (address[0] not in ip_set) and da[0] == node_id:  # send back to client
+                if (address[0] not in ip_set) and (da[0] == node_id):  # send back to client
                     # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
                     if da[1] in task_record:
                         task_record.remove(da[1])
@@ -700,7 +700,7 @@ def receive_offloaded_task_mec():  # run as a thread
                         _client.publish(da[1].split('.')[2], str({task_new: get_time()}), )
                         count_task_sent(da[1])
                         cooperate['mec'] += 1
-                elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
+                elif (address[0] not in ip_set) and (da[0] == 'ex') and (da[1] == node_id):
                     _received = ast.literal_eval(da[2] + da[3])
                     shared_resource_lock.acquire()
                     task = _received[0] + '*{}'.format(t_track)
