@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('TkAgg')
 from functools import reduce
 from sys import *
 import numpy as np
