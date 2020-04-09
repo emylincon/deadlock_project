@@ -771,7 +771,7 @@ def count_task_sent(task):
 
 
 def execute(local):
-    global outward_mec
+    global outward_mec, _loc
     print('\nExecuting :', local)
 
     for i in local:
@@ -786,6 +786,7 @@ def execute(local):
             # send_client({j: get_time()}, send_back_host)
             _client.publish(j.split('.')[2], str({j: get_time() + ['local']}), )
             count_task_sent(j)
+            _loc += 1
         else:
             print('else execute: ', j)
     print('============== EXECUTION DONE ===============')
@@ -1004,7 +1005,7 @@ def start_loop():
                         print('\nWaiting Time List: ', wait_list)
                         compare_result = compare_local_mec(wait_list)
                         print('\nExecute Locally: ', compare_result[1])
-                        _loc += len(compare_result[1])  # total number of tasks to be executed locally
+                        # _loc += len(compare_result[1])  # total number of tasks to be executed locally
                         print('\nExecute in MEC: ', compare_result[0])
 
                         if len(compare_result[0]) > 0:

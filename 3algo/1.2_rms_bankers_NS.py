@@ -871,11 +871,11 @@ def start_loop():
                         print('\nWaiting Time List: ', wait_list)
                         compare_result = compare_local_mec(wait_list)
                         print('\nExecute Locally: ', compare_result[1])
-                        _loc += len(compare_result[1])  # total number of tasks to be executed locally
+                        # _loc += len(compare_result[1])  # total number of tasks to be executed locally
                         print('\nExecute in MEC: ', compare_result[0])
 
-                        print('\nSending to cooperative platform')
                         if len(compare_result[0]) > 0:
+                            print('\nSending to cooperative platform')
                             cooperative_mec(compare_result[0])
                         execute(compare_result[1])
                         generate_results()
