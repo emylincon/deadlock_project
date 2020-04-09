@@ -128,7 +128,7 @@ def plot_performance():
              size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     plt.subplot(ax1)
-    d = [[timely_, ax2, 'Timely Details'], [untimely_, ax3], 'UnTimely Details']
+    d = [[timely_, ax2, 'Timely Details'], [untimely_, ax3, 'UnTimely Details']]
     for info in d:
         plot_details(ax=info[1], data=info[0], title=info[2])
     fig.suptitle('MEC Performance During Deadlock Experiment')
