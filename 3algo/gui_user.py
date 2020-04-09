@@ -161,10 +161,6 @@ def plot_details(ax, data, title):
     plt.subplot(ax)
 
 
-def plot_untimely_details():
-    pass
-
-
 def get_time():
     _time_ = dt.datetime.utcnow()
     return _time_
@@ -282,8 +278,10 @@ def on_receive_task(message_client, userdata, msg):
             p = float(str(t - k[1]).split(':')[-1])
             if p < k[0]:
                 tasks_executed_on_time += 1
+                timely_[a[7]] += 1
             else:
                 tasks_not_executed_on_time += 1
+                untimely_[a[7]] += 1
 
 
 def receive_mec_start():
