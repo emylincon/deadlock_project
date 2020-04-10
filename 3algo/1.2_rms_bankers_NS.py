@@ -672,6 +672,8 @@ def receive_offloaded_task_mec():    # run as a thread
                         _client.publish(da[1].split('.')[2], str({task_new: get_time()+['mec']}), )
                         count_task_sent(da[1])
                         cooperate['mec'] += 1
+                    else:
+                        print('*'*30 + f'\n{da[1]} Not in Task Record\n' + '*'*30)
                 elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
                     _received = ast.literal_eval(da[2] + da[3])
                     shared_resource_lock.acquire()
