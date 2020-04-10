@@ -631,9 +631,15 @@ def cooperative_mec(mec_list):
 
 
 outward_mec = 0
+offload_check = []
 def execute_re_offloaded_task(offloaded_task):
-    global outward_mec
+    global outward_mec, offload_check
     exec_list = get_exec_seq(offloaded_task[0])
+    if len(exec_list) != len(offloaded_task[0]):
+        print('\n\n', '@ ' * 50)
+        print('exec: ', exec_list, 'off: ', offloaded_task[0])
+        print('\n\n', '@ ' * 50)
+        offload_check.append((exec_list, offloaded_task[0]))
     outward_mec += len(exec_list)
     for i in exec_list:      # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
@@ -822,7 +828,8 @@ def save_and_abort():
              f"\ndeadlock{_id_}_3_{mec_no} = {deadlock} \nmemory{_id_}_3_{mec_no} = {memory}" \
              f"\ntask_received{_id_}_3_{mec_no} = {total_received_task} \nsent_t{_id_}_3_{mec_no} = {clients_record}" \
              f"\ncooperate{_id_}_3_{mec_no} = {cooperate} \ntask_record{_id_}_3_{mec_no} = {task_record}" \
-             f"\noutward_mec{_id_}_3_{mec_no} = {outward_mec}"
+             f"\noutward_mec{_id_}_3_{mec_no} = {outward_mec}" \
+             f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n"
     list_result = [
         f"\nwt{_id_}_3_{mec_no} = {mec_waiting_time} ",
         f"\nrtt{_id_}_3_{mec_no} = {mec_rtt} \ncpu{_id_}_3_{mec_no} = {_cpu} ",
@@ -833,6 +840,7 @@ def save_and_abort():
         f"\ntask_received{_id_}_3_{mec_no} = {total_received_task} \nsent_t{_id_}_3_{mec_no} = {clients_record}",
         f"\ncooperate{_id_}_3_{mec_no} = {cooperate} \ntask_record{_id_}_3_{mec_no} = {task_record} "
         f"\noutward_mec{_id_}_3_{mec_no} = {outward_mec}"
+        f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n"
     ]
     path_ = 'data/raw/'
     if os.path.exists(path_):
