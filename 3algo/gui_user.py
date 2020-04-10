@@ -242,8 +242,8 @@ def on_connect_task(connect_client, userdata, flags, rc):
     # Subscribe Topic from here
     connect_client.subscribe(task_topic, qos=0)
 
-timely_ = {'mec':0, 'cloud':0, 'local':0}
-untimely_ = {'mec':0, 'cloud':0, 'local':0}
+timely_ = {'local':0, 'mec':0, 'cloud':0}
+untimely_ = {'local':0, 'mec':0, 'cloud':0}
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_receive_task(message_client, userdata, msg):
     global tasks_executed_on_time
