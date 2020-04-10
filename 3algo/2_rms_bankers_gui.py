@@ -762,12 +762,12 @@ outward_mec = 0
 def execute_re_offloaded_task(offloaded_task):
     global outward_mec
     exec_list = get_exec_seq(offloaded_task[0])
+    outward_mec += len(exec_list)
     for i in exec_list:      # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j]/2)
         # print('j task: ', j)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
-        outward_mec += 1
 
 
 clients_record = {}
@@ -781,7 +781,6 @@ def count_task_sent(task):
 
 
 def execute(local):
-    global outward_mec
     print('\nExecuting :', local)
 
     for i in local:
@@ -826,7 +825,7 @@ def receive_offloaded_task_mec():    # run as a thread
                         cooperate['mec'] += 1
                     else:
                         print('*'*30 + f'\n{da[1]} Not in Task Record\n' + '*'*30)
-                elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
+                elif (address[0] not in ip_set) and (da[0] == 'ex') and (da[1] == node_id):
                     _received = ast.literal_eval(da[2] + da[3])
                     shared_resource_lock.acquire()
                     task = _received[0] + '*{}'.format(t_track)
@@ -862,8 +861,6 @@ def call_execute_re_offload():
                     reoffload_list[0].remove(i)
                     del reoffload_list[1][i]
                     shared_resource_lock.release()
-
-        time.sleep(1)
 
 
 def send_offloaded_task_mec(msg):
