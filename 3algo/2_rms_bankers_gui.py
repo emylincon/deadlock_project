@@ -759,7 +759,7 @@ def cooperative_mec(mec_list):
 
 
 outward_mec = 0
-offload_check = []
+offload_check = [0,0]
 def execute_re_offloaded_task(offloaded_task):
     global outward_mec, offload_check
     exec_list = get_exec_seq(offloaded_task[0])
@@ -844,6 +844,7 @@ def receive_offloaded_task_mec():    # run as a thread
 
 def call_execute_re_offload():
     global reoffload_list, outward_mec
+    global offload_check
 
     while True:
         if stop == 1:
@@ -858,9 +859,11 @@ def call_execute_re_offload():
                 del reoffload_list[1][t]
                 shared_resource_lock.release()
                 send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
+                offload_check[0] += 1
                 outward_mec += 1
             elif len(reoffload_list[0]) > 1:
                 o = reoffload_list.copy()
+                offload_check[1] += len(o)
                 execute_re_offloaded_task(o)
                 for i in o[0]:
                     shared_resource_lock.acquire()
