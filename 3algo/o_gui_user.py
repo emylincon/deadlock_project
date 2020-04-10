@@ -54,6 +54,8 @@ task_record = {}  # records tasks start time and finish time {seq_no:{task:[dura
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
+timely_ = {'local':0, 'mec':0, 'cloud':0}
+untimely_ = {'local':0, 'mec':0, 'cloud':0}
 filename = {2: 'rms+bankers',
             3: 'edf+bankers',
             7: 'rms+wound_wait',
@@ -62,7 +64,9 @@ filename = {2: 'rms+bankers',
             16: 'edf+wait_die'}
 
 fig = plt.figure()
-ax1 = fig.add_subplot(111)
+ax1 = fig.add_subplot(211)
+ax2 = fig.add_subplot(223)
+ax3 = fig.add_subplot(224)
 
 
 def auto_value(no):
@@ -99,7 +103,7 @@ def plot_performance():
     values = [tasks_executed_on_time, tasks_not_executed_on_time]
     ax1.set_xticks(ypos)
     ax1.set_xticklabels(name)
-    ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
+    ax1.bar(ypos, values, align='center', color=['g', 'm'], alpha=0.5)
     ax1.set_title('Task execution Time record')
     dis = 'Seq: {}\nTotal Tasks: {}\ntotal: {}'.format(seq, total, total_split_task)
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
@@ -112,7 +116,37 @@ def plot_performance():
              size=10, rotation=0,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     plt.subplot(ax1)
+    d = [[timely_, ax2, 'Timely Details'], [untimely_, ax3, 'UnTimely Details']]
+    for info in d:
+        plot_details(ax=info[1], data=info[0], title=info[2])
     fig.suptitle('MEC Performance During Deadlock Experiment')
+
+
+def plot_details(ax, data, title):
+    name = ['Local', 'MEC', 'Cloud']
+    ypos = ([0, 1, 2])
+    data_per = {}
+    total = 0
+    for i in data:
+        total += data[i]
+    for i in data:
+        if data[i] == 0:
+            data_per[i] = 0
+        else:
+            data_per[i] = round((data[i] / total) * 100, 2)
+
+    values = list(data.values())
+    ax.set_xticks(ypos)
+    ax.set_xticklabels(name)
+    ax.bar(ypos, values, align='center', color=['g', 'b', 'r'], alpha=0.5)
+    ax.set_title(title)
+    g = -0.1
+    for i in data:
+        ax.text(g, data[i], '{}, {}%'.format(data[i], data_per[i]), size=10, rotation=0,
+                ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
+        g += 1
+
+    plt.subplot(ax)
 
 
 def get_time():
@@ -179,13 +213,14 @@ def on_receive_task(message_client, userdata, msg):
     global tasks_not_executed_on_time
     # print the message received from the subscribed topic
     data = str(msg.payload, 'utf-8')
-    received_task = ast.literal_eval(data)
+    received_task = ast.literal_eval(data)      # {task_id: ['2020', '04', '09', '14', '38', '39', '627060', '<mec>']}
 
     for i in received_task:
-        tk = i.split('_')[0]
+        tk = '.'.join(i.split('.')[:4])
         # print('tk: {}'.format(tk))
-        k = task_record[int(tk.split('.')[-1])][tk]
-        if len(k) < 3:
+        seq_no = int(tk.split('.')[3])   # naming tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
+        k = task_record[seq_no][tk]     # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
+        if len(k) < 3:                 # check if i have received a task with the same id
             a = received_task[i]
             k.append(dt.datetime(int(a[0]), int(a[1]),
                                  int(a[2]), int(a[3]),
@@ -194,8 +229,10 @@ def on_receive_task(message_client, userdata, msg):
             p = float(str(k[2] - k[1]).split(':')[-1])
             if p < k[0]:
                 tasks_executed_on_time += 1
+                timely_[a[7]] += 1
             else:
                 tasks_not_executed_on_time += 1
+                untimely_[a[7]] += 1
         elif len(k) == 3:
             a = received_task[i]
             t = dt.datetime(int(a[0]), int(a[1]),
@@ -205,8 +242,10 @@ def on_receive_task(message_client, userdata, msg):
             p = float(str(t - k[1]).split(':')[-1])
             if p < k[0]:
                 tasks_executed_on_time += 1
+                timely_[a[7]] += 1
             else:
                 tasks_not_executed_on_time += 1
+                untimely_[a[7]] += 1
 
 
 def receive_mec_start():
@@ -308,19 +347,23 @@ def namestr(obj):
 
 
 def save_data():
-    result = f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
+    result = f"\ntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
              f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
              f"\n{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}" \
              f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = " \
              f"{total_split_task} " \
-             f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
+             f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}" \
+             f"\n{namestr(untimely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {untimely_}" \
+             f"\n{namestr(timely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {timely_}"
     list_result = [
-        f"timely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} ",
+        f"\ntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} ",
         f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}",
         f"\n{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}"
         f"\n{namestr(total_split_task)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = "
         f"{total_split_task} "
-        f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}"
+        f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}",
+        f"\n{namestr(timely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {timely_}",
+        f"\n{namestr(untimely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {untimely_}"
     ]
     path_ = 'data/raw/'
     if os.path.exists(path_):

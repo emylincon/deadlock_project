@@ -68,6 +68,8 @@ task_record = {}  # records tasks start time and finish time {seq_no:{task:[dura
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
+timely_ = {'local':0, 'mec':0, 'cloud':0}
+untimely_ = {'local':0, 'mec':0, 'cloud':0}
 filename = {2: 'rms+bankers',
             3: 'edf+bankers',
             7: 'rms+wound_wait',
@@ -115,7 +117,7 @@ def plot_performance():
     values = [tasks_executed_on_time, tasks_not_executed_on_time]
     ax1.set_xticks(ypos)
     ax1.set_xticklabels(name)
-    ax1.bar(ypos, values, align='center', color='m', alpha=0.5)
+    ax1.bar(ypos, values, align='center', color=['g', 'm'], alpha=0.5)
     ax1.set_title('Task execution Time record')
     dis = 'Seq: {}\nTotal Tasks: {}\ntotal: {}'.format(seq, total, total_split_task)
     # ax1.annotate(dis, xy=(2, 1), xytext=(3, 1.5))
@@ -242,8 +244,7 @@ def on_connect_task(connect_client, userdata, flags, rc):
     # Subscribe Topic from here
     connect_client.subscribe(task_topic, qos=0)
 
-timely_ = {'local':0, 'mec':0, 'cloud':0}
-untimely_ = {'local':0, 'mec':0, 'cloud':0}
+
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_receive_task(message_client, userdata, msg):
     global tasks_executed_on_time
@@ -253,10 +254,11 @@ def on_receive_task(message_client, userdata, msg):
     received_task = ast.literal_eval(data)      # {task_id: ['2020', '04', '09', '14', '38', '39', '627060', '<mec>']}
 
     for i in received_task:
-        tk = i.split('_')[0]
+        tk = '.'.join(i.split('.')[:4])
         # print('tk: {}'.format(tk))
-        k = task_record[int(tk.split('.')[-1])][tk]
-        if len(k) < 3:
+        seq_no = int(tk.split('.')[3])   # naming tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
+        k = task_record[seq_no][tk]     # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
+        if len(k) < 3:                 # check if i have received a task with the same id
             a = received_task[i]
             k.append(dt.datetime(int(a[0]), int(a[1]),
                                  int(a[2]), int(a[3]),
