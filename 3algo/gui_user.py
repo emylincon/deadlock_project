@@ -244,7 +244,8 @@ def on_connect_task(connect_client, userdata, flags, rc):
     # Subscribe Topic from here
     connect_client.subscribe(task_topic, qos=0)
 
-
+u_time = []
+t_time = []
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_receive_task(message_client, userdata, msg):
     global tasks_executed_on_time
@@ -258,34 +259,36 @@ def on_receive_task(message_client, userdata, msg):
         # print('tk: {}'.format(tk))
         seq_no = int(tk.split('.')[3])   # naming tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
         k = task_record[seq_no][tk]     # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
-        # if len(k) < 3:                 # check if i have received a task with the same id
-        #     a = received_task[i]
-        #     k.append(dt.datetime(int(a[0]), int(a[1]),
-        #                          int(a[2]), int(a[3]),
-        #                          int(a[4]), int(a[5]),
-        #                          int(a[6])))
-        #     p = float(str(k[2] - k[1]).split(':')[-1])
-        #     if p < k[0]:
-        #         tasks_executed_on_time += 1
-        #         timely_[a[7]] += 1
-        #     else:
-        #         tasks_not_executed_on_time += 1
-        #         untimely_[a[7]] += 1
-        # elif len(k) == 3:
-        a = received_task[i]
-
-        t = dt.datetime(int(a[0]), int(a[1]),
-                        int(a[2]), int(a[3]),
-                        int(a[4]), int(a[5]),
-                        int(a[6]))
-        k.append(t)
-        p = float(str(t - k[1]).split(':')[-1])
-        if p < k[0]:
-            tasks_executed_on_time += 1
-            timely_[a[7]] += 1
-        else:
-            tasks_not_executed_on_time += 1
-            untimely_[a[7]] += 1
+        if len(k) < 3:                 # check if i have received a task with the same id
+            a = received_task[i]
+            k.append(dt.datetime(int(a[0]), int(a[1]),
+                                 int(a[2]), int(a[3]),
+                                 int(a[4]), int(a[5]),
+                                 int(a[6])))
+            p = float(str(k[2] - k[1]).split(':')[-1])
+            if p < k[0]:
+                tasks_executed_on_time += 1
+                timely_[a[7]] += 1
+                t_time.append(p)
+            else:
+                tasks_not_executed_on_time += 1
+                untimely_[a[7]] += 1
+                u_time.append(p)
+        elif len(k) == 3:
+            a = received_task[i]
+            t = dt.datetime(int(a[0]), int(a[1]),
+                            int(a[2]), int(a[3]),
+                            int(a[4]), int(a[5]),
+                            int(a[6]))
+            p = float(str(t - k[1]).split(':')[-1])
+            if p < k[0]:
+                tasks_executed_on_time += 1
+                timely_[a[7]] += 1
+                t_time.append(p)
+            else:
+                tasks_not_executed_on_time += 1
+                untimely_[a[7]] += 1
+                u_time.append(p)
 
 
 def receive_mec_start():
@@ -399,8 +402,7 @@ def split_list(data, _id_):
 
 
 def save_data():
-    result = f"\ntask_record{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_record}" \
-             f"\ntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
+    result = f"\ntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} " \
              f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}" \
              f"\nrecord{len(hosts)} = {record} \nhost_names{len(hosts)} = {host_dict}" \
              f"\n{namestr(total_task_sent)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {total_task_sent}" \
@@ -408,9 +410,10 @@ def save_data():
              f"{total_split_task} " \
              f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}\n" \
              f"\n{namestr(untimely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {untimely_}" \
-             f"\n{namestr(timely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {timely_}"
+             f"\n{namestr(timely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {timely_}" \
+             f"\nu_time{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {u_time}" \
+             f"\nt_time{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {t_time}"
     list_result = [
-        f"\n\ntask_record{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_record}",
         f"\ntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_executed_on_time} ",
         f"\nuntimely{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {tasks_not_executed_on_time}",
         f"\nrecord{len(hosts)} = {record} ",
@@ -420,7 +423,9 @@ def save_data():
         f"{total_split_task} "
         f"\n{namestr(task_dist)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {task_dist}\n",
         f"\n{namestr(timely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {timely_}",
-        f"\n{namestr(untimely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {untimely_}"
+        f"\n{namestr(untimely_)[0]}{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {untimely_}",
+        f"\nu_time{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {u_time}",
+        f"\nt_time{get_hostname()[-1]}_{algo_id}_{len(hosts)} = {t_time}"
     ]
     path_ = 'data/raw/'
     if os.path.exists(path_):
