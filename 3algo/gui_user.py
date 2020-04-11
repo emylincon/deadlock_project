@@ -16,7 +16,7 @@ from drawnow import *
 import smtplib
 import config
 import paramiko
-import homo_dist as dst
+import new_distribution as dst
 
 port = 65000  # The port used by the server
 
