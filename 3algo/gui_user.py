@@ -244,8 +244,8 @@ def on_connect_task(connect_client, userdata, flags, rc):
     # Subscribe Topic from here
     connect_client.subscribe(task_topic, qos=0)
 
-u_time = []
-t_time = []
+u_time = {'local': [], 'mec': [], 'cloud': []}
+t_time = {'local': [], 'mec': [], 'cloud': []}
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_receive_task(message_client, userdata, msg):
     global tasks_executed_on_time
@@ -265,30 +265,30 @@ def on_receive_task(message_client, userdata, msg):
                                  int(a[2]), int(a[3]),
                                  int(a[4]), int(a[5]),
                                  int(a[6])))
-            p = float(str(k[2] - k[1]).split(':')[-1])
+            p = k[2] - k[1]
             if p < k[0]:
                 tasks_executed_on_time += 1
                 timely_[a[7]] += 1
-                t_time.append(p)
+                t_time[a[7]].append(p.seconds + p.microseconds * (10 ** -6))
             else:
                 tasks_not_executed_on_time += 1
                 untimely_[a[7]] += 1
-                u_time.append(p)
+                u_time[a[7]].append(p.seconds + p.microseconds * (10 ** -6))
         elif len(k) == 3:
             a = received_task[i]
             t = dt.datetime(int(a[0]), int(a[1]),
                             int(a[2]), int(a[3]),
                             int(a[4]), int(a[5]),
                             int(a[6]))
-            p = float(str(t - k[1]).split(':')[-1])
+            p = t - k[1]
             if p < k[0]:
                 tasks_executed_on_time += 1
                 timely_[a[7]] += 1
-                t_time.append(p)
+                t_time[a[7]].append(p.seconds + p.microseconds*(10**-6))
             else:
                 tasks_not_executed_on_time += 1
                 untimely_[a[7]] += 1
-                u_time.append(p)
+                u_time[a[7]].append(p.seconds + p.microseconds*(10**-6))
 
 
 def receive_mec_start():
@@ -494,10 +494,11 @@ def main():
                     task_details(_tasks_list[0])
                     record.append([_tasks_list, host_dict[rand_host]])
                     for task in _tasks_list[0]:
+                        sec = dt.timedelta(seconds=_task_[1][task[:2]][1])
                         if i not in task_record:  # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
-                            task_record[i] = {task: [_task_[1][task[:2]][1], get_time()]}
+                            task_record[i] = {task: [sec, get_time()]}
                         else:
-                            task_record[i][task] = [_task_[1][task[:2]][1], get_time()]
+                            task_record[i][task] = [sec, get_time()]
                     # client(_tasks_list, rand_host)
                     task_client.publish(client_id(rand_host), "t {}".format(_tasks_list))
                     print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
