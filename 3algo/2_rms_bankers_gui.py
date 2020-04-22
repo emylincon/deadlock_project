@@ -320,8 +320,10 @@ def host_ip_set():
 
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
-
-    return round(rtt, 4)
+    if rtt:
+        return round(rtt, 4)
+    else:
+        return get_rtt(host)
 
 
 def get_time():

@@ -178,8 +178,10 @@ def get_time():
 
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
-
-    return round(rtt, 4)
+    if rtt:
+        return round(rtt, 4)
+    else:
+        return get_rtt(host)
 
 
 def gcd(a, b):
