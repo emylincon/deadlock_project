@@ -615,12 +615,15 @@ def compare_local_mec(list_seq):
     execute_mec = []
     execute_locally = []
     diff = time.time() - received_time.pop(0)
+    checking_times = {}
     for i in list_seq:
         t_time[i.split('_')[0]][1]-=diff
         if t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
+            checking_times[i] = {'Latency': t_time[i.split('_')[0]][1], 'Expected_exec_time': list_seq[i]}
+    print('Execution time comparison:= ', checking_times)
     return execute_mec, execute_locally
 
 
