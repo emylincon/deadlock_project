@@ -622,13 +622,13 @@ offload_check = [0, 0]
 def execute_re_offloaded_task(offloaded_task):
     global outward_mec, offload_check
     exec_list = get_exec_seq(offloaded_task[0])
-    if len(exec_list) != len(offloaded_task[0]):
-        print('\n\n', '@ ' * 50)
-        print('exec: ', exec_list, 'off: ', offloaded_task[0])
-        print('\n\n', '@ ' * 50)
-        offload_check.append((exec_list, offloaded_task[0]))
+    # if len(exec_list) != len(offloaded_task[0]):
+    #     print('\n\n', '@ ' * 50)
+    #     print('exec: ', exec_list, 'off: ', offloaded_task[0])
+    #     print('\n\n', '@ ' * 50)
+    #     offload_check.append((exec_list, offloaded_task[0]))
     outward_mec += len(exec_list)
-    for i in exec_list:  # i = 't1.1.2.3*1_3'
+    for i in offloaded_task[0]:  # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
         time.sleep(offloaded_task[1][j] / 2)
         # print('j task: ', j)
