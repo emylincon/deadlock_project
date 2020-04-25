@@ -618,7 +618,9 @@ def compare_local_mec(list_seq):
     checking_times = {}
     for i in list_seq:
         t_time[i.split('_')[0]][1]-=diff
-        if t_time[i.split('_')[0]][1] > list_seq[i]:
+        if t_time[i.split('_')[0]][1] < 0:
+            _client.publish(i.split('_')[0].split('.')[2], str({i.split('_')[0]: get_time() + ['local']}), )
+        elif t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
@@ -1020,7 +1022,7 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(.5)
+                    time.sleep(.4)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=4):
