@@ -227,6 +227,10 @@ def plot_wait_time():
         ptx = d[0:len(d):int((len(d) / 7)) + 1]
         if ptx[-1] != d[-1]:
             ptx.append(d[-1])
+        if len(ptx) > len(pt):
+            ptx=ptx[:-1]
+        elif len(ptx) < len(pt):
+            pt=pt[:-1]
         ax1.plot(ptx,
                  pt,
                  **style1[list(hosts.values()).index(i)],
@@ -257,6 +261,10 @@ def plot_rtts():
         ptx = d[0:len(d):int((len(d) / 7)) + 1]
         if ptx[-1] != d[-1]:
             ptx.append(d[-1])
+        if len(ptx) > len(pt):
+            ptx=ptx[:-1]
+        elif len(ptx) < len(pt):
+            pt=pt[:-1]
         ax3.plot(ptx,
                  pt,
                  **style1[list(hosts.values()).index(i)],
