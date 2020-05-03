@@ -532,6 +532,9 @@ def receive_message():  # used for multi-cast message exchange among MEC
             elif (_d[:6] == 'update') and (discovering == 0):
                 hosts = ast.literal_eval(_d[7:])
                 # print('received: ', hosts)
+                for i in hosts:
+                    if i != host_ip:
+                        mec_rtt[i] = []
 
             elif _d[:2] == 'wt':
 

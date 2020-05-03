@@ -223,7 +223,10 @@ def plot_wait_time():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        d = list(range(len(mv)))
+        ptx = d[0:len(d):int((len(d) / 7)) + 1]
+        if ptx[-1] != d[-1]:
+            ptx.append(d[-1])
         ax1.plot(ptx,
                  pt,
                  **style1[list(hosts.values()).index(i)],
@@ -250,7 +253,10 @@ def plot_rtts():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        d = list(range(len(mv)))
+        ptx = d[0:len(d):int((len(d) / 7)) + 1]
+        if ptx[-1] != d[-1]:
+            ptx.append(d[-1])
         ax3.plot(ptx,
                  pt,
                  **style1[list(hosts.values()).index(i)],
@@ -258,7 +264,7 @@ def plot_rtts():
                  linewidth=2,
                  label=i)
     ax3.set_title('RTT Utilization over Time')
-    # ax3.set_ylabel('Moving RTT')
+    ax3.set_ylabel('Moving RTT')
     # ax3.set_xlabel('Time (seconds)')
     ax3.legend()
     plt.subplot(ax3)
@@ -691,6 +697,9 @@ def receive_message():
 
             elif (data.decode()[:6] == 'update') and (discovering == 0):
                 hosts = ast.literal_eval(data.decode()[7:])
+                for i in hosts:
+                    if i != host_ip:
+                        mec_rtt[i] = []
 
             elif _d[:2] == 'wt':
                 split_data = _d.split()

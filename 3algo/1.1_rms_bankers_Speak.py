@@ -568,6 +568,9 @@ def receive_message():
             elif (_d[:6] == 'update') and (discovering == 0):
                 hosts = ast.literal_eval(_d[7:])
                 # print('received: ', hosts)
+                for i in hosts:
+                    if i != host_ip:
+                        mec_rtt[i] = []
 
             elif _d[:2] == 'wt':
                 split_data = _d.split()
