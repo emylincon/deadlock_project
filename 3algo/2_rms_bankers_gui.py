@@ -54,6 +54,10 @@ test = []
 _time = []
 color_code = ['orange', 'brown', 'purple', 'pink', 'blue']
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c-.s']
+# 'grey', 'pink', 'brown', 'purple', 'orange', 'burlywood', 'lime', 'navy', 'aqua', 'teal', 'fuchsia', 'olive', 'maroon'
+style1 = [{'color': 'g', 'marker': '^'}, {'color': 'm', 'marker': '*'}, {'color': 'purple', 'marker': 'X'},
+          {'color': 'r', 'marker': 'v'}, {'color': 'k', 'marker': '>'}, {'color': 'brown', 'marker': 'D'},
+          {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'},]
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
@@ -222,7 +226,8 @@ def plot_wait_time():
         ptx = [mv.index(i) for i in pt]
         ax1.plot(ptx,
                  pt,
-                 style[list(hosts.values()).index(i)],
+                 **style1[list(hosts.values()).index(i)],
+                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
     ax1.set_title('Waiting Time Queue')
@@ -248,7 +253,8 @@ def plot_rtts():
         ptx = [mv.index(i) for i in pt]
         ax3.plot(ptx,
                  pt,
-                 style[list(hosts.values()).index(i)],
+                 **style1[list(hosts.values()).index(i)],
+                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
     ax3.set_title('RTT Utilization over Time')
