@@ -55,7 +55,7 @@ _time = []
 color_code = ['orange', 'brown', 'purple', 'pink', 'blue']
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c-.s']
 # 'grey', 'pink', 'brown', 'purple', 'orange', 'burlywood', 'lime', 'navy', 'aqua', 'teal', 'fuchsia', 'olive', 'maroon'
-style1 = [{'color': 'g', 'marker': '^'}, {'color': 'm', 'marker': '*'}, {'color': 'purple', 'marker': 'X'},
+style1 = [{'color': 'g', 'marker': '^'}, {'color': 'aqua', 'marker': '*'}, {'color': 'purple', 'marker': 'X'},
           {'color': 'r', 'marker': 'v'}, {'color': 'k', 'marker': '>'}, {'color': 'brown', 'marker': 'D'},
           {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'},]
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
