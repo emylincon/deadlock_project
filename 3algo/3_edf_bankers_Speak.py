@@ -178,8 +178,10 @@ def get_time():
 
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
-
-    return round(rtt, 4)
+    if rtt:
+        return round(rtt, 4)
+    else:
+        return get_rtt(host)
 
 
 def gcd(a, b):
@@ -446,17 +448,24 @@ def calc_wait_time(list_seq):
     return time_dic
 
 
+timed_out_tasks  = 0
 def compare_local_mec(list_seq):
-    global received_time
+    global received_time, timed_out_tasks
     execute_mec = []
     execute_locally = []
     diff = time.time() - received_time.pop(0)
+    checking_times = {}
     for i in list_seq:
-        t_time[i.split('_')[0]][1] -= diff
-        if t_time[i.split('_')[0]][1] > list_seq[i]:
+        t_time[i.split('_')[0]][1]-=diff
+        if t_time[i.split('_')[0]][1] < 0:
+            _client.publish(i.split('_')[0].split('.')[2], str({i.split('_')[0]: get_time() + ['local']}), )
+            timed_out_tasks += 1
+        elif t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
+            checking_times[i] = {'Latency': t_time[i.split('_')[0]][1], 'Expected_exec_time': list_seq[i]}
+    print('Execution time comparison:= ', checking_times)
     return execute_mec, execute_locally
 
 
@@ -545,6 +554,9 @@ def receive_message():
             elif (_d[:6] == 'update') and (discovering == 0):
                 hosts = ast.literal_eval(_d[7:])
                 # print('received: ', hosts)
+                for i in hosts:
+                    if i != host_ip:
+                        mec_rtt[i] = []
 
             elif _d[:2] == 'wt':
                 split_data = _d.split()
@@ -829,7 +841,8 @@ def save_and_abort():
              f"\ntask_received{_id_}_3_{mec_no} = {total_received_task} \nsent_t{_id_}_3_{mec_no} = {clients_record}" \
              f"\ncooperate{_id_}_3_{mec_no} = {cooperate} \ntask_record{_id_}_3_{mec_no} = {task_record}" \
              f"\noutward_mec{_id_}_3_{mec_no} = {outward_mec}" \
-             f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n"
+             f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n" \
+             f"\ntimed_out_tasks{_id_}_3_{mec_no} = {timed_out_tasks}\n"
     list_result = [
         f"\nwt{_id_}_3_{mec_no} = {mec_waiting_time} ",
         f"\nrtt{_id_}_3_{mec_no} = {mec_rtt} \ncpu{_id_}_3_{mec_no} = {_cpu} ",
@@ -840,7 +853,8 @@ def save_and_abort():
         f"\ntask_received{_id_}_3_{mec_no} = {total_received_task} \nsent_t{_id_}_3_{mec_no} = {clients_record}",
         f"\ncooperate{_id_}_3_{mec_no} = {cooperate} \ntask_record{_id_}_3_{mec_no} = {task_record} "
         f"\noutward_mec{_id_}_3_{mec_no} = {outward_mec}"
-        f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n"
+        f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n",
+        f"\ntimed_out_tasks{_id_}_3_{mec_no} = {timed_out_tasks}"
     ]
     path_ = 'data/raw/'
     if os.path.exists(path_):
@@ -931,7 +945,7 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(1)
+                    time.sleep(0.4)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=4):

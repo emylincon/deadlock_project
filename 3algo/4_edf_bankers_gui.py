@@ -54,6 +54,9 @@ test = []
 _time = []
 color_code = ['orange', 'brown', 'purple', 'pink', 'blue']
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c-.s']
+style1 = [{'color': 'g', 'marker': '^'}, {'color': 'aqua', 'marker': '*'}, {'color': 'purple', 'marker': 'X'},
+          {'color': 'r', 'marker': 'v'}, {'color': 'k', 'marker': '>'}, {'color': 'brown', 'marker': 'D'},
+          {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'},]
 mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
 
 offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
@@ -221,10 +224,18 @@ def plot_wait_time():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        d = list(range(len(mv)))
+        ptx = d[0:len(d):int((len(d) / 7)) + 1]
+        if ptx[-1] != d[-1]:
+            ptx.append(d[-1])
+        if len(ptx) > len(pt):
+            ptx=ptx[:-1]
+        elif len(ptx) < len(pt):
+            pt=pt[:-1]
         ax1.plot(ptx,
                  pt,
-                 style[list(hosts.values()).index(i)],
+                 **style1[list(hosts.values()).index(i)],
+                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
     ax1.set_title('Waiting Time Queue')
@@ -247,14 +258,22 @@ def plot_rtts():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        d = list(range(len(mv)))
+        ptx = d[0:len(d):int((len(d) / 7)) + 1]
+        if ptx[-1] != d[-1]:
+            ptx.append(d[-1])
+        if len(ptx) > len(pt):
+            ptx=ptx[:-1]
+        elif len(ptx) < len(pt):
+            pt=pt[:-1]
         ax3.plot(ptx,
                  pt,
-                 style[list(hosts.values()).index(i)],
+                 **style1[list(hosts.values()).index(i)],
+                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
     ax3.set_title('RTT Utilization over Time')
-    # ax3.set_ylabel('Moving RTT')
+    ax3.set_ylabel('Moving RTT')
     # ax3.set_xlabel('Time (seconds)')
     ax3.legend()
     plt.subplot(ax3)
@@ -322,8 +341,11 @@ def host_ip_set():
 
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
+    if rtt:
+        return round(rtt, 4)
+    else:
+        return get_rtt(host)
 
-    return round(rtt, 4)
 
 
 def get_time():
@@ -595,17 +617,24 @@ def calc_wait_time(list_seq):
     return time_dic
 
 
+timed_out_tasks  = 0
 def compare_local_mec(list_seq):
-    global received_time
+    global received_time, timed_out_tasks
     execute_mec = []
     execute_locally = []
     diff = time.time() - received_time.pop(0)
+    checking_times = {}
     for i in list_seq:
-        t_time[i.split('_')[0]][1] -= diff
-        if t_time[i.split('_')[0]][1] > list_seq[i]:
+        t_time[i.split('_')[0]][1]-=diff
+        if t_time[i.split('_')[0]][1] < 0:
+            _client.publish(i.split('_')[0].split('.')[2], str({i.split('_')[0]: get_time() + ['local']}), )
+            timed_out_tasks += 1
+        elif t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
+            checking_times[i] = {'Latency': t_time[i.split('_')[0]][1], 'Expected_exec_time': list_seq[i]}
+    print('Execution time comparison:= ', checking_times)
     return execute_mec, execute_locally
 
 
@@ -665,6 +694,9 @@ def receive_message():
 
             elif (data.decode()[:6] == 'update') and (discovering == 0):
                 hosts = ast.literal_eval(data.decode()[7:])
+                for i in hosts:
+                    if i != host_ip:
+                        mec_rtt[i] = []
 
             elif _d[:2] == 'wt':
                 split_data = _d.split()
@@ -899,7 +931,8 @@ def save_and_abort():
              f"\ntask_received{_id_}_3_{mec_no} = {total_received_task} \nsent_t{_id_}_3_{mec_no} = {clients_record}" \
              f"\ncooperate{_id_}_3_{mec_no} = {cooperate} \ntask_record{_id_}_3_{mec_no} = {task_record}" \
              f"\noutward_mec{_id_}_3_{mec_no} = {outward_mec}" \
-             f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n"
+             f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n" \
+             f"\ntimed_out_tasks{_id_}_3_{mec_no} = {timed_out_tasks}\n"
     list_result = [
         f"\nwt{_id_}_3_{mec_no} = {mec_waiting_time} ",
         f"\nrtt{_id_}_3_{mec_no} = {mec_rtt} \ncpu{_id_}_3_{mec_no} = {_cpu} ",
@@ -910,7 +943,8 @@ def save_and_abort():
         f"\ntask_received{_id_}_3_{mec_no} = {total_received_task} \nsent_t{_id_}_3_{mec_no} = {clients_record}",
         f"\ncooperate{_id_}_3_{mec_no} = {cooperate} \ntask_record{_id_}_3_{mec_no} = {task_record} ",
         f"\noutward_mec{_id_}_3_{mec_no} = {outward_mec}",
-        f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n"
+        f"\noffload_check{_id_}_3_{mec_no} = {offload_check}\n",
+        f"\ntimed_out_tasks{_id_}_3_{mec_no} = {timed_out_tasks}"
     ]
     cmd = f"echo '' > /home/mec/result/linux/{_id_}_3_{mec_no}datal.py"
     os.system(cmd)
@@ -1024,7 +1058,7 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(1)
+                    time.sleep(0.4)
                     now = dt.datetime.now()
                     delta = now - _time_
                     if delta > dt.timedelta(minutes=4):
