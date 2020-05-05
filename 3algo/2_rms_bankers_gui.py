@@ -630,8 +630,9 @@ def calc_wait_time(list_seq):
     return time_dic
 
 
+timed_out_tasks  = 0
 def compare_local_mec(list_seq):
-    global received_time
+    global received_time, timed_out_tasks
     execute_mec = []
     execute_locally = []
     diff = time.time() - received_time.pop(0)
@@ -640,6 +641,7 @@ def compare_local_mec(list_seq):
         t_time[i.split('_')[0]][1]-=diff
         if t_time[i.split('_')[0]][1] < 0:
             _client.publish(i.split('_')[0].split('.')[2], str({i.split('_')[0]: get_time() + ['local']}), )
+            timed_out_tasks += 1
         elif t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
@@ -965,7 +967,8 @@ def save_and_email():
              f"\ntask_received{_id_}_2_{mec_no} = {total_received_task} \nsent_t{_id_}_2_{mec_no} = {clients_record}" \
              f"\ncooperate{_id_}_2_{mec_no} = {cooperate} \ntask_record{_id_}_2_{mec_no} = {task_record}" \
              f"\noutward_mec{_id_}_2_{mec_no} = {outward_mec}" \
-             f"\noffload_check{_id_}_2_{mec_no} = {offload_check}"
+             f"\noffload_check{_id_}_2_{mec_no} = {offload_check}" \
+             f"\ntimed_out_tasks{_id_}_2_{mec_no} = {timed_out_tasks}\n"
     list_result = [
         f"\nwt{_id_}_2_{mec_no} = {mec_waiting_time} ",
         f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
@@ -977,6 +980,7 @@ def save_and_email():
         f"\ncooperate{_id_}_2_{mec_no} = {cooperate} \ntask_record{_id_}_2_{mec_no} = {task_record} "
         f"\noutward_mec{_id_}_2_{mec_no} = {outward_mec}",
         f"\noffload_check{_id_}_2_{mec_no} = {offload_check}"
+        f"\ntimed_out_tasks{_id_}_2_{mec_no} = {timed_out_tasks}"
     ]
     cmd = f"echo '' > /home/mec/result/linux/{_id_}_2_{mec_no}datal.py"
     os.system(cmd)
