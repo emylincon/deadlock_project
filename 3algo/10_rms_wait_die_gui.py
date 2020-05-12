@@ -221,10 +221,18 @@ def plot_wait_time():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        d = list(range(len(mv)))
+        ptx = d[0:len(d):int((len(d) / 7)) + 1]
+        if ptx[-1] != d[-1]:
+            ptx.append(d[-1])
+        if len(ptx) > len(pt):
+            ptx=ptx[:-1]
+        elif len(ptx) < len(pt):
+            pt=pt[:-1]
         ax1.plot(ptx,
                  pt,
-                 style[list(hosts.values()).index(i)],
+                 **style1[list(hosts.values()).index(i)],
+                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
     ax1.set_title('Waiting Time Queue')
@@ -247,14 +255,22 @@ def plot_rtts():
         pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
         if pt[-1] != mv[-1]:
             pt.append(mv[-1])
-        ptx = [mv.index(i) for i in pt]
+        d = list(range(len(mv)))
+        ptx = d[0:len(d):int((len(d) / 7)) + 1]
+        if ptx[-1] != d[-1]:
+            ptx.append(d[-1])
+        if len(ptx) > len(pt):
+            ptx=ptx[:-1]
+        elif len(ptx) < len(pt):
+            pt=pt[:-1]
         ax3.plot(ptx,
                  pt,
-                 style[list(hosts.values()).index(i)],
+                 **style1[list(hosts.values()).index(i)],
+                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
     ax3.set_title('RTT Utilization over Time')
-    # ax3.set_ylabel('Moving RTT')
+    ax3.set_ylabel('Moving RTT')
     # ax3.set_xlabel('Time (seconds)')
     ax3.legend()
     plt.subplot(ax3)
