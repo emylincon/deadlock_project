@@ -456,7 +456,7 @@ def calc_wait_time(list_seq):
     return time_dic
 
 
-timed_out_tasks  = 0
+timed_out_tasks = 0
 def compare_local_mec(list_seq):
     global received_time, timed_out_tasks
     execute_mec = []
