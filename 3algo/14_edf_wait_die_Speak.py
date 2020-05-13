@@ -75,6 +75,9 @@ cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded t
 cloud_port = 63000
 stop = 0
 t_track = 1
+received_time = []
+task_record = {}     # keeps record of task reoffloaded
+task_id = 0          # id for each task reoffloaded
 shared_resource_lock = threading.Lock()
 
 
@@ -176,8 +179,10 @@ def get_time():
 
 def get_rtt(host):
     rtt = pc.verbose_ping(host)
-
-    return round(rtt, 4)
+    if rtt:
+        return round(rtt, 4)
+    else:
+        return get_rtt(host)
 
 
 def gcd(a, b):
@@ -208,15 +213,20 @@ def on_connect(connect_client, userdata, flags, rc):
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
     data = str(msg.payload, 'utf-8')
-    if data[0] == 'c':       # receive from cloud
-        data = data[2:]
-        received_task = ast.literal_eval(data)
+    if data[0] == 'c':  # receive from cloud
+        received_task = data[2:]
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
-        _client.publish(received_task.split('.')[2], str({received_task: get_time()}))
+        if received_task in task_record:
+            del task_record[received_task]
+            received_task = '.'.join(received_task.split('.')[:-1])
+            _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()+['cloud']}), )
+            cooperate['cloud'] += 1
+            count_task_sent(received_task)
 
-    elif data[0] == 't':     # receive from client
+    elif data[0] == 't':  # receive from client
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
+        received_time.append(time.time())
     '''
     else:
         print('data: ', data)
@@ -246,7 +256,27 @@ def connect_to_broker():
     _client.loop_forever()
 
 
+
+def task_time_map(seq, process):
+    exe_seq = []
+    capacity_sum = 0
+    for job in process:
+        capacity_sum += process[job]['wcet']
+    while capacity_sum > 0:
+        for job in seq:
+            if process[job]['wcet'] > 0:
+                exe_seq.append(job)
+                process[job]['wcet'] -= 1
+                capacity_sum -= 1
+
+    return exe_seq
+
+
+total_received_task = 0
+
+
 def edf():
+    global total_received_task
     t_lcm = lcm([tasks[i]['period'] for i in tasks])
 
     t_dead = {i: tasks[i]['deadline'] for i in tasks}
@@ -285,13 +315,14 @@ def edf():
                 print('Deadline missed: ', i)
                 missed.append(i[0])
 
-    # print('s (task, execution_time): ', schedule)
+    # print('s : ', schedule)
     # print('r: ', register)
     if len(missed) > 0:
-        print('missed deadline: ', missed)
+        # print('missed deadline: ', missed)
         cooperative_mec(missed)
-
-    return schedule
+    _edf_ = task_time_map(schedule, tasks)
+    total_received_task += len(_edf_)
+    return _edf_
 
 
 # generate execution sequence
@@ -446,9 +477,10 @@ def send_message(mg):
             print('\nHello message sent')
         elif mg == 'update':
             ho = hosts.copy()
-            ho[get_hostname()] = host_ip
+            ho['speaker'] = host_ip
             smg = mg + ' ' + str(ho)
             sock1.sendto(str.encode(smg), _multicast_group)
+            send_message('client')
             # print('\n===**====**==update message sent===**======**=========')
         elif mg == 'client':
             ho = hosts.copy()
@@ -488,6 +520,9 @@ def receive_message():
             elif (_d[:6] == 'update') and (discovering == 0):
                 hosts = ast.literal_eval(_d[7:])
                 # print('received: ', hosts)
+                for i in hosts:
+                    if i != host_ip:
+                        mec_rtt[i] = []
 
             elif _d[:2] == 'wt':
                 split_data = _d.split()
@@ -513,15 +548,20 @@ def mec_comparison():
     return min_wt
 
 
+
 def cooperative_mec(mec_list):
     global _off_cloud
     global _off_mec
+    global task_id, task_record
 
     for i in mec_list:
         _host = mec_comparison()
         if _host == 0:
             # send_cloud([i.split('_')[0], t_time[i.split('_')[0]][0]])  # [task_id,exec_time]
-            _client.publish(cloud_ip, str([i.split('_')[0], t_time[i.split('_')[0]][0]]))
+            _send_task = f"{i.split('_')[0]}.{task_id}"
+            _client.publish(cloud_ip, str([_send_task, t_time[i.split('_')[0]][0]]), )
+            task_record[_send_task] = 'cloud'
+            task_id += 1
             _off_cloud += 1
             # cloud_register[i.split('_')[0].split('.')[2]] = send_back_host
 
@@ -535,15 +575,32 @@ def cooperative_mec(mec_list):
                 send = 'true'
             # CHECK IF THE MINIMUM MEC WAIT TIME IS LESS THAN LATENCY
             if mec_waiting_time[_host][-1] < t_time[j][1] and send == 'true':
-                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [j, t_time[j][0]]))
+                _send_task = f"{j}.{task_id}"
+                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [_send_task, t_time[j][0]]))
+                task_record[_send_task] = 'mec'
+                task_id += 1
                 _off_mec += 1
                 # SENDS TASK TO MEC FOR EXECUTION
 
-                mec_waiting_time[_host].append(
-                    round(mec_waiting_time[_host][-1] + (t_time[j][0]) / 2, 3))  # adds a new average waiting time
+                w_send = mec_waiting_time[_host][-1] + 0.001
+                mec_waiting_time[_host].append(w_send)  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+            elif send == 'true' and (get_rtt(_host) < get_rtt(cloud_ip)):
+                _send_task = f"{j}.{task_id}"
+                send_offloaded_task_mec('{} {} {}'.format('ex', mec_id(_host), [_send_task, t_time[j][0]]))
+                task_record[_send_task] = 'mec'
+                task_id += 1
+                _off_mec += 1
+                # SENDS TASK TO MEC FOR EXECUTION
+                w_send = mec_waiting_time[_host][-1] + 0.001
+                mec_waiting_time[_host].append(w_send)  # adds a new average waiting time
+                print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+
             else:
-                _client.publish(cloud_ip, str([j, t_time[j][0]]))
+                _send_task = f"{j}.{task_id}"
+                _client.publish(cloud_ip, str([_send_task, t_time[j][0]]), )
+                task_record[_send_task] = 'cloud'
+                task_id += 1
                 _off_cloud += 1
                 # send_cloud([j, t_time[j][0]])    # # [task_id,exec_time]
 
@@ -552,12 +609,28 @@ def cooperative_mec(mec_list):
                 print('\n=========SENDING {} TO CLOUD==========='.format(i))
 
 
+outward_mec = 0
+offload_check = [0,0]
 def execute_re_offloaded_task(offloaded_task):
+    global outward_mec, offload_check
     exec_list = get_exec_seq(offloaded_task[0])
-    for i in exec_list:
+    outward_mec += len(exec_list)
+    for i in offloaded_task[0]:  # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
-        time.sleep(offloaded_task[1][j]/2)
+        time.sleep(offloaded_task[1][j] / 2)
+        # print('j task: ', j)
         send_offloaded_task_mec('{} {}'.format(j.split('.')[1], i.split('*')[0]))
+
+clients_record = {}
+
+
+def count_task_sent(task):
+    global clients_record
+    c_id = task.split('.')[2]
+    if c_id in clients_record:
+        clients_record[c_id] += 1
+    else:
+        clients_record[c_id] = 1
 
 
 def execute(local):
@@ -565,18 +638,18 @@ def execute(local):
 
     for i in local:
         j = i.split('_')[0]
-        time.sleep(t_time[j][0]/2)
-        print('#' * ((local.index(i) + 1) * 3), ' Executed: ', i)
-        if j.split('.')[1] != node_id:
-            send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
-
-        elif j.split('.')[1] == node_id:
-            # send_client({j: get_time()}, send_back_host)
-            _client.publish(j.split('.')[2], str({j: get_time()}))
+        _t = t_time[j][0] / 2
+        time.sleep(_t)
+        print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
+        _client.publish(j.split('.')[2], str({j: get_time() + ['local']}), )
+        count_task_sent(j)
     print('============== EXECUTION DONE ===============')
 
 
-def receive_offloaded_task_mec():    # run as a thread
+cooperate = {'mec': 0, 'cloud': 0}
+
+
+def receive_offloaded_task_mec():  # run as a thread
     global _inward_mec
     global t_track
 
@@ -588,10 +661,17 @@ def receive_offloaded_task_mec():    # run as a thread
             data, address = sock2.recvfrom(1024)
             if len(data.decode()) > 0:
                 da = data.decode().split(' ')
-                if (address[0] not in ip_set) and da[0] == node_id:               # send back to client
+                if (address[0] not in ip_set) and (da[0] == node_id):  # send back to client
                     # send_client({da[1]: get_time()}, offload_register[da[1]])     # send back to client
-                    _client.publish(da[1].split('.')[2], str({da[1]: get_time()}))
-                elif (address[0] not in ip_set) and da[0] == 'ex' and da[1] == node_id:
+                    if da[1] in task_record:
+                        del task_record[da[1]]
+                        task_new = '.'.join(da[1].split('.')[:-1])
+                        _client.publish(da[1].split('.')[2], str({task_new: get_time()+['mec']}), )
+                        count_task_sent(da[1])
+                        cooperate['mec'] += 1
+                    else:
+                        print('*'*30 + f'\n{da[1]} Not in Task Record\n' + '*'*30)
+                elif (address[0] not in ip_set) and (da[0] == 'ex') and (da[1] == node_id):
                     _received = ast.literal_eval(da[2] + da[3])
                     shared_resource_lock.acquire()
                     task = _received[0] + '*{}'.format(t_track)
@@ -603,7 +683,8 @@ def receive_offloaded_task_mec():    # run as a thread
 
 
 def call_execute_re_offload():
-    global reoffload_list
+    global reoffload_list, outward_mec
+    global offload_check
 
     while True:
         if stop == 1:
@@ -612,22 +693,23 @@ def call_execute_re_offload():
         else:
             if len(reoffload_list[0]) == 1:
                 t = reoffload_list[0][-1]
-                time.sleep(reoffload_list[1][t]/2)
+                time.sleep(reoffload_list[1][t] / 2)
                 shared_resource_lock.acquire()
                 reoffload_list[0].remove(t)
                 del reoffload_list[1][t]
                 shared_resource_lock.release()
                 send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
+                outward_mec += 1
+                offload_check[0] += 1
             elif len(reoffload_list[0]) > 1:
                 o = reoffload_list.copy()
+                offload_check[1] += len(o)
                 execute_re_offloaded_task(o)
                 for i in o[0]:
                     shared_resource_lock.acquire()
                     reoffload_list[0].remove(i)
                     del reoffload_list[1][i]
                     shared_resource_lock.release()
-
-        time.sleep(1)
 
 
 def send_email(msg):
@@ -705,27 +787,59 @@ def save_and_abort():
     global stop
 
     _id_ = get_hostname()[-1]
-    result = f"wt{_id_}_16_{mec_no} = {mec_waiting_time} " \
+    result = f"\nwt{_id_}_16_{mec_no} = {mec_waiting_time} " \
              f"\nrtt{_id_}_16_{mec_no} = {mec_rtt} \ncpu{_id_}_16_{mec_no} = {_cpu} " \
              f"\noff_mec{_id_}_16_{mec_no} = {_off_mec} " \
              f"\noff_cloud{_id_}_16_{mec_no} = {_off_cloud} " \
              f"\ninward_mec{_id_}_16_{mec_no} = {_inward_mec}" \
              f"\nloc{_id_}_16_{mec_no} = {_loc} " \
-             f"\ndeadlock{_id_}_16_{mec_no} = {deadlock} \nmemory{_id_}_16_{mec_no} = {memory}"
+             f"\ndeadlock{_id_}_16_{mec_no} = {deadlock} \nmemory{_id_}_16_{mec_no} = {memory}" \
+             f"\ntask_received = {total_received_task} \nsent_t = {clients_record}" \
+             f"\ncooperate{_id_}_16_{mec_no} = {cooperate} \ntask_record{_id_}_16_{mec_no} = {task_record}" \
+             f"\noutward_mec{_id_}_16_{mec_no} = {outward_mec}" \
+             f"\noffload_check{_id_}_16_{mec_no} = {offload_check}"
     list_result = [
-        f"wt{_id_}_16_{mec_no} = {mec_waiting_time} ",
+        f"\nwt{_id_}_16_{mec_no} = {mec_waiting_time} ",
         f"\nrtt{_id_}_16_{mec_no} = {mec_rtt} \ncpu{_id_}_16_{mec_no} = {_cpu} ",
         f"\noff_mec{_id_}_16_{mec_no} = {_off_mec} \noff_cloud{_id_}_16_{mec_no} = {_off_cloud} ",
         f"\ninward_mec{_id_}_16_{mec_no} = {_inward_mec}",
         f"\nloc{_id_}_16_{mec_no} = {_loc} ",
-        f"\ndeadlock{_id_}_16_{mec_no} = {deadlock} \nmemory{_id_}_16_{mec_no} = {memory}"
+        f"\ndeadlock{_id_}_16_{mec_no} = {deadlock} \nmemory{_id_}_16_{mec_no} = {memory}",
+        f"\ntask_received{_id_}_16_{mec_no} = {total_received_task} \nsent_t{_id_}_16_{mec_no} = {clients_record}",
+        f"\ncooperate{_id_}_16_{mec_no} = {cooperate} \ntask_record{_id_}_16_{mec_no} = {task_record} "
+        f"\noutward_mec{_id_}_16_{mec_no} = {outward_mec}",
+        f"\noffload_check{_id_}_16_{mec_no} = {offload_check}"
     ]
-    for i in list_result:
-        cmd = 'echo "{}" >> data.py'.format(i)
+    path_ = 'data/raw/'
+    if os.path.exists(path_):
+        cmd = f"echo '' > {path_}{_id_}_16_{mec_no}datal.py"
         os.system(cmd)
+        cmd = f"echo '' > {path_}{_id_}_16_{mec_no}datap.py"
+        os.system(cmd)
+    else:
+        os.mkdir(path_)
+        cmd = f"echo '' > {path_}{_id_}_16_{mec_no}datal.py"
+        os.system(cmd)
+        cmd = f"echo '' > {path_}{_id_}_16_{mec_no}datap.py"
+        os.system(cmd)
+
+    file_ = open(f'{path_}{_id_}_16_{mec_no}datap.py', 'w')
+    for i in list_result:
+        cmd = f'echo "{i}" >> {path_}{_id_}_16_{mec_no}datal.py'
+        file_.write(i)
+        os.system(cmd)
+    file_.close()
+    sp.run(
+        ["scp", f"{path_}{_id_}_16_{mec_no}datap.py", f"mec@{hosts['osboxes-0']}:/home/mec/result/python"])
+    sp.run(
+        ["scp", f"{path_}{_id_}_16_{mec_no}datal.py", f"mec@{hosts['osboxes-0']}:/home/mec/result/linux"])
 
     send_result(hosts['osboxes-0'], list_result)
     send_email(result)
+    if len(task_record) > 0:
+        for _task_ in task_record:
+            task_new = '.'.join(_task_.split('.')[:-1])
+            _client.publish(task_new.split('.')[2], str({task_new: get_time() + [task_record[_task_]]}), )
     stop += 1
     '''
     for i in thread_record:
@@ -784,10 +898,10 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(.5)
+                    time.sleep(.4)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(minutes=3):
+                    if delta > dt.timedelta(minutes=4):
                         print('terminating programme 3 mins elapsed')
                         save_and_abort()
                         break

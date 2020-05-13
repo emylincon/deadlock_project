@@ -881,10 +881,10 @@ def start_loop():
                     _time_ = dt.datetime.now()
                 else:
                     send_message(str('wt {} 0.0'.format(ip_address())))
-                    time.sleep(.5)
+                    time.sleep(.4)
                     now = dt.datetime.now()
                     delta = now - _time_
-                    if delta > dt.timedelta(minutes=3):
+                    if delta > dt.timedelta(minutes=4):
                         print('terminating programme 3 mins elapsed')
                         save_and_abort()
                         break
