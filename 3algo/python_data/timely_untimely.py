@@ -64,7 +64,6 @@ _untimely = {
 }
 
 
-
 def percent(value, total):
     if value > 0:
         return round((value / total) * 100, 2)
