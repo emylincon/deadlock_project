@@ -448,10 +448,10 @@ def compare_local_mec(list_seq):
     checking_times = {}
     for i in list_seq:
         t_time[i.split('_')[0]][1]-=diff
-        if t_time[i.split('_')[0]][1] < 0:
-            _client.publish(i.split('_')[0].split('.')[2], str({i.split('_')[0]: get_time() + ['local']}), )
-            timed_out_tasks += 1
-        elif t_time[i.split('_')[0]][1] > list_seq[i]:
+        # if t_time[i.split('_')[0]][1] < 0:
+        #     _client.publish(i.split('_')[0].split('.')[2], str({i.split('_')[0]: get_time() + ['local']}), )
+        #     timed_out_tasks += 1
+        if t_time[i.split('_')[0]][1] > list_seq[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
