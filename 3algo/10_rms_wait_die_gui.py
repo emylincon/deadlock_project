@@ -352,7 +352,10 @@ def get_time():
     _time_ += d[0].split('-')
     g = d[1].split('.')
     _time_ += g[0].split(':')
-    _time_.append(g[1])
+    try:
+        _time_.append(g[1])
+    except IndexError:
+        pass
     return _time_
 
 
