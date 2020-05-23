@@ -7,7 +7,12 @@ fig = plt.figure()
 ax1 = fig.add_subplot(311)
 ax2 = fig.add_subplot(312)
 ax3 = fig.add_subplot(313)
-
+algo_dict = {'RMS + Bankers': r'$ALG_1$',
+             'EDF + Bankers': r'$ALG_2$',
+             'RMS + wound wait': r'$ALG_3$',
+             'RMS + wait die': r'$ALG_4$',
+             'EDF + wound wait': r'$ALG_5$',
+             'EDF + wait die': r'$ALG_6$'}
 width = 0.35
 title = {2}
 _timely = {
@@ -70,18 +75,12 @@ def percent(value, total):
     else:
         return 0
 
-
 def histogram(timely, untimely, ax, no):
     ind = np.arange(len(timely))
     p1 = ax.bar(ind, untimely, width, color='r', alpha=0.4)
     p2 = ax.bar(ind, timely, width, color='g', bottom=untimely, alpha=0.4)
     ax.set_xticks(ind)
-    ax.set_xticklabels(('RMS + Bankers',
-                        'EDF + Bankers',
-                        'RMS + wound wait',
-                        'RMS + wait die',
-                        'EDF + wound wait',
-                        'EDF + wait die'))
+    ax.set_xticklabels(algo_dict.values())
     for i in timely:
         j = timely.index(i)
         total = i + untimely[j]
@@ -89,9 +88,17 @@ def histogram(timely, untimely, ax, no):
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.), ))
         ax.text(j, untimely[j], '{}%'.format(percent(untimely[j], total)), rotation=0,
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
-    ax.legend((p1[0], p2[0]), ('Untimely', 'Timely'))
+    ax.legend((p1[0], p2[0]), ('UP', 'TP'), prop={"size":16})
     # ax.set_ylabel('\n'.join(wrap(f'Plot for {no} MECs', 8))).set_rotation(0)
-    ax.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
+    ax.set_ylabel("No of Processes", fontsize=15)
+    for label in ax.get_xticklabels():
+        label.set_fontsize(16)
+    ax.xaxis.set_tick_params(labelsize=16)
+    #ax.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
+    axx = ax.twinx()
+    axx.set_yticklabels([])
+    axx.set_yticks([])
+    axx.set_ylabel('\n'.join(wrap(f'{no} MECs', 8)), rotation=0, fontsize=15, labelpad=30)
 
 
 def format_data(time_av_t, time_av_u ):
@@ -141,7 +148,7 @@ def plot_av_times():
     # print(_data)
     for i in axes:
         histogram(_data[0][axes[i]], _data[1][axes[i]], i, axes[i])
-    fig.suptitle('Execution Time Comparison During Deadlock Experiment')
+    #fig.suptitle('Execution Time Comparison During Deadlock Experiment')
     plt.show()
 
 
