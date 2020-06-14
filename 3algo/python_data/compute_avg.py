@@ -55,12 +55,13 @@ def plot_me(data, names, ax, unit, title, no=None,):
     ax.set_xticklabels(names)
     for i in ind:
         d = 0
-        if data[1][i] < 17.5: d = 17.5-data[1][i]
-        ax.text(i, data[0][i] + data[1][i]+d, f'{round(data[1][i])}{unit[i]}', rotation=0,
-                ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.), ))
-        ax.text(i, data[0][i], f'{round(data[0][i])}{unit[i]}', rotation=0,
+        a = 15.0
+        if data[1][i] < a: d = a-data[1][i]
+        ax.text(i, data[0][i] + data[1][i]+d, f'{round(data[1][i], 2)}{unit[i]}', rotation=0, fontsize=8,
+                ha="center", va="center", bbox=dict(boxstyle="round", facecolor='#00cc66', ec='black'))
+        ax.text(i, data[0][i], f'{round(data[0][i], 2)}{unit[i]}', rotation=0, fontsize=8,
                 ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
-    ax.legend((p1[0], p2[0]), ('Exp1', 'Exp2'), loc='upper left', prop={"size": 11})
+    ax.legend((p1[0], p2[0]), (r'$Exp1$', r'$Exp2$'), loc='upper left', prop={"size": 11})
     ax.set_title(rf'$ALG_{title}$')
     # ax.set_ylabel('\n'.join(wrap(f'Plot for {no} MECs', 8))).set_rotation(0)
     #ax.set_ylabel("No of Processes", fontsize=15)
