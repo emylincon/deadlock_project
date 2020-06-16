@@ -331,6 +331,7 @@ def plot_av_times():
             ax7, ax8, ax9, ax10, ax11, ax12,
             ax13, ax14, ax15, ax16, ax17, ax18]
     _data = group_format(sum_data())
+    print(_data)
     no = 0
     for i in _data:
         # i = keys 4 5 6 7
