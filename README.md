@@ -7,6 +7,11 @@
 ### The distribution of tasks used 
 `g/g/1 (((23**r.randrange(1, 1331)) % r.randrange(1, 1777)) % 5)`
 
+### ssh setup
+```bash
+ssh-keygen -t rsa ; ssh-copy-id mec@192.168.122.110
+
+```
 
 #### SET UP Commands
 ```
