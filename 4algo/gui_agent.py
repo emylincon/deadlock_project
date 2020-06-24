@@ -125,7 +125,6 @@ def starter():
     print(f'about sent: {about}')
     while True:
         try:
-            print('running plot loop')
             if plot == 1:
                 running_algo.show_graphs()
                 time.sleep(3)
