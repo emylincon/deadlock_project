@@ -35,6 +35,7 @@ class BrokerCom:
             print(data[1])
         elif data[0] == 'client finish':
             self.finished.add(data[1])
+            print(f'client finish: {data[1]}')
 
     def publish(self, topic, data):
         self.client.publish(topic, data)
@@ -83,7 +84,7 @@ def exp_control():
                     cloud_dict = {h_list[i]: cloud_ips[i%2] for i in range(len(h_list))}
                     send_path = f'/home/mec/result/{kind}/{count}'
                     data_mec = ['start', hosts, algo_no, cloud_dict, send_path]
-                    #data = ''     #  # ['start', {hostname: ip}, algo_no, cloud_ip, send_path ]
+                    # data = ''     #  # ['start', {hostname: ip}, algo_no, cloud_ip, send_path ]
                     print('initializing Edge nodes')
                     messenger.publish(topic='control/mec', data=pickle.dumps(data_mec))
                     data_client = ['start', hosts, algo_nos[algo_no], kind, send_path]
