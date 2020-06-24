@@ -11,6 +11,7 @@ import time
 import random as r
 import socket
 import os
+from threading import Thread
 
 
 def get_hostname():
@@ -98,9 +99,17 @@ def starter():
     broker_dict = {'user': 'mec', 'pw': 'password', 'ip': input('Enter broker ip: '),
                    'sub_topic': 'control/mec'}
     messenger = BrokerCom(**broker_dict)
-    messenger.publish(control_topic, pickle.dumps(['about', {host_id: ip_address()}]))
-    messenger.broker_loop()
+
+    h1 = Thread(target=messenger.broker_loop)
+    h1.daemon = True
+    h1.start()
+    about = ['about', {host_id: ip_address()}]
+    messenger.publish(control_topic, pickle.dumps(about))
+    print(f'about sent: {about}')
 
 
 if __name__ == '__main__':
-    starter()
+    try:
+        starter()
+    except KeyboardInterrupt:
+        messenger.run = 0
