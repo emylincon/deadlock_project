@@ -85,9 +85,19 @@ def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
 
 
 def ip_address():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    return s.getsockname()[0]
+    try:
+        cmd = ['ifconfig eth1 | grep inet | cut -d ":" -f 2 | cut -d " " -f 1']
+        address = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
+        if len(address.strip().split('.')) == 4:
+            return address.strip()
+        else:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except Exception as e:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
 
 
 def starter():
