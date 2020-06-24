@@ -4,7 +4,6 @@ import socket
 import os
 import ast
 import struct
-from threading import Thread
 import random as r
 import time
 import datetime as dt
@@ -14,15 +13,15 @@ import matplotlib.pyplot as plt
 from drawnow import *
 import smtplib
 import config
-import paramiko
 import pickle
 import algorithms.data_homo as homo
 import algorithms.data_hetero as hetero
-
+from threading import Thread
+import threading
 
 matplotlib.use('TkAgg')
 port = 65000  # The port used by the server
-
+shared_resource_lock = threading.Lock()
 # hosts = {}  # {hostname: ip}
 multicast_group = '224.3.29.71'
 server_address = ('', 10000)
@@ -71,8 +70,8 @@ task_record = {}  # records tasks start time and finish time {seq_no:{task:[dura
 # idea for task naming # client-id_task-no_task-id  client id = 11, task no=> sequence no, task id => t1
 tasks_executed_on_time = 0
 tasks_not_executed_on_time = 0
-timely_ = {'local':0, 'mec':0, 'cloud':0}
-untimely_ = {'local':0, 'mec':0, 'cloud':0}
+timely_ = {'local': 0, 'mec': 0, 'cloud': 0}
+untimely_ = {'local': 0, 'mec': 0, 'cloud': 0}
 filename = {2: 'rms+bankers',
             3: 'edf+bankers',
             7: 'rms+wound_wait',
@@ -183,20 +182,22 @@ def on_connect_task(connect_client, userdata, flags, rc):
 
 u_time = {'local': [], 'mec': [], 'cloud': []}
 t_time = {'local': [], 'mec': [], 'cloud': []}
+
+
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_receive_task(message_client, userdata, msg):
     global tasks_executed_on_time
     global tasks_not_executed_on_time
     # print the message received from the subscribed topic
     data = str(msg.payload, 'utf-8')
-    received_task = ast.literal_eval(data)      # {task_id: ['2020', '04', '09', '14', '38', '39', '627060', '<mec>']}
+    received_task = ast.literal_eval(data)  # {task_id: ['2020', '04', '09', '14', '38', '39', '627060', '<mec>']}
 
     for i in received_task:
         tk = '.'.join(i.split('.')[:4])
         # print('tk: {}'.format(tk))
-        seq_no = int(tk.split('.')[3])   # naming tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
-        k = task_record[seq_no][tk]     # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
-        if len(k) < 3:                 # check if i have received a task with the same id
+        seq_no = int(tk.split('.')[3])  # naming tasks = task_id.node_id.client_id.sequence_no  =>t2.110.170.10
+        k = task_record[seq_no][tk]  # task_record= {seq_no:{task:[duration,start_time,finish_time]}}
+        if len(k) < 3:  # check if i have received a task with the same id
             a = received_task[i]
             k.append(dt.datetime(int(a[0]), int(a[1]),
                                  int(a[2]), int(a[3]),
@@ -221,11 +222,11 @@ def on_receive_task(message_client, userdata, msg):
             if p < k[0]:
                 tasks_executed_on_time += 1
                 timely_[a[7]] += 1
-                t_time[a[7]].append(p.seconds + p.microseconds*(10**-6))
+                t_time[a[7]].append(p.seconds + p.microseconds * (10 ** -6))
             else:
                 tasks_not_executed_on_time += 1
                 untimely_[a[7]] += 1
-                u_time[a[7]].append(p.seconds + p.microseconds*(10**-6))
+                u_time[a[7]].append(p.seconds + p.microseconds * (10 ** -6))
 
 
 def receive_mec_start(stop):
@@ -278,25 +279,6 @@ def send_email(msg, send_path):
         print(e)
 
 
-def send_result(host_, data):
-    try:
-        c = paramiko.SSHClient()
-
-        un = 'mec'
-        pw = 'password'
-        port = 22
-
-        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        c.connect(host_, port, un, pw)
-        for i in data:
-            cmd = ('echo "{}" >> /home/mec/result/client_data.py'.format(data))  # task share : host ip task
-
-            stdin, stdout, stderr = c.exec_command(cmd)
-        c.close()
-    except Exception as e:
-        print(e)
-
-
 def client_id(client_ip):
     _id = client_ip.split('.')[-1]
     if len(_id) == 1:
@@ -333,11 +315,11 @@ def namestr(obj):
 
 
 def split_list(data, _id_):
-    if _id_ == 4:   # 866
+    if _id_ == 4:  # 866
         return data[:866]
-    if _id_ == 5:    # 867
+    if _id_ == 5:  # 867
         return data[866:1733]
-    if _id_ == 6:   # 867
+    if _id_ == 6:  # 867
         return data[1733:]
 
 
@@ -398,6 +380,7 @@ def run_me(mec_dict, algo_id_, exp_kind, send_path):  # get_mec_details(mec_dict
     global client_id_
     global seq
     global run
+    global plot
 
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
@@ -434,9 +417,11 @@ def run_me(mec_dict, algo_id_, exp_kind, send_path):  # get_mec_details(mec_dict
         # client(_tasks_list, rand_host)
         task_client.publish(client_id(rand_host), "t {}".format(_tasks_list))
         print("Sent {} to {} node_id {} \n\n".format(_tasks_list, rand_host, client_id(rand_host)))
-        drawnow(plot_performance)
+        shared_resource_lock.acquire()
+        plot = 1
+        shared_resource_lock.release()
         time.sleep(3)
-    messenger.publish(topic=control_topic, data=pickle.dumps(['client finish', host_id]))   # sends control finish alert
+    messenger.publish(topic=control_topic, data=pickle.dumps(['client finish', host_id]))  # sends control finish alert
     while True:
         if run == 0:
             print('\nProgramme terminated')
@@ -467,11 +452,11 @@ class BrokerCom:
         global run
         print(f'Topic received: {msg.topic}')
 
-        data = pickle.loads(msg.payload)      #
-        if data[0] == 'start':   # ['start', {hostname: ip}, algo_id, homo/hetero, send_path]
+        data = pickle.loads(msg.payload)  #
+        if data[0] == 'start':  # ['start', {hostname: ip}, algo_id, homo/hetero, send_path]
             #  get_mec_details(mec_dict, algo_id_) homo/hetero  (mec_dict, algo_id_, exp_kind)
             run_me(mec_dict=data[1], algo_id_=data[2], exp_kind=data[3], send_path=data[4])
-        elif data[0] == 'stop':     # ['stop']
+        elif data[0] == 'stop':  # ['stop']
             run = 0
 
     def publish(self, topic, data):
@@ -523,17 +508,30 @@ def get_mec_details(mec_dict, algo_id_):
     host_dict = dict(zip(list(ho.values()), list(ho.keys())))  # {ip: hostname}
 
 
+plot = 0
+
+
 def starter():
     global broker_ip
     global messenger
     global control_topic
+    global plot
 
     control_topic = 'control/control'
     broker_ip = input('Enter broker ip: ')
     broker_dict = {'user': 'mec', 'pw': 'password', 'ip': broker_ip,
                    'sub_topic': 'control/client'}
     messenger = BrokerCom(**broker_dict)
-    messenger.broker_loop()
+    h1 = Thread(target=messenger.broker_loop)
+    h1.daemon = True
+    h1.start()
+    while True:
+        if plot == 1:
+            drawnow(plot_performance)
+            shared_resource_lock.acquire()
+            plot = 0
+            shared_resource_lock.release()
+        time.sleep(3)
 
 
 if __name__ == "__main__":
