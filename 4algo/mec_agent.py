@@ -118,6 +118,14 @@ def starter():
     about = ['about', {host_id: ip_address()}]
     messenger.publish(control_topic, pickle.dumps(about))
     print(f'about sent: {about}')
+    while True:
+        try:
+            time.sleep(10)
+        except KeyboardInterrupt:
+            messenger.run = 0
+            msg_thread.join()
+            print('Terminating')
+            break
 
 
 if __name__ == '__main__':
