@@ -57,6 +57,8 @@ class BrokerCom:
 
 
 def exp_control():
+    global messenger
+
     broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control/control', 'ip': input('broker ip: ')}
     algos = [i for i in range(1,7)]
     algo_nos = {1: 2, 2: 3, 3: 7, 4: 10, 5: 12, 6: 16}
@@ -112,4 +114,8 @@ def exp_control():
 
 if __name__ == '__main__':
     os.system('clear')
-    exp_control()
+    try:
+        exp_control()
+    except KeyboardInterrupt:
+        print('killed')
+        messenger.run = 0
