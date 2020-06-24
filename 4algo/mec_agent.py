@@ -95,7 +95,7 @@ def starter():
 
     os.system('clear')
     control_topic = 'control/control'
-    broker_dict = {'user': 'mec', 'pw': 'password', 'port': 1883, 'ip': input('Enter broker ip: '),
+    broker_dict = {'user': 'mec', 'pw': 'password', 'ip': input('Enter broker ip: '),
                    'sub_topic': 'control/mec'}
     messenger = BrokerCom(**broker_dict)
     messenger.publish(control_topic, pickle.dumps(['about', {host_id: ip_address()}]))
