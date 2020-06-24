@@ -101,7 +101,6 @@ def starter():
     messenger = BrokerCom(**broker_dict)
 
     h1 = Thread(target=messenger.broker_loop)
-    h1.daemon = True
     h1.start()
     about = ['about', {host_id: ip_address()}]
     messenger.publish(control_topic, pickle.dumps(about))
