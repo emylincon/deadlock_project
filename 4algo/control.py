@@ -2,6 +2,7 @@ import pickle
 import paho.mqtt.client as mqtt
 from threading import Thread
 import time
+import os
 # algorithm imports
 
 mec_nodes = {}
@@ -109,4 +110,5 @@ def exp_control():
 
 
 if __name__ == '__main__':
+    os.system('clear')
     exp_control()
