@@ -65,6 +65,7 @@ def exp_control():
     messenger = BrokerCom(**broker_dict)
     h1 = Thread(target=messenger.broker_loop)
     h1.start()
+    print('please start all other servers before you continue')
     input('start: ')
     print('hosts: ', mec_nodes)
     s_hosts = sorted({i:mec_nodes[i] for i in mec_nodes if i != 'osboxes-0'})
