@@ -11,6 +11,7 @@ import time
 import random as r
 import socket
 import os
+from threading import Thread
 
 
 def get_hostname():
@@ -92,15 +93,25 @@ def ip_address():
 def starter():
     global messenger
     global control_topic
+    global msg_thread
 
     os.system('clear')
     control_topic = 'control/control'
     broker_dict = {'user': 'mec', 'pw': 'password', 'ip': input('Enter broker ip: '),
                    'sub_topic': 'control/mec'}
     messenger = BrokerCom(**broker_dict)
-    messenger.publish(control_topic, pickle.dumps(['about', {host_id: ip_address()}]))
-    messenger.broker_loop()
+
+    msg_thread = Thread(target=messenger.broker_loop)
+    msg_thread.start()
+    time.sleep(4)
+    about = ['about', {host_id: ip_address()}]
+    messenger.publish(control_topic, pickle.dumps(about))
+    print(f'about sent: {about}')
 
 
 if __name__ == '__main__':
-    starter()
+    try:
+        starter()
+    except KeyboardInterrupt:
+        messenger.run = 0
+        msg_thread.join()
