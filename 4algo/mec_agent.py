@@ -103,6 +103,7 @@ def starter():
 
     msg_thread = Thread(target=messenger.broker_loop)
     msg_thread.start()
+    time.sleep(4)
     about = ['about', {host_id: ip_address()}]
     messenger.publish(control_topic, pickle.dumps(about))
     print(f'about sent: {about}')
