@@ -93,6 +93,7 @@ def ip_address():
 def starter():
     global messenger
     global control_topic
+    global msg_thread
 
     os.system('clear')
     control_topic = 'control/control'
@@ -100,8 +101,8 @@ def starter():
                    'sub_topic': 'control/mec'}
     messenger = BrokerCom(**broker_dict)
 
-    h1 = Thread(target=messenger.broker_loop)
-    h1.start()
+    msg_thread = Thread(target=messenger.broker_loop)
+    msg_thread.start()
     about = ['about', {host_id: ip_address()}]
     messenger.publish(control_topic, pickle.dumps(about))
     print(f'about sent: {about}')
@@ -112,3 +113,4 @@ if __name__ == '__main__':
         starter()
     except KeyboardInterrupt:
         messenger.run = 0
+        msg_thread.join()
