@@ -73,13 +73,15 @@ class BrokerCom:
 
 def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
     global running_algo
+    global plot
 
     algos = {1: a1, 2: a2, 3: a3, 4: a4, 5: a5, 6: a6}
-
+    plot = 1
     running_algo = algos[algo_no]
     algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip,  send_path=send_path, broker_ip_=ip)
 
     time.sleep(r.uniform(10))
+    plot = 0
 
     messenger.publish(control_topic, pickle.dumps(['stop', ip_address()]))   # publishes to control they stopped
 
@@ -101,6 +103,9 @@ def ip_address():
         return s.getsockname()[0]
 
 
+plot = 0
+
+
 def starter():
     global messenger
     global control_topic
@@ -118,6 +123,17 @@ def starter():
     about = ['about', {host_id: ip_address()}]
     messenger.publish(control_topic, pickle.dumps(about))
     print(f'about sent: {about}')
+    while True:
+        try:
+            print('running plot loop')
+            if plot == 1:
+                running_algo.show_graphs()
+                time.sleep(3)
+            else:
+                time.sleep(3)
+        except KeyboardInterrupt:
+            print('killed')
+            break
 
 
 if __name__ == '__main__':
