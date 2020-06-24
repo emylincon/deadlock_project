@@ -32,6 +32,7 @@ class BrokerCom:
             print(f'{data[1]} has stopped!')
         elif data[0] == 'about':
             mec_nodes.update(data[1])
+            print(data[1])
         elif data[0] == 'client finish':
             self.finished.add(data[1])
 
