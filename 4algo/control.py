@@ -55,7 +55,7 @@ class BrokerCom:
 
 
 def exp_control():
-    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control/control', 'ip': 'localhost'}
+    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control/control', 'ip': input('broker ip: ')}
     algos = [i for i in range(1,7)]
     algo_nos = {1: 2, 2: 3, 3: 7, 4: 10, 5: 12, 6: 16}
     exp_no = [4, 7, 10]
