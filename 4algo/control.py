@@ -88,7 +88,7 @@ def exp_control():
                     messenger.publish(topic='control/mec', data=pickle.dumps(data_mec))
                     data_client = ['start', hosts, algo_nos[algo_no], kind, send_path]
                     # ['start', {hostname: ip}, algo_id, homo/hetero, send_path]
-                    time.sleep(60)
+                    time.sleep(20)
                     print('initializing Client Nodes')
                     messenger.publish(topic='control/client', data=pickle.dumps(data_client))
                     print(f'Experiment {mec_no} for {kind} has commenced!')
