@@ -518,7 +518,7 @@ def starter():
     global plot
 
     control_topic = 'control/control'
-    broker_ip = input('Enter broker ip: ')
+    broker_ip = '192.168.122.111'
     broker_dict = {'user': 'mec', 'pw': 'password', 'ip': broker_ip,
                    'sub_topic': 'control/client'}
     messenger = BrokerCom(**broker_dict)

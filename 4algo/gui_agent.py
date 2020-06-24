@@ -108,7 +108,7 @@ def starter():
 
     os.system('clear')
     control_topic = 'control/control'
-    broker_dict = {'user': 'mec', 'pw': 'password', 'ip': input('Enter broker ip: '),
+    broker_dict = {'user': 'mec', 'pw': 'password', 'ip': '192.168.122.111',
                    'sub_topic': 'control/mec'}
     messenger = BrokerCom(**broker_dict)
 

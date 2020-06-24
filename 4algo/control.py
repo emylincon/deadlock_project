@@ -59,7 +59,7 @@ class BrokerCom:
 def exp_control():
     global messenger
 
-    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control/control', 'ip': input('broker ip: ')}
+    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control/control', 'ip': '192.168.122.111'}
     algos = [i for i in range(1,7)]
     algo_nos = {1: 2, 2: 3, 3: 7, 4: 10, 5: 12, 6: 16}
     exp_no = [4, 7, 10]
