@@ -74,14 +74,18 @@ class BrokerCom:
 def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
     global running_algo
 
-    algos = {1: a1, 2: a2, 3: a3, 4: a4, 5: a5, 6: a6}
+    try:
+        algos = {1: a1, 2: a2, 3: a3, 4: a4, 5: a5, 6: a6}
 
-    running_algo = algos[algo_no]
-    algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip,  send_path=send_path, broker_ip_=ip)
+        running_algo = algos[algo_no]
+        algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip,  send_path=send_path, broker_ip_=ip)
 
-    time.sleep(r.uniform(10))
+        time.sleep(r.uniform(10))
 
-    messenger.publish(control_topic, pickle.dumps(['stop', ip_address()]))   # publishes to control they stopped
+        messenger.publish(control_topic, pickle.dumps(['stop', ip_address()]))   # publishes to control they stopped
+    except KeyboardInterrupt:
+        print('killed run me')
+        os.system('kill -9 {}'.format(os.getpid()))
 
 
 def ip_address():
