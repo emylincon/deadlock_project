@@ -728,7 +728,7 @@ def send_email(msg, send_path):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+bankers {} {}'.format(get_hostname(), send_path)
+        subject = 'Deadlock results edf+bankers {} {}'.format(get_hostname(), send_path)
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
