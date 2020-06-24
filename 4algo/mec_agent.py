@@ -112,6 +112,7 @@ def starter():
     messenger = BrokerCom(**broker_dict)
 
     msg_thread = Thread(target=messenger.broker_loop)
+    msg_thread.daemon = True
     msg_thread.start()
     time.sleep(4)
     about = ['about', {host_id: ip_address()}]
