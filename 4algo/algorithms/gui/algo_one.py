@@ -1072,8 +1072,6 @@ def start_loop():
                         print('\nSending to cooperative platform')
                         cooperative_mec(compare_result[0])
                     execute(compare_result[1])
-                    show_graphs()
-                _time_ = dt.datetime.now()
             else:
                 send_message(str('wt {} 0.0'.format(ip_address())))
                 time.sleep(.4)
@@ -1121,4 +1119,4 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     start_loop()
     save_and_send(send_path)
     terminate_process()
-    plt.close()
+    # plt.close()
