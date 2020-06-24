@@ -530,10 +530,12 @@ def starter():
 
     control_topic = 'control/control'
     broker_ip = input('Enter broker ip: ')
-    broker_dict = {'user': 'mec', 'pw': 'password', 'port': 1883, 'ip': broker_ip,
+    broker_dict = {'user': 'mec', 'pw': 'password', 'ip': broker_ip,
                    'sub_topic': 'control/client'}
     messenger = BrokerCom(**broker_dict)
+    messenger.broker_loop()
 
 
 if __name__ == "__main__":
+    os.system('clear')
     starter()
