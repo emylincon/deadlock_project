@@ -42,6 +42,7 @@ class BrokerCom:
         print(f'Topic received: {msg.topic}')
 
         data = pickle.loads(msg.payload)      # ['start', {hostname: ip}, algo_no, cloud_ip, send_path ]
+        print(f'data received: {data}')
         if (data[0] == 'start') and (host_id in data[1]):
             no_of_mec = len(data[1])
             del data[1][host_id]
@@ -124,7 +125,8 @@ def starter():
     print(f'about sent: {about}')
     while True:
         try:
-            time.sleep(10)
+            time.sleep(60*5)
+            # messenger.publish('co')
         except KeyboardInterrupt:
             messenger.run = 0
             msg_thread.join()

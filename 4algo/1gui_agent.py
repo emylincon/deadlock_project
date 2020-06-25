@@ -301,8 +301,10 @@ def starter():
     messenger.publish(control_topic, pickle.dumps(about))
     print(f'about sent: {about}')
     while True:
+        print(f'plot = {plot}')
         try:
             if plot == 1:
+                print('\n*****In plot****\n')
                 show_graphs()
                 time.sleep(3)
             else:
