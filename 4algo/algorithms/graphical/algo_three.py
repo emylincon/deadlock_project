@@ -919,6 +919,9 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     print('MEC Details: ', hosts)
     discovering = 1
     time.sleep(2)
+    for host in hosts:
+        if host[1] != host_ip:
+            mec_rtt[host[1]] = []
     start_loop()
     save_and_send(send_path)
     terminate_process()
