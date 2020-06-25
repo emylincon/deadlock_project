@@ -27,6 +27,7 @@ class BrokerCom:
 
     def on_message(self, message_client, userdata, msg):  # ['start', {hostname: ip}, algo_no, cloud_ip, send_path ]
         data = pickle.loads(msg.payload)     # ['start', {hostname: ip, ...}, algo_no], ['stop': ip]
+        print(msg.topic, data)
         if (data[0] == 'stop') and (data[1] not in self.stopped):
             self.stopped.add(data[1])
             print(f'{data[1]} has stopped!')
@@ -69,6 +70,7 @@ def exp_control():
     counter = 3
     messenger = BrokerCom(**broker_dict)
     h1 = Thread(target=messenger.broker_loop)
+    h1.daemon = True
     h1.start()
     print('please start all other servers before you continue')
     input('start: ')
