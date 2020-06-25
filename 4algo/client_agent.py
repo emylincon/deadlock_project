@@ -421,9 +421,9 @@ def run_me(mec_dict, algo_id_, exp_kind, send_path):  # get_mec_details(mec_dict
         plot = 1
         shared_resource_lock.release()
         time.sleep(3)
-    time.sleep(r.uniform(30))
-    messenger.publish(topic=control_topic, data=pickle.dumps(['client finish', host_id]))  # sends control finish alert
-    task_client.publish(control_topic, pickle.dumps(['client finish', host_id]))
+    time.sleep(r.uniform(0,30))
+    # messenger.publish(topic=control_topic, data=pickle.dumps(['client finish', host_id]))
+    task_client.publish('control/control', pickle.dumps(['client finish', host_id]))
     print('Client Finished')
     while True:
         if run == 0:
@@ -535,6 +535,7 @@ def starter():
             plot = 0
             shared_resource_lock.release()
         time.sleep(3)
+        print(messenger.ip)
 
 
 if __name__ == "__main__":
