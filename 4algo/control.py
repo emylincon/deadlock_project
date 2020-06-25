@@ -52,6 +52,7 @@ class BrokerCom:
             if self.run == 0:
                 self.client.loop_stop()
                 self.client.disconnect()
+                print('broker loop stopped!')
                 break
 
     def __del__(self):
