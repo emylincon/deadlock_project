@@ -251,6 +251,7 @@ def run_me():
     receive = Thread(target=connect_to_broker)
     receive.daemon = True
     receive.start()
+    time.sleep(1)
     m = input('Start (Y/N): ').lower()
     if m == 'y':
         print('\n============* Cloud Server Active *==============\n')
