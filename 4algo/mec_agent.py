@@ -51,6 +51,7 @@ class BrokerCom:
             run_me(no_mec=no_of_mec, hosts=hosts, algo_no=int(data[2]), cloud_ip=c_ip, send_path=data[4], ip=self.ip)
         elif (data[0] == 'stop') and (host_id in data[1]):     # ['stop', {hostname: ip}]
             running_algo.run = 0       # receives message to stop
+            print('stopping...')
 
     def publish(self, topic, data):
         self.client.publish(topic, data)
@@ -81,7 +82,7 @@ def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
         running_algo = algos[algo_no]
         algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip,  send_path=send_path, broker_ip_=ip)
 
-        time.sleep(r.uniform(10))
+        time.sleep(r.uniform(1, 10))
 
         messenger.publish(control_topic, pickle.dumps(['stop', ip_address()]))   # publishes to control they stopped
     except KeyboardInterrupt:
