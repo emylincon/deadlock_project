@@ -1,9 +1,9 @@
-import algorithms.algo_one as a1
-import algorithms.algo_two as a2
-import algorithms.algo_three as a3
-import algorithms.algo_four as a4
-import algorithms.algo_five as a5
-import algorithms.algo_six as a6
+import algorithms.graphical.algo_one as a1
+import algorithms.graphical.algo_two as a2
+import algorithms.graphical.algo_three as a3
+import algorithms.graphical.algo_four as a4
+import algorithms.graphical.algo_five as a5
+import algorithms.graphical.algo_six as a6
 import paho.mqtt.client as mqtt
 import pickle
 import subprocess as sp
@@ -25,6 +25,11 @@ ax5 = fig.add_subplot(235)
 ax6 = fig.add_subplot(236)
 
 
+style1 = [{'color': 'g', 'marker': '^'}, {'color': 'aqua', 'marker': '*'}, {'color': 'purple', 'marker': 'X'},
+          {'color': 'r', 'marker': 'v'}, {'color': 'k', 'marker': '>'}, {'color': 'brown', 'marker': 'D'},
+          {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'},]
+
+
 def percent(value, total):
     if value > 0:
         return round((value/total)*100, 2)
@@ -44,16 +49,7 @@ def plot_offloaded_remote():
            percent(running_algo._inward_mec, total)]
     cols = ['r', 'g', 'b', 'm']
     ypos = ([0, 1, 2, 3])
-    '''
-    explode = []
-    for i in val:
-        if i == max(val):
-            explode.append(0.1)
-        else:
-            explode.append(0)
-    ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), 
-    startangle=-40, shadow=True, explode=explode, colors=cols)
-    '''
+
     values = [running_algo._off_mec, running_algo._off_cloud, running_algo._loc, running_algo._inward_mec]
     for i in values:
         j = values.index(i)
@@ -128,7 +124,7 @@ def plot_wait_time():
             pt=pt[:-1]
         ax1.plot(ptx,
                  pt,
-                 **running_algo.style1[list(running_algo.hosts.values()).index(i)],
+                 **style1[list(running_algo.hosts.values()).index(i)],
                  linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
@@ -156,7 +152,7 @@ def plot_rtts():
             pt=pt[:-1]
         ax3.plot(ptx,
                  pt,
-                 **running_algo.style1[list(running_algo.hosts.values()).index(i)],
+                 **style1[list(running_algo.hosts.values()).index(i)],
                  linestyle=(0, (3, 1, 1, 1, 1, 1)),
                  linewidth=2,
                  label=i)
