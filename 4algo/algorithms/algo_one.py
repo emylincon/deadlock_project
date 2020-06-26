@@ -968,7 +968,7 @@ def start_loop():
             break
     print('algo stopped!')
     run = 1
-    stop = False
+    stop = True
     time.sleep(5)
     for th in threads_:
         th.join()
