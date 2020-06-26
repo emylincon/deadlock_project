@@ -255,8 +255,8 @@ def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
     algos = {1: a1, 2: a2, 3: a3, 4: a4, 5: a5, 6: a6}
     plot = 1
     running_algo = algos[algo_no]
-    algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip,  send_path=send_path, broker_ip_=ip)
-
+    algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip,  send_path=send_path, broker_ip_=ip) # put on a thread
+    # join thread and continue
     time.sleep(r.uniform(1, 10))
     plot = 0
 
@@ -295,6 +295,7 @@ def starter():
     messenger = BrokerCom(**broker_dict)
 
     msg_thread = Thread(target=messenger.broker_loop)
+    msg_thread.daemon = True
     msg_thread.start()
     time.sleep(4)
     about = ['about', {host_id: ip_address()}]

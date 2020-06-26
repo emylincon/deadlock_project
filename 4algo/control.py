@@ -59,6 +59,16 @@ class BrokerCom:
         print('Broker Communication Object Deleted!')
 
 
+def mec_id(client_ip):
+    _id = client_ip.split('.')[-1]
+    if len(_id) == 1:
+        return '00' + _id
+    elif len(_id) == 2:
+        return '0' + _id
+    else:
+        return _id
+
+
 def exp_control():
     global messenger
 
@@ -103,7 +113,9 @@ def exp_control():
                     messenger.finished = set()
                     time.sleep(3*60)
                     print('stopping edge nodes')
-                    messenger.publish(topic='control/mec', data=pickle.dumps(['stop', hosts]))
+                    # messenger.publish(topic='control/mec', data=pickle.dumps(['stop', hosts]))
+                    for host_ip in hosts.values():
+                        messenger.publish(topic=mec_id(host_ip), data='stop')
                     while len(messenger.stopped) != mec_no:
                         time.sleep(10)
                     print('edge nodes are stopped!')
