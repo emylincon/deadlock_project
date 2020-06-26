@@ -81,7 +81,6 @@ def exp_control():
     counter = 3
     messenger = BrokerCom(**broker_dict)
     h1 = Thread(target=messenger.broker_loop)
-    h1.daemon = True
     h1.start()
     print('please start all other servers before you continue')
     input('start: ')
