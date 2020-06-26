@@ -15,8 +15,8 @@ from threading import Thread
 from drawnow import *
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')
 
+matplotlib.use('TkAgg')
 
 fig = plt.figure()
 ax1 = fig.add_subplot(231)
@@ -26,17 +26,17 @@ ax4 = fig.add_subplot(234)
 ax5 = fig.add_subplot(235)
 ax6 = fig.add_subplot(236)
 
-
 style1 = [{'color': 'g', 'marker': '^'}, {'color': 'aqua', 'marker': '*'}, {'color': 'purple', 'marker': 'X'},
           {'color': 'r', 'marker': 'v'}, {'color': 'k', 'marker': '>'}, {'color': 'brown', 'marker': 'D'},
-          {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'},]
+          {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'}, ]
 
 
 def percent(value, total):
     if value > 0:
-        return round((value/total)*100, 2)
+        return round((value / total) * 100, 2)
     else:
         return 0
+
 
 # Plot me
 
@@ -55,13 +55,14 @@ def plot_offloaded_remote():
     values = [running_algo._off_mec, running_algo._off_cloud, running_algo._loc, running_algo._inward_mec]
     for i in values:
         j = values.index(i)
-        ax2.text(j-0.1, values[j], '{}%'.format(val[j]), rotation=0,
+        ax2.text(j - 0.1, values[j], '{}%'.format(val[j]), rotation=0,
                  ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax2.set_xticks(ypos)
     ax2.set_xticklabels(keys)
     ax2.bar(ypos, values, align='center', color=cols, alpha=0.3)
     ax2.set_title('Local/Remote Execution Report')
     plt.subplot(ax2)
+
 
 # color=color_code[list(hosts.values()).index(i)]
 
@@ -76,7 +77,7 @@ def plot_deadlock():
     '''
     ax5.text(0.5, 0.6, text, rotation=0, size=10,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.)))
-    ax5.text(0.5, 0.45, '{} Tasks Received'.format(running_algo._loc+running_algo._inward_mec), rotation=0, size=10,
+    ax5.text(0.5, 0.45, '{} Tasks Received'.format(running_algo._loc + running_algo._inward_mec), rotation=0, size=10,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.98, 0.96, 0.59), ))
     # ax5.set_title("Deadlock Resolved Counter")
     ax5.set_axis_off()
@@ -84,19 +85,18 @@ def plot_deadlock():
 
 
 def _mov_avg(a1):
-    ma1 = []   # moving average list
-    avg1 = 0   # moving average pointwise
+    ma1 = []  # moving average list
+    avg1 = 0  # moving average pointwise
     count = 0
     for i in range(len(a1)):
         count += 1
-        avg1 = ((count-1)*avg1+a1[i])/count
-        ma1.append(round(avg1, 4))    # cumulative average formula
+        avg1 = ((count - 1) * avg1 + a1[i]) / count
+        ma1.append(round(avg1, 4))  # cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
 
 
 def plot_memory():
-
     memory = running_algo.memory
     ax6.grid(True)
     ax6.plot(list(range(len(_mov_avg(memory)))), _mov_avg(memory), linewidth=2, label='Memory', color='m')
@@ -122,9 +122,9 @@ def plot_wait_time():
             if ptx[-1] != d[-1]:
                 ptx.append(d[-1])
             if len(ptx) > len(pt):
-                ptx=ptx[:-1]
+                ptx = ptx[:-1]
             elif len(ptx) < len(pt):
-                pt=pt[:-1]
+                pt = pt[:-1]
             ax1.plot(ptx,
                      pt,
                      **style1[list(running_algo.hosts.values()).index(i)],
@@ -151,9 +151,9 @@ def plot_rtts():
             if ptx[-1] != d[-1]:
                 ptx.append(d[-1])
             if len(ptx) > len(pt):
-                ptx=ptx[:-1]
+                ptx = ptx[:-1]
             elif len(ptx) < len(pt):
-                pt=pt[:-1]
+                pt = pt[:-1]
             ax3.plot(ptx,
                      pt,
                      **style1[list(running_algo.hosts.values()).index(i)],
@@ -168,7 +168,6 @@ def plot_rtts():
 
 
 def plot_cpu():
-
     # plot graph
     ax4.grid(True)
     ax4.plot(list(range(len(_mov_avg(running_algo._cpu)))), _mov_avg(running_algo._cpu), linewidth=2, label='CPU')
@@ -222,15 +221,15 @@ class BrokerCom:
     def on_message(self, message_client, userdata, msg):
         print(f'Topic received: {msg.topic}')
 
-        data = pickle.loads(msg.payload)      # ['start', {hostname: ip}, algo_no, cloud_ip, send_path ]
+        data = pickle.loads(msg.payload)  # ['start', {hostname: ip}, algo_no, cloud_ip, send_path ]
         if (data[0] == 'start') and (host_id in data[1]):
             no_of_mec = len(data[1])
             del data[1][host_id]
             hosts = data[1]
             c_ip = data[3][host_id]
             run_me(no_mec=no_of_mec, hosts=hosts, algo_no=int(data[2]), cloud_ip=c_ip, send_path=data[4], ip=self.ip)
-        elif (data[0] == 'stop') and (host_id in data[1]):     # ['stop', {hostname: ip}]
-            running_algo.run = 0       # receives message to stop
+        elif (data[0] == 'stop') and (host_id in data[1]):  # ['stop', {hostname: ip}]
+            running_algo.run = 0  # receives message to stop
 
     def publish(self, topic, data):
         self.client.publish(topic, data)
@@ -259,12 +258,13 @@ def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
     algos = {1: a1, 2: a2, 3: a3, 4: a4, 5: a5, 6: a6}
     plot = 1
     running_algo = algos[algo_no]
-    algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip,  send_path=send_path, broker_ip_=ip) # put on a thread
+    algos[algo_no].run_me(mec_no_=no_mec, hosts_=hosts, cloud_ip_=cloud_ip, send_path=send_path,
+                          broker_ip_=ip)  # put on a thread
     # join thread and continue
     time.sleep(r.uniform(1, 10))
     plot = 0
 
-    messenger.publish(control_topic, pickle.dumps(['stop', ip_address()]))   # publishes to control they stopped
+    messenger.publish(control_topic, pickle.dumps(['stop', ip_address()]))  # publishes to control they stopped
 
 
 def ip_address():
