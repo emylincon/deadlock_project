@@ -110,24 +110,25 @@ def plot_wait_time():
     ax1.grid(True)
 
     for i in running_algo.mec_waiting_time:
-        mv = _mov_avg(running_algo.mec_waiting_time[i])
-        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
-        if pt[-1] != mv[-1]:
-            pt.append(mv[-1])
-        d = list(range(len(mv)))
-        ptx = d[0:len(d):int((len(d) / 7)) + 1]
-        if ptx[-1] != d[-1]:
-            ptx.append(d[-1])
-        if len(ptx) > len(pt):
-            ptx=ptx[:-1]
-        elif len(ptx) < len(pt):
-            pt=pt[:-1]
-        ax1.plot(ptx,
-                 pt,
-                 **style1[list(running_algo.hosts.values()).index(i)],
-                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                 linewidth=2,
-                 label=i)
+        if len(running_algo.mec_rtt[i]) > 1:
+            mv = _mov_avg(running_algo.mec_waiting_time[i])
+            pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+            if pt[-1] != mv[-1]:
+                pt.append(mv[-1])
+            d = list(range(len(mv)))
+            ptx = d[0:len(d):int((len(d) / 7)) + 1]
+            if ptx[-1] != d[-1]:
+                ptx.append(d[-1])
+            if len(ptx) > len(pt):
+                ptx=ptx[:-1]
+            elif len(ptx) < len(pt):
+                pt=pt[:-1]
+            ax1.plot(ptx,
+                     pt,
+                     **style1[list(running_algo.hosts.values()).index(i)],
+                     linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                     linewidth=2,
+                     label=i)
     ax1.set_title('Waiting Time Queue')
     ax1.set_ylabel('Moving Wait + RTT')
     # ax2.set_xlabel('Time (seconds)')
@@ -138,24 +139,25 @@ def plot_wait_time():
 def plot_rtts():
     ax3.grid(True)
     for i in running_algo.mec_rtt:
-        mv = _mov_avg(running_algo.mec_rtt[i])
-        pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
-        if pt[-1] != mv[-1]:
-            pt.append(mv[-1])
-        d = list(range(len(mv)))
-        ptx = d[0:len(d):int((len(d) / 7)) + 1]
-        if ptx[-1] != d[-1]:
-            ptx.append(d[-1])
-        if len(ptx) > len(pt):
-            ptx=ptx[:-1]
-        elif len(ptx) < len(pt):
-            pt=pt[:-1]
-        ax3.plot(ptx,
-                 pt,
-                 **style1[list(running_algo.hosts.values()).index(i)],
-                 linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                 linewidth=2,
-                 label=i)
+        if len(running_algo.mec_rtt[i]) > 1:
+            mv = _mov_avg(running_algo.mec_rtt[i])
+            pt = mv[0:len(mv):int((len(mv) / 7)) + 1]
+            if pt[-1] != mv[-1]:
+                pt.append(mv[-1])
+            d = list(range(len(mv)))
+            ptx = d[0:len(d):int((len(d) / 7)) + 1]
+            if ptx[-1] != d[-1]:
+                ptx.append(d[-1])
+            if len(ptx) > len(pt):
+                ptx=ptx[:-1]
+            elif len(ptx) < len(pt):
+                pt=pt[:-1]
+            ax3.plot(ptx,
+                     pt,
+                     **style1[list(running_algo.hosts.values()).index(i)],
+                     linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                     linewidth=2,
+                     label=i)
     ax3.set_title('RTT Utilization over Time')
     ax3.set_ylabel('Moving RTT')
     # ax3.set_xlabel('Time (seconds)')
