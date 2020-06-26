@@ -213,6 +213,8 @@ def on_connect(connect_client, userdata, flags, rc):
 
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
+    global run
+
     data = str(msg.payload, 'utf-8')
     if data[0] == 'c':  # receive from cloud
         received_task = data[2:]
@@ -228,6 +230,10 @@ def on_message(message_client, userdata, msg):
         received_task = ast.literal_eval(data[2:])
         received_task_queue.append(received_task)
         received_time.append(time.time())
+
+    elif data.strip() == 'stop':  # stop {hostname: ip}
+        print('sending stop alert')
+        run = 0
 
     # else:
     #     print('data: ', data)
@@ -940,6 +946,7 @@ def start_loop():
             print('done')
             # os.system('kill -9 {}'.format(os.getpid()))
             break
+    print('algo stopped!')
     run = 1
     stop = False
     time.sleep(5)
@@ -975,5 +982,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
         if hosts[host] != host_ip:
             mec_rtt[hosts[host]] = []
     start_loop()
+    print('saving data')
     save_and_send(send_path)
+    print('Terminating process')
     terminate_process()
