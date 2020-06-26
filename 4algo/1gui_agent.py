@@ -14,6 +14,8 @@ import os
 from threading import Thread
 from drawnow import *
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 
 
 fig = plt.figure()
