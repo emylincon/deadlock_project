@@ -72,7 +72,7 @@ def connect_to_broker():
 
     username = 'mec'
     password = 'password'
-    broker_ip = input('Broker Ip: ').strip()
+    broker_ip = '192.168.200.13'    # input('Broker Ip: ').strip()
     broker_port_no = 1883
     topic = ip_address()
 
