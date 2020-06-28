@@ -77,7 +77,7 @@ def exp_control():
     algo_nos = {1: 2, 2: 3, 3: 7, 4: 10, 5: 12, 6: 16}
     exp_no = [4, 7, 10]
     exp_type = ['homo', 'hetero']
-    cloud_ips = ['192.168.205.11', '192.168.205.12']
+    cloud_ips = ['192.168.200.11', '192.168.200.12']
     counter = 3
     messenger = BrokerCom(**broker_dict)
     h1 = Thread(target=messenger.broker_loop)
