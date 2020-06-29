@@ -841,7 +841,7 @@ def save_and_send(send_path):
         cmd = f"echo '' > {path_}{_id_}_2_{mec_no}datap.py"
         os.system(cmd)
     else:
-        os.mkdir(path_)
+        os.system(f'mkdir -p {path_}')
         cmd = f"echo '' > {path_}{_id_}_2_{mec_no}datal.py"
         os.system(cmd)
         cmd = f"echo '' > {path_}{_id_}_2_{mec_no}datap.py"
@@ -862,46 +862,6 @@ def save_and_send(send_path):
         for _task_ in task_record:
             task_new = '.'.join(_task_.split('.')[:-1])
             _client.publish(task_new.split('.')[2], str({task_new: get_time() + [task_record[_task_]]}), )
-
-
-def terminate_process():
-    global prev_t, _loc, _off_mec, _off_cloud, _inward_mec, outward_mec, deadlock, memory, mec_waiting_time, mec_rtt
-    global offload_register, reoffload_list, discovering, test, _time, _pos, received_task_queue, received_time
-    global cloud_register, t_track, task_record, task_id, cooperate, clients_record, offload_check
-    global timed_out_tasks, total_received_task, _cpu
-
-    # reinitialize  #
-    _cpu = []  # cpu plot list
-    prev_t = 0  # variable for cpu util
-    _off_mec = 0  # used to keep a count of tasks offloaded from local mec to another mec
-    _off_cloud = 0  # used to keep a count of tasks offloaded to cloud
-    _loc = 0  # used to keep a count of tasks executed locally
-    _inward_mec = 0  # used to keep a count of tasks offloaded from another mec to local mec
-    outward_mec = 0  # keeps count of tasks sent back to another mec after executing
-    deadlock = [1]  # keeps count of how many deadlock is resolved
-    memory = []
-    mec_waiting_time = {}  # {ip : [moving (waiting time + rtt)]}
-    mec_rtt = {}  # {ip: [RTT]}
-    offload_register = {}  # {task: host_ip} to keep track of tasks sent to mec for offload
-    reoffload_list = [[], {}]  # [[task_list],{wait_time}] => records that’s re-offloaded to mec to execute.
-    discovering = 0  # if discovering == 0 update host
-    test = []
-    _time = []
-    _pos = 0
-    received_task_queue = []  # [[(task_list,wait_time), host_ip], ....]
-    received_time = []
-    cloud_register = {}  # ={client_id:client_ip} keeps address of task offloaded to cloud
-    t_track = 1
-    task_record = {}  # keeps record of task reoffloaded
-    task_id = 0  # id for each task reoffloaded
-
-    cooperate = {'mec': 0, 'cloud': 0}
-    clients_record = {}
-    offload_check = [0, 0]
-    timed_out_tasks = 0
-    total_received_task = 0
-
-    time.sleep(1)
 
 
 run = 1  # tell agents child when to stop

@@ -754,7 +754,7 @@ def save_and_send(send_path):
         cmd = f"echo '' > {path_}{_id_}_12_{mec_no}datap.py"
         os.system(cmd)
     else:
-        os.mkdir(path_)
+        os.system('mkdir -p data/raw')
         cmd = f"echo '' > {path_}{_id_}_12_{mec_no}datal.py"
         os.system(cmd)
         cmd = f"echo '' > {path_}{_id_}_12_{mec_no}datap.py"
