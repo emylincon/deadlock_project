@@ -94,7 +94,8 @@ def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
 
 def ip_address():
     try:
-        cmd = ['ifconfig eth1 | grep inet | cut -d ":" -f 2 | cut -d " " -f 1']
+        # cmd = ['ifconfig eth1 | grep inet | cut -d ":" -f 2 | cut -d " " -f 1']
+        cmd = ['ifconfig ens4 | grep inet | head -n 1 | cut -d "t" -f 2 | cut -d " " -f 2']
         address = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
         if len(address.strip().split('.')) == 4:
             return address.strip()
