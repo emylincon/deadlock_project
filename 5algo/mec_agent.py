@@ -3,7 +3,7 @@ import pickle
 import subprocess as sp
 import socket
 import os
-
+import json
 
 def get_hostname():
     cmd = ['cat /etc/hostname']
@@ -84,7 +84,8 @@ def run_me(no_mec, hosts, algo_no, cloud_ip, send_path, ip):
     try:
         algos = {1: 'algo_one', 2: 'algo_two', 3: 'algo_three', 4: 'algo_four', 5: 'algo_five', 6: 'algo_six'}
         # (--hosts, --mec_no_, --cloud_ip, --s_path, --b_ip)
-        cmd = f"python3 algorithms/{algos[algo_no]}.py --hosts='{hosts}' --mec_no={no_mec} --cloud_ip='{cloud_ip}'" \
+        cmd = f"python3 algorithms/{algos[algo_no]}.py --hosts='{json.dumps(hosts)}' --mec_no={no_mec} " \
+              f"--cloud_ip='{cloud_ip}'" \
               f"--s_path='{send_path}' --b_ip='{ip}'"
         os.system(cmd)
     except KeyboardInterrupt:
