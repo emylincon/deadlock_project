@@ -873,6 +873,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     print('saving data')
     save_and_send(send_path)
     print('send alert to control')
+    time.sleep(r.uniform(1, 10))
     _client.publish('control/control', pickle.dumps(['stop', ip_address()]))
     print('Terminating process')
     cmd = 'kill -9 {}'.format(os.getpid())
@@ -880,7 +881,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
 
 
 def main():
-    # (hosts_, mec_no_, cloud_ip_, send_path, broker_ip_)
+    # (hosts_, mec_no_, cloud_ip_, send_path, broker_ip_) , (--hosts, --mec_no_, --cloud_ip, --s_path, --b_ip)
     parser = argparse.ArgumentParser()
     parser.add_argument('--hosts', type=str, help="{hostname: 'ip address', ...} of all mec")
     parser.add_argument('--mec_no', type=int, default=1.0, help='Number of MEC nodes')

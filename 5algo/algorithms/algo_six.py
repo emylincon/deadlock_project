@@ -935,6 +935,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     print('saving data')
     save_and_send(send_path)
     print('send alert to control')
+    time.sleep(r.uniform(1, 10))
     _client.publish('control/control', pickle.dumps(['stop', ip_address()]))
     print('Terminating process')
     cmd = 'kill -9 {}'.format(os.getpid())
