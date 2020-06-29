@@ -14,8 +14,8 @@ from drawnow import *
 import smtplib
 import config
 import pickle
-import algorithms.data_homo as homo
-import algorithms.data_hetero as hetero
+import data_homo as homo
+import data_hetero as hetero
 import argparse
 from threading import Thread
 import threading
