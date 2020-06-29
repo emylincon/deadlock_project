@@ -68,6 +68,9 @@ def mec_id(client_ip):
     else:
         return _id
 
+"""
+{'mec-9': '192.168.122.119', 'mec-8': '192.168.122.118', 'mec-7': '192.168.122.117', 'mec-6': '192.168.122.116', 'mec-5': '192.168.122.115', 'mec-4': '192.168.122.114', 'mec-3': '192.168.122.113', 'mec-2': '192.168.122.112', 'mec-1': '192.168.122.111', 'osboxes-0': '192.168.122.110'}
+"""
 
 def exp_control():
     global messenger
@@ -120,7 +123,9 @@ def exp_control():
                     print('edge nodes are stopped!')
                     messenger.stopped = set()
                     print('stopping clients')
-                    messenger.publish(topic='control/client', data=pickle.dumps(['stop']))
+                    clients = ['124', '125', '126']
+                    for client in clients:
+                        messenger.publish(topic=client, data=pickle.dumps(['stop']))
                     print(f'Experiment {mec_no} for {kind} is concluded!')
                     print('Waiting for 60 seconds Time Lapse!')
                     time.sleep(60)
