@@ -107,7 +107,7 @@ def exp_control():
                     print(f'Experiment {mec_no} for {kind} has commenced!')
                     while len(messenger.finished) != 3:
                         time.sleep(60)
-                        messenger.publish('control/mec', pickle.dumps(['keep alive', 'mec']))
+                        # messenger.publish('control/mec', pickle.dumps(['keep alive', 'mec']))
                     print('client is finished!')
                     messenger.finished = set()
                     time.sleep(3*60)
