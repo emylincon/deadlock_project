@@ -419,6 +419,12 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
     # messenger.publish(topic=control_topic, data=pickle.dumps(['client finish', host_id]))
     task_client.publish('control/control', pickle.dumps(['client finish', host_id]))
     print('Client Finished')
+    time.sleep(3*60)
+    print('\nProgramme terminating')
+    save_data()
+    time.sleep(1)
+    cmd = 'kill -9 {}'.format(os.getpid())
+    os.system(cmd)
 
 
 def get_mec_details(mec_dict, algo_id_):
