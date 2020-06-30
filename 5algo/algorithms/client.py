@@ -3,7 +3,6 @@ import matplotlib
 import socket
 import os
 import ast
-import struct
 import random as r
 import time
 import datetime as dt
@@ -21,22 +20,10 @@ from threading import Thread
 import threading
 
 matplotlib.use('TkAgg')
-port = 65000  # The port used by the server
 shared_resource_lock = threading.Lock()
-# hosts = {}  # {hostname: ip}
-multicast_group = '224.3.29.71'
-server_address = ('', 10000)
 record = []  # [({tasks}, {waiting time}), hostname] records the task list and execution and waiting time and host sent
 run = 1
-# Create the socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# Bind to the server address
-sock.bind(server_address)
-# Tell the operating system to add the socket to the multi-cast group
-# on all interfaces.
-group = socket.inet_aton(multicast_group)
-mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},
@@ -275,7 +262,7 @@ def get_hostname():
     return hostname
 
 
-def send_email(msg, send_path):
+def send_email(msg):
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
@@ -383,14 +370,13 @@ def save_data():
         ["scp", f"{path_}c{get_hostname()[-1]}_{algo_id}_{len(hosts)}datap.py",
          f"mec@{ho['osboxes-0']}:{send_path}"])
 
-    send_email(result, send_path)
+    send_email(result)
 
 
 def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_) homo/hetero
     global record
     global client_id_
     global seq
-    global plot
 
     os.system('clear')
     print("================== Welcome to Client Platform ===================")
