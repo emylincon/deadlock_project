@@ -125,7 +125,7 @@ def exp_control():
                     print('stopping clients')
                     clients = ['124', '125', '126']
                     for client in clients:
-                        messenger.publish(topic=client, data=pickle.dumps(['stop']))
+                        messenger.publish(topic=client, data=str(['stop']))
                     print(f'Experiment {mec_no} for {kind} is concluded!')
                     print('Waiting for 60 seconds Time Lapse!')
                     time.sleep(60)
