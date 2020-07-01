@@ -86,7 +86,7 @@ def send_command(host_, no_mec, hosts, algo_no, cloud_ip, send_path, broker_ip):
 
         algos = {1: 'algo_one', 2: 'algo_two', 3: 'algo_three', 4: 'algo_four', 5: 'algo_five', 6: 'algo_six'}
 
-        s_hosts = '_'.join(list(hosts.keys) + list(hosts.values()))
+        s_hosts = '_'.join(list(hosts.keys()) + list(hosts.values()))
 
         if host_ == mec_nodes['osboxes-0']:
             p = '/home/mec/deadlock_project/5algo/algorithms/gui_logger'
