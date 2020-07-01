@@ -306,7 +306,7 @@ def edf():
             last_dead += period
 
     ready_task = sorted(ready_task, key=lambda t: t[1])
-    logger.info(ready_task)
+    logger.info(str(ready_task))
 
     t_time_ = 0
     schedule = []
@@ -323,7 +323,7 @@ def edf():
                 t_time_ += tasks[i[0]]['wcet']
                 schedule.append(i[0])
             else:
-                logger.info('Deadline missed: ', i)
+                logger.info(f'Deadline missed: {i}')
                 missed.append(i[0])
 
     # logger.info('s : ', schedule)
@@ -408,7 +408,7 @@ def is_safe(processes, avail, _need_, allot, p):  # bankers algorithm
             for i in a:
                 n[i] = sum(allocation[i[:2]])
             _max = max(n, key=n.get)
-            logger.info('work: ', work, 'need: ', _need[_max[:2]])
+            # logger.info('work: ', work, 'need: ', _need[_max[:2]])
             offload.append(_max)
             work = np.array(work) + np.array(allocation[_max[:2]])
             count += 1
@@ -421,12 +421,10 @@ def is_safe(processes, avail, _need_, allot, p):  # bankers algorithm
     # safe sequence will be as below
     if len(offload) > 0:
         safe_seq = safe_seq[:safe_seq.index(0)]
-        logger.info('offloading tasks: ', offload)
+        logger.info(f'offloading tasks: {offload}')
         cooperative_mec(offload)
         deadlock[0] += 1
-    logger.info("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    logger.info('safe seq: ', safe_seq)
+    logger.info(f'safe seq: {safe_seq}')
 
     return safe_seq
 
@@ -480,7 +478,7 @@ def compare_local_mec(list_seq):
         else:
             execute_mec.append(i)
             checking_times[i] = {'Latency': t_time[i.split('_')[0]][1], 'Expected_exec_time': list_seq[i]}
-    logger.info('Execution time comparison:= ', checking_times)
+    logger.info(f'Execution time comparison:= {checking_times}')
     return execute_mec, execute_locally
 
 
@@ -512,7 +510,7 @@ def send_message(mg):
             sock1.sendto(str.encode(mg), _multicast_group)
 
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def get_hostname():
@@ -637,9 +635,9 @@ def execute_re_offloaded_task(offloaded_task):
     global outward_mec, offload_check
     exec_list = get_exec_seq(offloaded_task[0])
     if len(exec_list) != len(offloaded_task[0]):
-        logger.info('\n\n', '@ ' * 50)
-        logger.info('exec: ', exec_list, 'off: ', offloaded_task[0])
-        logger.info('\n\n', '@ ' * 50)
+        # logger.info('\n\n', '@ ' * 50)
+        logger.info(f'exec: {exec_list} off: {offloaded_task[0]}')
+        # logger.info('\n\n', '@ ' * 50)
         offload_check.append((exec_list, offloaded_task[0]))
     outward_mec += len(exec_list)
     for i in exec_list:  # i = 't1.1.2.3*1_3'
@@ -662,13 +660,13 @@ def count_task_sent(task):
 
 
 def execute(local):
-    logger.info('\nExecuting :', local)
+    logger.info(f'\nExecuting : {local}')
 
     for i in local:
         j = i.split('_')[0]
         _t = t_time[j][0] / 2
         time.sleep(_t)
-        logger.info('#{}'.format(local.index(i) + 1), ' Executed: ', i)
+        logger.info('#{}'.format(local.index(i) + 1) + f' Executed: {i}')
         _client.publish(j.split('.')[2], str({j: get_time() + ['local']}), )
         count_task_sent(j)
         # if j.split('.')[1] != node_id:
@@ -757,7 +755,7 @@ def send_email(msg, send_path):
         server.quit()
         logger.info("Email sent!")
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def send_offloaded_task_mec(msg):
@@ -766,7 +764,7 @@ def send_offloaded_task_mec(msg):
         sock2.sendto(str.encode(msg), _multicast_group)
 
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def mec_id(client_ip):
@@ -794,7 +792,7 @@ def send_result(host_, data):
             stdin, stdout, stderr = c.exec_command(cmd)
         c.close()
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def save_and_send(send_path):
@@ -868,18 +866,18 @@ def start_loop():
                 info = received_task_queue.pop(0)
                 tasks, t_time = info
 
-                logger.info('EDF List of Processes: ', tasks, '\n')
+                logger.info(f'EDF List of Processes: {tasks}\n')
 
                 logger.info('\n========= Running Deadlock Algorithm ===========')
 
                 list_seq = get_exec_seq(edf())
                 if len(list_seq) > 0:  # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)
-                    logger.info('\nWaiting Time List: ', wait_list)
+                    logger.info(f'\nWaiting Time List: {wait_list}')
                     compare_result = compare_local_mec(wait_list)
-                    logger.info('\nExecute Locally: ', compare_result[1])
+                    logger.info(f'\nExecute Locally: {compare_result[1]}')
                     _loc += len(compare_result[1])  # total number of tasks to be executed locally
-                    logger.info('\nExecute in MEC: ', compare_result[0])
+                    logger.info(f'\nExecute in MEC: {compare_result[0]}')
 
                     if len(compare_result[0]) > 0:
                         logger.info('\nSending to cooperative platform')
@@ -908,7 +906,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     global my_algo
     global broker_ip
 
-    logger.info('mec ip: ', ip_address())
+    logger.info(f'mec ip: {ip_address()}')
     my_algo = psutil.Process()
     discovering_group()
     offloading_group()
@@ -921,7 +919,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     broker_ip = broker_ip_
 
     host_ip = ip_address()
-    logger.info('MEC Details: ', hosts)
+    logger.info(f'MEC Details: {hosts}')
     discovering = 1
     time.sleep(2)
     for host in hosts:
@@ -947,13 +945,16 @@ def main():
     parser.add_argument('--s_path', type=str, default='/home/mec/result/python', help='Path to send result to')
     parser.add_argument('--b_ip', type=str, help='Broker ip address')
     args = parser.parse_args()
-    h_hosts = ast.literal_eval(args.hosts)
+    # h_hosts = ast.literal_eval(args.hosts)
+    l_host, l_len = args.hosts.split('_'), len(args.hosts.split('_'))
+    h_hosts = dict(zip(l_host[:l_len//2], l_host[l_len//2:]))
     f_name = os.path.basename(__file__).split('/')[-1].split('.')[0]
     tim = dt.datetime.now().strftime("%a_%H%M")
     name = f'logs/{f_name}_{tim}_{args.mec_no}'
     file_handler = logging.FileHandler(name)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+    logger.info('Process Started')
 
     run_me(hosts_=h_hosts, mec_no_=args.mec_no, cloud_ip_=args.cloud_ip, send_path=args.s_path, broker_ip_=args.b_ip)
 
