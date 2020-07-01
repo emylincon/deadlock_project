@@ -937,7 +937,9 @@ def main():
     parser.add_argument('--s_path', type=str, default='/home/mec/result/python', help='Path to send result to')
     parser.add_argument('--b_ip', type=str, help='Broker ip address')
     args = parser.parse_args()
-    h_hosts = ast.literal_eval(args.hosts)
+    # h_hosts = ast.literal_eval(args.hosts)
+    l_host, l_len = args.hosts.split('_'), len(args.hosts.split('_'))
+    h_hosts = dict(zip(l_host[:l_len//2], l_host[l_len//2:]))
     f_name = os.path.basename(__file__).split('/')[-1].split('.')[0]
     tim = dt.datetime.now().strftime("%a_%H%M")
     name = f'logs/{f_name}_{tim}_{args.mec_no}'
