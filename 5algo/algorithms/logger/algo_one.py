@@ -426,7 +426,7 @@ def is_safe(processes, avail, _need_, allot, p):  # bankers algorithm
             for i in a:
                 n[i] = sum(allocation[i[:2]])
             _max = max(n, key=n.get)
-            logger.info('work: ', work, 'need: ', _need[_max[:2]])
+            # logger.info('work: ', work, 'need: ', _need[_max[:2]])
             offload.append(_max)
             work = np.array(work) + np.array(allocation[_max[:2]])
             count += 1
@@ -439,12 +439,10 @@ def is_safe(processes, avail, _need_, allot, p):  # bankers algorithm
     # safe sequence will be as below
     if len(offload) > 0:
         safe_seq = safe_seq[:safe_seq.index(0)]
-        logger.info('offloading tasks: ', offload)
+        logger.info(f'offloading tasks: {offload}')
         cooperative_mec(offload)
         deadlock[0] += 1
-    logger.info("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    logger.info('safe seq: ', safe_seq)
+    logger.info(f"System is in safe state.\nSafe sequence is: {safe_seq}")
 
     return safe_seq
 
@@ -498,7 +496,7 @@ def compare_local_mec(list_seq):
         else:
             execute_mec.append(i)
             checking_times[i] = {'Latency': t_time[i.split('_')[0]][1], 'Expected_exec_time': list_seq[i]}
-    logger.info('Execution time comparison:= ', checking_times)
+    logger.info(f'Execution time comparison:= {checking_times}')
     return execute_mec, execute_locally
 
 
@@ -530,7 +528,7 @@ def send_message(mg):
             sock1.sendto(str.encode(mg), _multicast_group)
 
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def get_hostname():
@@ -678,13 +676,13 @@ def count_task_sent(task):
 
 
 def execute(local):
-    logger.info('\nExecuting :', local)
+    logger.info(f'\nExecuting : {local}')
 
     for i in local:
         j = i.split('_')[0]
         _t = t_time[j][0] / 2
         time.sleep(_t)
-        logger.info('#{}'.format(local.index(i) + 1), ' Executed: ', i)
+        logger.info('#{}'.format(local.index(i) + 1) + f' Executed: {i}')
         _client.publish(j.split('.')[2], str({j: get_time() + ['local']}), )
         count_task_sent(j)
         # if j.split('.')[1] != node_id:
@@ -776,7 +774,7 @@ def send_email(msg, send_path):
         server.quit()
         logger.info("Email sent!")
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def send_offloaded_task_mec(msg):
@@ -785,7 +783,7 @@ def send_offloaded_task_mec(msg):
         sock2.sendto(str.encode(msg), _multicast_group)
 
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def send_result(host_, data):
@@ -803,7 +801,7 @@ def send_result(host_, data):
             stdin, stdout, stderr = c.exec_command(cmd)
         c.close()
     except Exception as e:
-        logger.info(e)
+        logger.info(str(e))
 
 
 def mec_id(client_ip):
@@ -904,18 +902,18 @@ def start_loop():
                 info = received_task_queue.pop(0)
                 tasks, t_time = info
 
-                logger.info('RMS List of Processes: ', tasks, '\n')
+                logger.info(f'RMS List of Processes: {tasks}\n')
 
                 logger.info('\n========= Running Deadlock Algorithm ===========')
                 lcm_result, task_load = load_tasks()
                 list_seq = get_exec_seq(scheduler(lcm_result, task_load))
                 if len(list_seq) > 0:  # do only when there is a task in safe sequence
                     wait_list = calc_wait_time(list_seq)
-                    logger.info('\nWaiting Time List: ', wait_list)
+                    logger.info(f'\nWaiting Time List: {wait_list}')
                     compare_result = compare_local_mec(wait_list)
-                    logger.info('\nExecute Locally: ', compare_result[1])
+                    logger.info(f'\nExecute Locally: {compare_result[1]}')
                     _loc += len(compare_result[1])  # total number of tasks to be executed locally
-                    logger.info('\nExecute in MEC: ', compare_result[0])
+                    logger.info(f'\nExecute in MEC: {compare_result[0]}')
 
                     if len(compare_result[0]) > 0:
                         logger.info('\nSending to cooperative platform')
@@ -945,7 +943,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     global my_algo
     global broker_ip
 
-    logger.info('mec ip: ', ip_address())
+    logger.info(f'mec ip: {ip_address()}')
     my_algo = psutil.Process()
     discovering_group()
     offloading_group()
@@ -958,7 +956,7 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     broker_ip = broker_ip_
 
     host_ip = ip_address()
-    logger.info('MEC Details: ', hosts)
+    logger.info(f'MEC Details: {hosts}')
     discovering = 1
     time.sleep(2)
     for host in hosts:
