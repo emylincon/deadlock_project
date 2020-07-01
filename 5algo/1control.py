@@ -130,6 +130,7 @@ def exp_control():
                     # data = ''     #  # ['start', {hostname: ip}, algo_no, cloud_ip, send_path ]
                     print('initializing Edge nodes')
                     for hostname, ip in hosts.items():
+                        print(hostname, ip)
                         send_command(host_=ip, no_mec=len(hosts), hosts=hosts, algo_no=algo_no,
                                      cloud_ip=cloud_dict[hostname], send_path=send_path, broker_ip=broker_dict['ip'])
 
