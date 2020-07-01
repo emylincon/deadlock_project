@@ -85,11 +85,14 @@ def send_command(host_, no_mec, hosts, algo_no, cloud_ip, send_path, broker_ip):
         c.connect(host_, port, un, pw)
 
         algos = {1: 'algo_one', 2: 'algo_two', 3: 'algo_three', 4: 'algo_four', 5: 'algo_five', 6: 'algo_six'}
+
+        s_hosts = '_'.join(list(hosts.keys) + list(hosts.values()))
+
         if host_ == mec_nodes['osboxes-0']:
             p = '/home/mec/deadlock_project/5algo/algorithms/gui_logger'
         else:
             p = '/home/mec/deadlock_project/5algo/algorithms/logger'
-        cmd = f"python3 {p}/{algos[algo_no]}.py --hosts='{json.dumps(hosts)}' --mec_no={no_mec} " \
+        cmd = f"python3 {p}/{algos[algo_no]}.py --hosts='{s_hosts}' --mec_no={no_mec} " \
               f"--cloud_ip='{cloud_ip}' --s_path='{send_path}' --b_ip='{broker_ip}'"
 
         c.exec_command(cmd)
