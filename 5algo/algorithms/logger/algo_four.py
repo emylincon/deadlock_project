@@ -962,6 +962,7 @@ def main():
     file_handler = logging.FileHandler(name)
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+    logger.info('Process Started')
 
     run_me(hosts_=h_hosts, mec_no_=args.mec_no, cloud_ip_=args.cloud_ip, send_path=args.s_path, broker_ip_=args.b_ip)
 
