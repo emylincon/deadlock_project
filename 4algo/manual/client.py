@@ -388,7 +388,9 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
     host_id = str(sp.check_output(cmd, shell=True), 'utf-8')[-2]
     t_list = task_bank[int(host_id)]
 
+    input('start: ')
     print('experiment started!')
+    
     _data_ = split_list(data[len(hosts)], int(host_id))
     for i in range(len(_data_)):
         seq = i
