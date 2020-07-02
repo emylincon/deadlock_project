@@ -181,14 +181,6 @@ def on_receive_task(message_client, userdata, msg):
     data = str(msg.payload, 'utf-8')
     received_task = ast.literal_eval(data)  # {task_id: ['2020', '04', '09', '14', '38', '39', '627060', '<mec>']}
 
-    if received_task == ['stop']:
-        print('\nProgramme terminated')
-        print('MEC: ', ho['osboxes-0'])
-        save_data()
-        time.sleep(1)
-        cmd = 'kill -9 {}'.format(os.getpid())
-        os.system(cmd)
-
     for i in received_task:
         tk = '.'.join(i.split('.')[:4])
         # print('tk: {}'.format(tk))
@@ -419,7 +411,7 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
     # messenger.publish(topic=control_topic, data=pickle.dumps(['client finish', host_id]))
     task_client.publish('control/control', pickle.dumps(['client finish', host_id]))
     print('Client Finished')
-    time.sleep(3*50)
+    time.sleep(150)
     print('\nProgramme terminating')
     save_data()
     time.sleep(1)
