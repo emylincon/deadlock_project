@@ -451,7 +451,7 @@ def main():
     send_path = f'/home/mec/result/{kind}/{count}'
 
     ho_ = sorted(list(mec_nodes))[:args.n - 1]
-    h_hosts = {**{host: mec_nodes[host] for host in ho if ho != get_hostname()}, **gui}
+    h_hosts = {**{host: mec_nodes[host] for host in ho_ if ho_ != get_hostname()}, **gui}
 
     algo_nos = {1: 2, 2: 3, 3: 7, 4: 10, 5: 12, 6: 16}
     al_id = algo_nos[args.a]
