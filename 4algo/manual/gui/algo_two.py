@@ -1068,7 +1068,7 @@ def start_loop():
                         print('\nSending to cooperative platform')
                         cooperative_mec(compare_result[0])
                     execute(compare_result[1])
-                    plot_graphs()
+                    show_graphs()
                 _time_ = dt.datetime.now()
             else:
                 send_message(str('wt {} 0.0'.format(ip_address())))
