@@ -59,7 +59,6 @@ def starter():
     global broker_ip
     global messenger
     global control_topic
-    global plot
 
     control_topic = 'control/control'
     broker_ip = '192.168.122.111'

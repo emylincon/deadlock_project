@@ -378,6 +378,7 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
     redeem_task = Thread(target=receive_mec_start, args=(lambda: stop,))
     # redeem_task.daemon = True
     redeem_task.start()
+    time.sleep(2)
     exp_type = {'homo': homo, 'hetero': hetero}
     dst = exp_type[exp_kind]
     print('Client is connected to servers: {}'.format(hosts))
