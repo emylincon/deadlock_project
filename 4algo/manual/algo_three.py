@@ -920,6 +920,7 @@ def main():
 
     ho += ['osboxes-0']
     cloud_ip = cloud_ips[ho.index(get_hostname()) % 2]
+    os.system('clear')
     run_me(mec_no_=args.n, send_path=send_path, broker_ip_=b_ip)
 
 
