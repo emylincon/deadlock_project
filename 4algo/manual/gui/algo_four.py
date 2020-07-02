@@ -1,4 +1,3 @@
-import matplotlib
 from functools import reduce
 from sys import *
 import numpy as np
@@ -13,7 +12,7 @@ import ast
 import time
 import datetime as dt
 import os
-import getpass as gp
+import argparse
 import psutil
 from drawnow import *
 from matplotlib import pyplot as plt
@@ -21,8 +20,10 @@ from netifaces import interfaces, ifaddresses, AF_INET
 import paho.mqtt.client as mqtt
 import smtplib
 import config
+import matplotlib
 
 matplotlib.use('TkAgg')
+
 hosts = {}  # {hostname: ip}
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
@@ -53,36 +54,35 @@ test = []
 _time = []
 color_code = ['orange', 'brown', 'purple', 'pink', 'blue']
 style = ['g--^', 'r:o', 'b-.s', 'm--*', 'k-.>', 'c-.s']
-# 'grey', 'pink', 'brown', 'purple', 'orange', 'burlywood', 'lime', 'navy', 'aqua', 'teal', 'fuchsia', 'olive', 'maroon'
+mec_waiting_time = {}  # {ip : [moving (waiting time + rtt)]}
 style1 = [{'color': 'g', 'marker': '^'}, {'color': 'aqua', 'marker': '*'}, {'color': 'purple', 'marker': 'X'},
           {'color': 'r', 'marker': 'v'}, {'color': 'k', 'marker': '>'}, {'color': 'brown', 'marker': 'D'},
-          {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'},]
-mec_waiting_time = {}   # {ip : [moving (waiting time + rtt)]}
-
-offload_register = {}      # {task: host_ip} to keep track of tasks sent to mec for offload
+          {'color': 'b', 'marker': 's'}, {'color': 'c', 'marker': '1'}, {'color': 'olive', 'marker': 'p'}, ]
+offload_register = {}  # {task: host_ip} to keep track of tasks sent to mec for offload
 reoffload_list = [[], {}]
 discovering = 0
-mec_rtt = {}               # {ip: [RTT]}
-thread_record = []   # keeps track of threads
-prev_t = 0            # variable for cpu util
-_cpu = []             # cpu plot list
-_off_mec = 0          # used to keep a count of tasks offloaded from local mec to another mec
-_off_cloud = 0        # used to keep a count of tasks offloaded to cloud
-_loc = 0              # used to keep a count of tasks executed locally
-_inward_mec = 0       # used to keep a count of tasks offloaded from another mec to local mec
-deadlock = [1]          # keeps count of how many deadlock is resolved
+mec_rtt = {}  # {ip: [RTT]}
+thread_record = []  # keeps track of threads
+prev_t = 0  # variable for cpu util
+_cpu = []  # cpu plot list
+
+_off_mec = 0  # used to keep a count of tasks offloaded from local mec to another mec
+_off_cloud = 0  # used to keep a count of tasks offloaded to cloud
+_loc = 0  # used to keep a count of tasks executed locally
+_inward_mec = 0  # used to keep a count of tasks offloaded from another mec to local mec
+deadlock = [1]  # keeps count of how many deadlock is resolved
 _pos = 0
 
-received_task_queue = []   # [[(task_list,wait_time), host_ip], ....]
-received_time = []
+received_task_queue = []  # [[(task_list,wait_time), host_ip], ....]
 _port_ = 64000
-cloud_register = {}   # ={client_id:client_ip} keeps address of task offloaded to cloud
+cloud_register = {}  # ={client_id:client_ip} keeps address of task offloaded to cloud
 cloud_port = 63000
 memory = []
 t_track = 1
+received_time = []
+task_record = {}  # keeps record of task reoffloaded
+task_id = 0  # id for each task reoffloaded
 shared_resource_lock = threading.Lock()
-task_record = {}     # keeps record of task reoffloaded
-task_id = 0          # id for each task reoffloaded
 
 fig = plt.figure()
 ax1 = fig.add_subplot(231)
@@ -128,20 +128,20 @@ def offloading_group():
 
 
 def _mov_avg(a1):
-    ma1 = []   # moving average list
-    avg1 = 0   # moving average pointwise
+    ma1 = []  # moving average list
+    avg1 = 0  # moving average pointwise
     count = 0
     for i in range(len(a1)):
         count += 1
-        avg1 = ((count-1)*avg1+a1[i])/count
-        ma1.append(round(avg1, 4))    # cumulative average formula
+        avg1 = ((count - 1) * avg1 + a1[i]) / count
+        ma1.append(round(avg1, 4))  # cumulative average formula
         # μ_n=((n-1) μ_(n-1)  + x_n)/n
     return ma1
 
 
 def percent(value, total):
     if value > 0:
-        return round((value/total)*100, 2)
+        return round((value / total) * 100, 2)
     else:
         return 0
 
@@ -163,19 +163,21 @@ def plot_offloaded_remote():
             explode.append(0.1)
         else:
             explode.append(0)
+
     ax2.pie(val, labels=keys, autopct='%.3f%%', wedgeprops=dict(width=0.5), 
     startangle=-40, shadow=True, explode=explode, colors=cols)
     '''
     values = [_off_mec, _off_cloud, _loc, _inward_mec]
     for i in values:
         j = values.index(i)
-        ax2.text(j-0.1, values[j], '{}%'.format(val[j]), rotation=0,
+        ax2.text(j - 0.1, values[j], '{}%'.format(val[j]), rotation=0,
                  ha="center", va="center", bbox=dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8), ))
     ax2.set_xticks(ypos)
     ax2.set_xticklabels(keys)
     ax2.bar(ypos, values, align='center', color=cols, alpha=0.3)
     ax2.set_title('Local/Remote Execution Report')
     plt.subplot(ax2)
+
 
 # color=color_code[list(hosts.values()).index(i)]
 
@@ -186,11 +188,12 @@ def plot_deadlock():
     '''
     wedges, texts, autotexts = ax5.pie(deadlock, shadow=True, autopct=text,
                                        textprops=dict(rotation_mode='anchor', color="w", ha='left'), colors=cols)
+
     plt.setp(autotexts, size=9, weight="bold")
     '''
     ax5.text(0.5, 0.6, text, rotation=0, size=10,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.7, 0.9, 1.)))
-    ax5.text(0.5, 0.45, '{} Tasks Received'.format(_loc+_inward_mec), rotation=0, size=10,
+    ax5.text(0.5, 0.45, '{} Tasks Received'.format(_loc + _inward_mec), rotation=0, size=10,
              ha="center", va="center", bbox=dict(boxstyle="round", ec=(0., 0., 0.), fc=(0.98, 0.96, 0.59), ))
     # ax5.set_title("Deadlock Resolved Counter")
     ax5.set_axis_off()
@@ -225,9 +228,9 @@ def plot_wait_time():
         if ptx[-1] != d[-1]:
             ptx.append(d[-1])
         if len(ptx) > len(pt):
-            ptx=ptx[:-1]
+            ptx = ptx[:-1]
         elif len(ptx) < len(pt):
-            pt=pt[:-1]
+            pt = pt[:-1]
         ax1.plot(ptx,
                  pt,
                  **style1[list(hosts.values()).index(i)],
@@ -259,9 +262,9 @@ def plot_rtts():
         if ptx[-1] != d[-1]:
             ptx.append(d[-1])
         if len(ptx) > len(pt):
-            ptx=ptx[:-1]
+            ptx = ptx[:-1]
         elif len(ptx) < len(pt):
-            pt=pt[:-1]
+            pt = pt[:-1]
         ax3.plot(ptx,
                  pt,
                  **style1[list(hosts.values()).index(i)],
@@ -349,7 +352,10 @@ def get_time():
     _time_ += d[0].split('-')
     g = d[1].split('.')
     _time_ += g[0].split(':')
-    _time_.append(g[1])
+    try:
+        _time_.append(g[1])
+    except IndexError:
+        pass
     return _time_
 
 
@@ -374,19 +380,19 @@ def gosh_dist(_range):
 def on_connect(connect_client, userdata, flags, rc):
     # print("Connected with Code :" +str(rc))
     # Subscribe Topic from here
-    connect_client.subscribe(node_id, )
+    connect_client.subscribe(node_id)
 
 
 # Callback Function on Receiving the Subscribed Topic/Message
 def on_message(message_client, userdata, msg):
     data = str(msg.payload, 'utf-8')
-    if data[0] == 'c':    # receive task from cloud
+    if data[0] == 'c':  # receive from cloud
         received_task = data[2:]
         # send_client({received_task: get_time()}, cloud_register[received_task.split('.')[2]])
         if received_task in task_record:
             del task_record[received_task]
             received_task = '.'.join(received_task.split('.')[:-1])
-            _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time()+['cloud']}), )
+            _client.publish(topic=received_task.split('.')[2], payload=str({received_task: get_time() + ['cloud']}), )
             cooperate['cloud'] += 1
             count_task_sent(received_task)
 
@@ -446,6 +452,8 @@ def load_tasks():
 
 
 total_received_task = 0
+
+
 def scheduler(_lcm_, s_tasks):  # RMS algorithm
     global total_received_task
     queue = list(s_tasks.keys())  # initialize task queue
@@ -498,113 +506,84 @@ def scheduler(_lcm_, s_tasks):  # RMS algorithm
             if curr != 'idle':
                 rms.append(curr)
         prev = curr
-    process = {task:{'wcet': tasks[task]['wcet']} for task in tasks}
+    process = {task: {'wcet': tasks[task]['wcet']} for task in tasks}
     rms = task_time_map(seq=rms, process=process)
     total_received_task += len(rms)
     return rms
 
 
-# generate execution sequence
-def is_safe(processes, avail, _need_, allot, p):     # bankers algorithm
-    need = [_need_[i] for i in _need_]
-    _allot_ = [allot[i] for i in allot]
-    # tasks to offload if exit
+# generate execution sequence with wait_die
+def wait_die(processes, avail, n_need, allocat):
+    global deadlock
+
     offload = []
 
-    # Number of resources
-    res = 3
-
-    # Mark all processes as unfinished
-    finish = [0] * p
-
-    # To store safe sequence
-    safe_seq = [0] * p
+    # To store execution sequence
+    exec_seq = []
 
     # Make a copy of available resources
-    work = [0] * res
-    for i in range(res):
-        work[i] = avail[i]
+    work = [0] * len(processes)
 
-        # While all processes are not finished
+    # While all processes are not finished
     # or system is not in safe state.
-    count = 0
-    while count < p:
+    while 'w' or 0 in work:
+        if 0 in work:
+            ind = work.index(0)
+            i = processes[ind]
+        elif 'w' in work:
+            # print('wk: ', work)
+            ind = work.index('w')
+            i = processes[ind]
+        else:
+            break
 
-        # Find a process which is not finish
-        # and whose needs can be satisfied
-        # with current work[] resources.
-        found = False
-        for t in range(p):
+        # print('comparing| process: ', i, n_need[i], 'work: ', avail)
+        if not (False in list(np.greater_equal(avail, n_need[i]))):
+            exec_seq.append(i)
+            avail = np.add(avail, allocat[i])
+            work[ind] = 1
+            # print('added: ', exec_seq)
 
-            # First check if a process is finished,
-            # if no, go for next condition
-            if finish[t] == 0:
-
-                # Check if for all resources
-                # of current P need is less
-                # than work
-                for j in range(res):
-                    if need[t][j] > work[j]:
-                        break
-
-                # If all needs of p were satisfied.
-                if j == res - 1:
-
-                    # Add the allocated resources of
-                    # current P to the available/work
-                    # resources i.e.free the resources
-                    for k in range(res):
-                        work[k] += _allot_[t][k]
-
-                        # Add this process to safe sequence.
-                    safe_seq[count] = processes[t]
-                    count += 1
-
-                    # Mark this p as finished
-                    finish[t] = 1
-
-                    found = True
-
-        # If we could not find a next process
-        # in safe sequence.
-        if not found:
-            print("System is not in safe state")
-
-            a = list(set(processes) - set(safe_seq) - set(offload))
-            _max = np.array([0, 0, 0])
+        else:
+            a = list(set(processes) - set(exec_seq) - set(offload))
             n = {}
-            for i in a:
-                n[i] = sum(allocation[i[:2]])
+            for j in a:
+                n[j] = sum(allocat[j])
             _max = max(n, key=n.get)
-            print('work: ', work, 'need: ', _need[_max[:2]])
-            offload.append(_max)
-            work = np.array(work) + np.array(allocation[_max[:2]])
-            count += 1
+            # print('work: ', work, 'need: ', n_need[_max])
+            if processes.index(_max) > processes.index(i):  # if true, i is older
+                # if process is already waiting then offload process
+                if work[ind] == 'w':
+                    offload.append(i)
+                    avail = np.array(avail) + np.array(allocat[i])
+                    work[processes.index(i)] = 1
+                    # print('offload reentry: ', i, offload)
+                else:
+                    # wait put process to waiting
+                    work[processes.index(i)] = 'w'
+                    # print('waiting: ', i)
 
-            # Mark this p as finished
-            finish[processes.index(_max)] = 1
-            found = True
+            else:
+                # abort i
+                offload.append(i)
+                avail = np.array(avail) + np.array(allocat[i])
+                work[processes.index(i)] = 1
+                # print('offload: ', i)
 
-    # If system is in safe state then
-    # safe sequence will be as below
     if len(offload) > 0:
-        safe_seq = safe_seq[:safe_seq.index(0)]
         print('offloading tasks: ', offload)
         cooperative_mec(offload)
         deadlock[0] += 1
-    print("System is in safe state.",
-          "\nSafe sequence is: ", end=" ")
-    print('safe seq: ', safe_seq)
 
-    return safe_seq
+    print('Execution seq: ', exec_seq)
+
+    return exec_seq
 
 
 def get_exec_seq(pro):
-
     # Number of processes
     p = len(pro)
-
-    processes = ['{}_{}'.format(pro[i], i) for i in range(len(pro))]
+    processes = ['{}_{}'.format(pro[i], i) for i in range(p)]
 
     # Available instances of resources
     avail = [6, 5, 5]
@@ -614,46 +593,38 @@ def get_exec_seq(pro):
     allot = {i: allocation[i[:2]] for i in processes}
 
     # return execution sequence
-    return is_safe(processes, avail, n_need, allot, p)
+    return wait_die(processes, avail, n_need, allot)
 
 
 def calc_wait_time(list_seq):
     pre = 0
     time_dic = {}
     for i in list_seq:
-        j = i.split('_')[0]           # i = 't5_3_3', j = 't5_3'
+        j = i.split('_')[0]  # i = 't5_3_3', j = 't5_3'
         time_dic[i] = round(t_time[j][0] + pre, 3)
         pre += t_time[j][0]
     # waiting time = total waiting time ÷ 2 average waiting time might be too tight
-    w_send = round(time_dic[list(time_dic.keys())[-1]]/2, 3)
+    w_send = round(time_dic[list(time_dic.keys())[-1]] / 2, 3)
 
     send_message('wt {} {}'.format(ip_address(), str(w_send)))  # Broadcasting waiting time to cooperative MECs
     return time_dic
 
 
-timed_out_tasks = 0
 def compare_local_mec(list_seq):
-    global received_time, timed_out_tasks
+    time_compare_dict = {i: t_time[i.split('_')[0]][1] > list_seq[i] for i in list_seq}
+    print('local vs MEC comparison: ', time_compare_dict)
     execute_mec = []
     execute_locally = []
-    diff = time.time() - received_time.pop(0)
-    checking_times = {}
-    for i in list_seq:
-        t_time[i.split('_')[0]][1]-=diff
-        # if t_time[i.split('_')[0]][1] < 0:
-        #     _client.publish(i.split('_')[0].split('.')[2], str({i.split('_')[0]: get_time() + ['local']}), )
-        #     timed_out_tasks += 1
-        if t_time[i.split('_')[0]][1] > list_seq[i]:
+    for i in time_compare_dict:
+        if time_compare_dict[i]:
             execute_locally.append(i)
         else:
             execute_mec.append(i)
-            checking_times[i] = {'Latency': t_time[i.split('_')[0]][1], 'Expected_exec_time': list_seq[i]}
-    print('Execution time comparison:= ', checking_times)
+
     return execute_mec, execute_locally
 
 
 def calculate_mov_avg(ma1, a1):
-
     if ma1 in mec_waiting_time:
         _count = len(mec_waiting_time[ma1])
         avg1 = mec_waiting_time[ma1][-1]
@@ -778,6 +749,7 @@ def cooperative_mec(mec_list):
                 w_send = mec_waiting_time[_host][-1] + 0.001
                 mec_waiting_time[_host].append(w_send)  # adds a new average waiting time
                 print('\n======SENDING {} TO MEC {}========='.format(i, _host))
+
             else:
                 _send_task = f"{j}.{task_id}"
                 _client.publish(cloud_ip, str([_send_task, t_time[j][0]]), )
@@ -792,15 +764,12 @@ def cooperative_mec(mec_list):
 
 
 outward_mec = 0
-offload_check = [0,0]
+offload_check = [0, 0]
+
+
 def execute_re_offloaded_task(offloaded_task):
     global outward_mec, offload_check
     exec_list = get_exec_seq(offloaded_task[0])
-    # if len(exec_list) != len(offloaded_task[0]):
-    #     print('\n\n', '@ ' * 50)
-    #     print('exec: ', exec_list, 'off: ', offloaded_task[0])
-    #     print('\n\n', '@ ' * 50)
-    #     offload_check.append((exec_list, offloaded_task[0]))
     outward_mec += len(exec_list)
     for i in offloaded_task[0]:  # i = 't1.1.2.3*1_3'
         j = i.split('_')[0]
@@ -810,8 +779,10 @@ def execute_re_offloaded_task(offloaded_task):
 
 
 clients_record = {}
+
+
 def count_task_sent(task):
-    global  clients_record
+    global clients_record
     c_id = task.split('.')[2]
     if c_id in clients_record:
         clients_record[c_id] += 1
@@ -829,20 +800,11 @@ def execute(local):
         print('#{}'.format(local.index(i) + 1), ' Executed: ', i)
         _client.publish(j.split('.')[2], str({j: get_time() + ['local']}), )
         count_task_sent(j)
-        # if j.split('.')[1] != node_id:
-        #     send_offloaded_task_mec('{} {}'.format(j.split('.')[1], j))
-        #     outward_mec += 1
-        # elif j.split('.')[1] == node_id:
-        #     # send_client({j: get_time()}, send_back_host)
-        #     _client.publish(j.split('.')[2], str({j: get_time() + ['local']}), )
-        #     count_task_sent(j)
-        #     _loc += 1
-        # else:
-        #     print('else execute: ', j)
+
     print('============== EXECUTION DONE ===============')
 
 
-cooperate = {'mec': 0, 'cloud':0}
+cooperate = {'mec': 0, 'cloud': 0}
 
 
 def receive_offloaded_task_mec(stop):  # run as a thread
@@ -866,7 +828,7 @@ def receive_offloaded_task_mec(stop):  # run as a thread
                         count_task_sent(da[1])
                         cooperate['mec'] += 1
                     else:
-                        print('*'*30 + f'\n{da[1]} Not in Task Record\n' + '*'*30)
+                        print('*' * 30 + f'\n{da[1]} Not in Task Record\n' + '*' * 30)
                 elif (address[0] not in ip_set) and (da[0] == 'ex') and (da[1] == node_id):
                     _received = ast.literal_eval(da[2] + da[3])
                     shared_resource_lock.acquire()
@@ -894,8 +856,8 @@ def call_execute_re_offload(stop):
                 del reoffload_list[1][t]
                 shared_resource_lock.release()
                 send_offloaded_task_mec('{} {}'.format(t.split('.')[1], t.split('*')[0]))
-                offload_check[0] += 1
                 outward_mec += 1
+                offload_check[0] += 1
             elif len(reoffload_list[0]) > 1:
                 o = reoffload_list.copy()
                 offload_check[1] += len(o)
@@ -921,7 +883,7 @@ def send_email(msg, send_path):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results rms+bankers {} {}'.format(get_hostname(), send_path)
+        subject = 'Deadlock results rms+wait_die {} {}'.format(get_hostname(), send_path)
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -932,7 +894,6 @@ def send_email(msg, send_path):
 
 
 def mec_id(client_ip):
-
     _id = client_ip.split('.')[-1]
     if len(_id) == 1:
         return '00' + _id
@@ -944,37 +905,35 @@ def mec_id(client_ip):
 
 def save_and_send(send_path):
     _id_ = get_hostname()[-1]
-    result = f"\nwt{_id_}_2_{mec_no} = {mec_waiting_time} " \
-             f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} " \
-             f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} " \
-             f"\noff_cloud{_id_}_2_{mec_no} = {_off_cloud} " \
-             f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}" \
-             f"\nloc{_id_}_2_{mec_no} = {_loc} " \
-             f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}" \
-             f"\ntask_received{_id_}_2_{mec_no} = {total_received_task} \nsent_t{_id_}_2_{mec_no} = {clients_record}" \
-             f"\ncooperate{_id_}_2_{mec_no} = {cooperate} \ntask_record{_id_}_2_{mec_no} = {task_record}" \
-             f"\noutward_mec{_id_}_2_{mec_no} = {outward_mec}" \
-             f"\noffload_check{_id_}_2_{mec_no} = {offload_check}" \
-             f"\ntimed_out_tasks{_id_}_2_{mec_no} = {timed_out_tasks}\n"
+    result = f"\nwt{_id_}_10_{mec_no} = {mec_waiting_time} " \
+             f"\nrtt{_id_}_10_{mec_no} = {mec_rtt} \ncpu{_id_}_10_{mec_no} = {_cpu} " \
+             f"\noff_mec{_id_}_10_{mec_no} = {_off_mec} " \
+             f"\noff_cloud{_id_}_10_{mec_no} = {_off_cloud} " \
+             f"\ninward_mec{_id_}_10_{mec_no} = {_inward_mec}" \
+             f"\nloc{_id_}_10_{mec_no} = {_loc} " \
+             f"\ndeadlock{_id_}_10_{mec_no} = {deadlock} \nmemory{_id_}_10_{mec_no} = {memory}" \
+             f"\ntask_received{_id_}_10_{mec_no} = {total_received_task} \nsent_t{_id_}_10_{mec_no} = {clients_record}" \
+             f"\ncooperate{_id_}_10_{mec_no} = {cooperate} \ntask_record{_id_}_10_{mec_no} = {task_record}" \
+             f"\noutward_mec{_id_}_10_{mec_no} = {outward_mec}" \
+             f"\noffload_check{_id_}_10_{mec_no} = {offload_check}"
     list_result = [
-        f"\nwt{_id_}_2_{mec_no} = {mec_waiting_time} ",
-        f"\nrtt{_id_}_2_{mec_no} = {mec_rtt} \ncpu{_id_}_2_{mec_no} = {_cpu} ",
-        f"\noff_mec{_id_}_2_{mec_no} = {_off_mec} \noff_cloud{_id_}_2_{mec_no} = {_off_cloud} ",
-        f"\ninward_mec{_id_}_2_{mec_no} = {_inward_mec}",
-        f"\nloc{_id_}_2_{mec_no} = {_loc} ",
-        f"\ndeadlock{_id_}_2_{mec_no} = {deadlock} \nmemory{_id_}_2_{mec_no} = {memory}",
-        f"\ntask_received{_id_}_2_{mec_no} = {total_received_task} \nsent_t{_id_}_2_{mec_no} = {clients_record}",
-        f"\ncooperate{_id_}_2_{mec_no} = {cooperate} \ntask_record{_id_}_2_{mec_no} = {task_record} "
-        f"\noutward_mec{_id_}_2_{mec_no} = {outward_mec}",
-        f"\noffload_check{_id_}_2_{mec_no} = {offload_check}"
-        f"\ntimed_out_tasks{_id_}_2_{mec_no} = {timed_out_tasks}"
-    ]
+        f"\nwt{_id_}_10_{mec_no} = {mec_waiting_time} ",
+        f"\nrtt{_id_}_10_{mec_no} = {mec_rtt} \ncpu{_id_}_10_{mec_no} = {_cpu} ",
+        f"\noff_mec{_id_}_10_{mec_no} = {_off_mec} \noff_cloud{_id_}_10_{mec_no} = {_off_cloud} ",
+        f"\ninward_mec{_id_}_10_{mec_no} = {_inward_mec}",
+        f"\nloc{_id_}_10_{mec_no} = {_loc} ",
+        f"\ndeadlock{_id_}_10_{mec_no} = {deadlock} \nmemory{_id_}_10_{mec_no} = {memory}",
+        f"\ntask_received{_id_}_10_{mec_no} = {total_received_task} \nsent_t{_id_}_10_{mec_no} = {clients_record}",
+        f"\ncooperate{_id_}_10_{mec_no} = {cooperate} \ntask_record{_id_}_10_{mec_no} = {task_record} "
+        f"\noutward_mec{_id_}_10_{mec_no} = {outward_mec}",
+        f"\noffload_check{_id_}_10_{mec_no} = {offload_check}"
 
-    file_ = open(f'{_id_}_2_{mec_no}datap.py', 'w')
+    ]
+    file_ = open(f'{_id_}_10_{mec_no}datap.py', 'w')
     for i in list_result:
         file_.write(i)
     file_.close()
-    cmd = f'mv {_id_}_2_{mec_no}datap.py {send_path}'
+    cmd = f'mv {_id_}_10_{mec_no}datap.py {send_path}'
     os.system(cmd)
 
     send_email(result, send_path)
@@ -1024,15 +983,11 @@ def terminate_process():
     time.sleep(1)
 
 
-run = 1  # tell agents child when to stop
-
-
 def start_loop():
     global _loc
     global tasks
     global t_time
     global node_id
-    global run
 
     print('\n============* WELCOME TO THE DEADLOCK EMULATION PROGRAM *=============\n')
 
@@ -1046,16 +1001,16 @@ def start_loop():
         threads_[-1].daemon = True
         threads_[-1].start()
 
-    print('algorithm is starting....')
-
+    input('start..')
     print('========= Waiting for tasks ==========')
-    while run == 1:
+    _time_ = dt.datetime.now()
+    while True:
         try:
             if len(received_task_queue) > 0:
                 info = received_task_queue.pop(0)
                 tasks, t_time = info
 
-                print('RMS List of Processes: ', tasks, '\n')
+                print('EDF List of Processes: ', tasks, '\n')
 
                 print('\n========= Running Deadlock Algorithm ===========')
                 lcm_result, task_load = load_tasks()
@@ -1068,36 +1023,35 @@ def start_loop():
                     _loc += len(compare_result[1])  # total number of tasks to be executed locally
                     print('\nExecute in MEC: ', compare_result[0])
 
+                    print('\nSending to cooperative platform')
                     if len(compare_result[0]) > 0:
-                        print('\nSending to cooperative platform')
                         cooperative_mec(compare_result[0])
                     execute(compare_result[1])
+                    plot_graphs()
+                _time_ = dt.datetime.now()
             else:
                 send_message(str('wt {} 0.0'.format(ip_address())))
-                time.sleep(.4)
+                time.sleep(.5)
+                now = dt.datetime.now()
+                delta = now - _time_
+                if delta > dt.timedelta(minutes=4):
+                    print('terminating programme 3 mins elapsed')
+                    stop = False
+                    break
 
         except KeyboardInterrupt:
             print('\nProgramme Terminated')
             stop = False
-            for th in threads_:
-                th.join()
-            time.sleep(1)
-            print('done')
-            # os.system('kill -9 {}'.format(os.getpid()))
+            cmd = 'kill -9 {}'.format(os.getpid())
+            os.system(cmd)
             break
-    run = 1
-    stop = False
-    time.sleep(5)
-    for th in threads_:
-        th.join()
+    print('algo stopped!')
 
 
-def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from agent
+def run_me(mec_no_, send_path, broker_ip_):  # call this from agent
     global discovering
-    global hosts
     global mec_no
     global host_ip
-    global cloud_ip
     global my_algo
     global broker_ip
 
@@ -1107,16 +1061,52 @@ def run_me(hosts_, mec_no_, cloud_ip_, send_path, broker_ip_):  # call this from
     offloading_group()
     host_ip_set()
 
-    hosts = hosts_
     mec_no = mec_no_
-    cloud_ip = cloud_ip_
     broker_ip = broker_ip_
 
     host_ip = ip_address()
     print('MEC Details: ', hosts)
     discovering = 1
     time.sleep(2)
+    for host in hosts:
+        if hosts[host] != host_ip:
+            mec_rtt[hosts[host]] = []
     start_loop()
+    print('saving data')
     save_and_send(send_path)
-    terminate_process()
-    # plt.close()
+    print('send alert to control')
+    time.sleep(r.uniform(1, 30))
+    print('Terminating process')
+    cmd = 'kill -9 {}'.format(os.getpid())
+    os.system(cmd)
+
+
+def main():
+    global hosts
+    global cloud_ip
+    # (--n, --mec_no_, --cloud_ip, --s_path, --b_ip)  send_path = f'/home/mec/result/{kind}/{count}'
+    mec_nodes = {'mec-9': '192.168.122.119', 'mec-8': '192.168.122.118', 'mec-7': '192.168.122.117',
+                 'mec-6': '192.168.122.116', 'mec-5': '192.168.122.115', 'mec-4': '192.168.122.114',
+                 'mec-3': '192.168.122.113', 'mec-2': '192.168.122.112', 'mec-1': '192.168.122.111',
+                 }
+    gui = {'osboxes-0': '192.168.122.110'}
+    cloud_ips = ['192.168.200.11', '192.168.200.12']
+    b_ip = '192.168.122.111'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--n', type=int, default=1.0, help='Number of MEC nodes')
+    parser.add_argument('--p', type=str, default='/home/mec/result/python', help='Path to send result: homo_1')
+    args = parser.parse_args()
+
+    kind, count = args.p.split('_')
+    send_path = f'/home/mec/result/{kind}/{count}'
+
+    ho = sorted(list(mec_nodes))[:args.n - 1]
+    hosts = {host: mec_nodes[host] for host in ho if ho != get_hostname()}.update(gui)
+
+    ho += ['osboxes-0']
+    cloud_ip = cloud_ips[ho.index(get_hostname()) % 2]
+    run_me(mec_no_=args.n, send_path=send_path, broker_ip_=b_ip)
+
+
+if __name__ == '__main__':
+    main()
