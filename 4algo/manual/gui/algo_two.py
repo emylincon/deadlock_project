@@ -1132,7 +1132,7 @@ def main():
     send_path = f'/home/mec/result/{kind}/{count}'
 
     ho = sorted(list(mec_nodes))[:args.n - 1]
-    hosts = {host: mec_nodes[host] for host in ho if ho != get_hostname()}.update(gui)
+    hosts = {**{host: mec_nodes[host] for host in ho if ho != get_hostname()}, **gui}
 
     ho += ['osboxes-0']
     cloud_ip = cloud_ips[ho.index(get_hostname()) % 2]

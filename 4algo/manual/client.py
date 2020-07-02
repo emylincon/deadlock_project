@@ -390,7 +390,7 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
 
     input('start: ')
     print('experiment started!')
-    
+
     _data_ = split_list(data[len(hosts)], int(host_id))
     for i in range(len(_data_)):
         seq = i
@@ -441,7 +441,7 @@ def main():
                  }
     gui = {'osboxes-0': '192.168.122.110'}
 
-    parser = argparse.ArgumentParser()   # --n=4 --a=1 --kind= --p=homo_1
+    parser = argparse.ArgumentParser()   # --n=4 --a=1 --p=homo_1
     parser.add_argument('--n', type=int, default=1.0, help='Number of MEC nodes')
     parser.add_argument('--a', type=int, help='algorithm id')
     parser.add_argument('--p', type=str, default='/home/mec/result/python', help='Path to send result: homo_1')
@@ -451,7 +451,7 @@ def main():
     send_path = f'/home/mec/result/{kind}/{count}'
 
     ho_ = sorted(list(mec_nodes))[:args.n - 1]
-    h_hosts = {host: mec_nodes[host] for host in ho_ if ho_ != get_hostname()}.update(gui)
+    h_hosts = {**{host: mec_nodes[host] for host in ho if ho != get_hostname()}, **gui}
 
     algo_nos = {1: 2, 2: 3, 3: 7, 4: 10, 5: 12, 6: 16}
     al_id = algo_nos[args.a]
