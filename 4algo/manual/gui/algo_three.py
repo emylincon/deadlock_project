@@ -1030,11 +1030,6 @@ def start_loop():
 
         except KeyboardInterrupt:
             print('\nProgramme Terminated')
-            stop = False
-            cmd = 'kill -9 {}'.format(os.getpid())
-            os.system(cmd)
-            print('done')
-            # os.system('kill -9 {}'.format(os.getpid()))
             break
     print('algo stopped!')
 
@@ -1065,7 +1060,6 @@ def run_me(mec_no_, send_path, broker_ip_):  # call this from agent
     start_loop()
     print('saving data')
     save_and_send(send_path)
-    print('send alert to control')
     time.sleep(r.uniform(1, 30))
     print('Terminating process')
     cmd = 'kill -9 {}'.format(os.getpid())
