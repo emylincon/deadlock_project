@@ -1,8 +1,6 @@
 from functools import reduce
-from sys import *
 import numpy as np
 import random as r
-import ping_code as pc
 import socket
 import struct
 import subprocess as sp
@@ -339,8 +337,18 @@ def host_ip_set():
         ip_set.add(', '.join(addresses))
 
 
+def ping(host):
+    cmd = [f'ping -c 1 {host}']
+    output = str(sp.check_output(cmd, shell=True), 'utf-8').split('\n')
+    try:
+        value = float(output[-2].split('=')[-1].split('/')[0])
+    except ValueError:
+        value = None
+    return value
+
+
 def get_rtt(host):
-    rtt = pc.verbose_ping(host)
+    rtt = ping(host)
     if rtt:
         return round(rtt, 4)
     else:

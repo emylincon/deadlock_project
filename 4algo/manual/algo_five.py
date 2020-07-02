@@ -17,7 +17,7 @@ import smtplib
 import config
 import paramiko
 import argparse
-import pickle
+
 
 hosts = {}  # {hostname: ip}
 
