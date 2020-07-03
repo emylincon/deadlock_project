@@ -411,13 +411,21 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
         drawnow(plot_performance)
         time.sleep(3)
     print('Client Finished')
-    while True:
-        if KeyboardInterrupt:
-            save_data()
-            time.sleep(1)
-            cmd = 'kill -9 {}'.format(os.getpid())
-            os.system(cmd)
-            print('\nProgramme terminating')
+
+    try:
+        time.sleep(5*60)
+        save_data()
+        print('\nProgramme terminating')
+        time.sleep(1)
+        cmd = 'kill -9 {}'.format(os.getpid())
+        os.system(cmd)
+
+    except KeyboardInterrupt:
+        save_data()
+        print('\nProgramme terminating')
+        time.sleep(1)
+        cmd = 'kill -9 {}'.format(os.getpid())
+        os.system(cmd)
 
 
 def get_mec_details(mec_dict, algo_id_):
