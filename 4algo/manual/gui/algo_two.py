@@ -364,8 +364,9 @@ def get_time():
     try:
         _time_.append(g[1])
     except IndexError:
-        pass
+        _time_.append('0')
     return _time_
+
 
 
 def gcd(a, b):
