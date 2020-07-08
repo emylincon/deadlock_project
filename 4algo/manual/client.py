@@ -413,7 +413,7 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
     print('Client Finished')
 
     try:
-        time.sleep(5*60)
+        time.sleep(6*60)
         save_data()
         print('\nProgramme terminating')
         time.sleep(1)
