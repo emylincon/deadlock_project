@@ -4,8 +4,8 @@
 ##### Please get permission before use
 @Author: Emeka Emmanuel Ugwuanyi ugwuanye@lsbu.ac.uk with contributions from Saptarshi Ghosh
 
-### The distribution of tasks used 
-`g/g/1 (((23**r.randrange(1, 1331)) % r.randrange(1, 1777)) % 5)`
+### Note for self
+` (((23**r.randrange(1, 1331)) % r.randrange(1, 1777)) % 5)`
 
 ### ssh setup
 ```bash
