@@ -1044,7 +1044,7 @@ def start_loop():
         threads_[-1].daemon = True
         threads_[-1].start()
 
-    #input('start..')
+    input('start..')
     print('========= Waiting for tasks ==========')
     _time_ = dt.datetime.now()
     while True:
