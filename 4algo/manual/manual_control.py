@@ -109,7 +109,7 @@ def send_client(host_, no_mec, algo_no, send_path):
         algo_nos = {1: 2, 2: 3, 3: 7, 4: 10, 5: 12, 6: 16}
 
         p = '/home/osboxes/deadlock_project/4algo/manual/'
-        cmd = f"python3 {p}/client.py --n={no_mec} --a={algo_nos[algo_no]} --p={send_path}"
+        cmd = f"python3 {p}/1client.py --n={no_mec} --a={algo_nos[algo_no]} --p={send_path}"
 
         c.exec_command(cmd)
     except Exception as e:
