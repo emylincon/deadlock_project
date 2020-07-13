@@ -18,7 +18,7 @@ import smtplib
 import config
 import paramiko
 import argparse
-
+import pickle
 
 _tasks = {'t1': {'wcet': 3, 'period': 20, 'deadline': 15},
           't2': {'wcet': 1, 'period': 5, 'deadline': 4},

@@ -365,6 +365,26 @@ def save_data():
     send_email(result)
 
 
+class BrokerSend:
+    def __init__(self, user, pw, ip, sub_topic, data):
+        self.user = user
+        self.pw = pw
+        self.ip = ip
+        self.port = 1883
+        self.topic = sub_topic
+        self.response = None
+        self.client = mqtt.Client()
+        self.client.username_pw_set(self.user, self.pw)
+        self.client.connect(self.ip, self.port, 60)
+        self.data = data
+
+    def publish(self):
+        self.client.publish(self.topic, self.data)
+
+    def __del__(self):
+        print('BrokerSend Object Deleted!')
+
+
 def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_) homo/hetero
     global record
     global client_id_
@@ -415,6 +435,10 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
     try:
         time.sleep(6*60)
         save_data()
+        time.sleep(r.randrange(20))
+        data = pickle.dumps([get_hostname(), ip_address()])
+        broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': '192.168.122.111', 'data': data}
+        BrokerSend(**broker_dict).publish()
         print('\nProgramme terminating')
         time.sleep(1)
         cmd = 'kill -9 {}'.format(os.getpid())
