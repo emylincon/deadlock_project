@@ -391,7 +391,7 @@ def run_me(mec_dict, algo_id_, exp_kind):  # get_mec_details(mec_dict, algo_id_)
     global seq
 
     os.system('clear')
-    os.system(f'echo {len(mec_dict)}/{algo_id_}/{exp_kind} >> started.txt')
+    os.system(f'echo {len(mec_dict)}/{algo_id_}/{exp_kind} >> /home/osboxes/started.txt')
     print("================== Welcome to Client Platform ===================")
     get_mec_details(mec_dict=mec_dict, algo_id_=algo_id_)  # get_mec_details(mec_dict, algo_id_)
     client_id_ = client_id(ip_address())
