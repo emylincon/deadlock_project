@@ -869,7 +869,7 @@ def start_loop():
         threads_[-1].daemon = True
         threads_[-1].start()
 
-    input('start..')
+    #input('start..')
     print('========= Waiting for tasks ==========')
     _time_ = dt.datetime.now()
     while True:
@@ -915,6 +915,26 @@ def start_loop():
     print('algo stopped!')
 
 
+class BrokerSend:
+    def __init__(self, user, pw, ip, sub_topic, data):
+        self.user = user
+        self.pw = pw
+        self.ip = ip
+        self.port = 1883
+        self.topic = sub_topic
+        self.response = None
+        self.client = mqtt.Client()
+        self.client.username_pw_set(self.user, self.pw)
+        self.client.connect(self.ip, self.port, 60)
+        self.data = data
+
+    def publish(self):
+        self.client.publish(self.topic, self.data)
+
+    def __del__(self):
+        print('BrokerSend Object Deleted!')
+
+
 def run_me(mec_no_, send_path, broker_ip_):  # call this from agent
     global discovering
     global mec_no
@@ -938,9 +958,15 @@ def run_me(mec_no_, send_path, broker_ip_):  # call this from agent
     for host in hosts:
         if hosts[host] != host_ip:
             mec_rtt[hosts[host]] = []
+    os.system(f'echo {mec_no}/{send_path} >> started.txt')
     start_loop()
     print('saving data')
     save_and_send(send_path)
+    print('send alert to control')
+    time.sleep(r.randrange(20))
+    data = pickle.dumps([get_hostname(), host_ip])
+    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': '192.168.122.111', 'data': data}
+    BrokerSend(**broker_dict).publish()
     time.sleep(r.uniform(1, 30))
     print('Terminating process')
     cmd = 'kill -9 {}'.format(os.getpid())

@@ -995,7 +995,7 @@ def start_loop():
         threads_[-1].daemon = True
         threads_[-1].start()
 
-    input('start..')
+    #input('start..')
     print('========= Waiting for tasks ==========')
     _time_ = dt.datetime.now()
     while True:
@@ -1082,6 +1082,7 @@ def run_me(mec_no_, send_path, broker_ip_):  # call this from agent
     for host in hosts:
         if hosts[host] != host_ip:
             mec_rtt[hosts[host]] = []
+    os.system(f'echo {mec_no}/{send_path} >> started.txt')
     start_loop()
     print('saving data')
     save_and_send(send_path)
