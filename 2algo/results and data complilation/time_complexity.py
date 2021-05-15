@@ -38,7 +38,7 @@ plt.plot(x, case4, 'b--*', label=algo_dict['RMS+wait die'], markersize=n)
 plt.plot(x, case5, 'c--s', label=algo_dict['EDF+wound wait'], markersize=n)
 plt.plot(x, case6, 'k--^', label=algo_dict['EDF+wait die'], markersize=n)
 plt.ylabel('No of Process')
-plt.xlabel('No of Resources')
+plt.xlabel('No of Resources Types')
 
 plt.title('Time Complexity Analysis')
 # ax_dl.set_title('Deadlock Prevention/Avoidence Algorithms')
