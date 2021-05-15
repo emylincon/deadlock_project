@@ -996,7 +996,7 @@ def main():
                  'mec-3': '192.168.122.113', 'mec-2': '192.168.122.112', 'mec-1': '192.168.122.111',
                  }
     gui = {'osboxes-0': '192.168.122.110'}
-    cloud_ips = ['192.168.200.11', '192.168.200.12']
+    cloud_ips = ['192.168.122.180', '192.168.122.252']
     b_ip = '192.168.122.111'
     parser = argparse.ArgumentParser()
     parser.add_argument('--n', type=int, default=1.0, help='Number of MEC nodes')
