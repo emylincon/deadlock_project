@@ -8,12 +8,12 @@ n = 10
 
 x = np.arange(1, 100, 10)
 # x = np.arange(1, 7)
-algo_dict = {'RMS+Bankers': r'$ALG_1$',
-             'EDF+Bankers': r'$ALG_2$',
-             'RMS+wound wait': r'$ALG_3$',
-             'RMS+wait die': r'$ALG_4$',
-             'EDF+wound wait': r'$ALG_5$',
-             'EDF+wait die': r'$ALG_6$'}
+algo_dict = {'RMS+Bankers': r'$ALG_1 = n^2 + (2^{\frac{1}{n}} -1)$',
+             'EDF+Bankers': r'$ALG_2 = n (\log_2 n + n)$',
+             'RMS+wound wait': r'$ALG_3 = (2^{\frac{1}{n}} -1) + n$',
+             'RMS+wait die': r'$ALG_4 = (2^{\frac{1}{n}} -1) + n$',
+             'EDF+wound wait': r'$ALG_5 = n (\log_2 n + 1)$',
+             'EDF+wait die': r'$ALG_6 = n (\log_2 n + 1) $'}
 y1 = x ** 2
 y2 = x * (2 ** (1 / x) - 1)
 y3 = x * np.log2(x)
@@ -37,10 +37,10 @@ plt.plot(x, case3, 'y--o', label=algo_dict['RMS+wound wait'], markersize=n)
 plt.plot(x, case4, 'b--*', label=algo_dict['RMS+wait die'], markersize=n)
 plt.plot(x, case5, 'c--s', label=algo_dict['EDF+wound wait'], markersize=n)
 plt.plot(x, case6, 'k--^', label=algo_dict['EDF+wait die'], markersize=n)
-plt.ylabel('No of Process')
-plt.xlabel('No of Resources Types')
+plt.ylabel('Time Complexity')
+plt.xlabel('No of Process')
 
-plt.title('Time Complexity Analysis')
+plt.title('Time Complexity Comparison for each Algorithm')
 # ax_dl.set_title('Deadlock Prevention/Avoidence Algorithms')
 
 plt.legend()
